@@ -42,13 +42,18 @@ namespace StarterApi.Application.Modules.Users.Services
         {
             try
             {
+                // Get default role first
+                var defaultRoleId = await GetDefaultRoleId();
+
                 // 1. Create user in tenant database first
                 var tenantUser = new TenantUser
                 {
                     FirstName = dto.FirstName,
                     LastName = dto.LastName,
                     Email = dto.Email,
-                    MobileNumber = dto.MobileNumber
+                    MobileNumber = dto.MobileNumber,
+                    RoleId = defaultRoleId,
+                    CreatedAt = DateTime.UtcNow
                 };
 
                 await _context.Users.AddAsync(tenantUser);
@@ -73,7 +78,7 @@ namespace StarterApi.Application.Modules.Users.Services
                 {
                     UserId = tenantUser.Id,
                     TenantId = _tenantProvider.GetCurrentTenantId().Value,
-                    RoleId = await GetDefaultRoleId(),
+                    RoleId = defaultRoleId, 
                     CreatedAt = DateTime.UtcNow
                 };
 
