@@ -20,6 +20,8 @@ builder.Services.AddDbContext<RootDbContext>(options =>
 // Register Services and Repositories
 builder.Services.AddScoped<ITenantRepository, TenantRepository>();
 builder.Services.AddScoped<ITenantService, TenantService>();
+builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IUserTenantRepository, UserTenantRepository>();
 
 // Register Services
 builder.Services.AddScoped<TenantDbMigrationService>();

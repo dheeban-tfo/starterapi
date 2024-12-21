@@ -18,51 +18,89 @@ public class TenantDbMigrationService : ITenantDbMigrationService
 
     public async Task CreateTenantDatabaseAsync(Tenant tenant)
     {
+        _logger.LogInformation("Starting database setup for tenant: {TenantName}", tenant.Name);
+        
         try
         {
-            _logger.LogInformation("Creating database for tenant {TenantName}", tenant.Name);
-
             using var context = new TenantDbContext(tenant.ConnectionString);
-
-            // Check if database exists
-            bool dbExists = await context.Database.CanConnectAsync();
             
+            // Check if the database exists
+            bool dbExists = await context.Database.CanConnectAsync();
+            bool hasMigrationsHistory = await CheckMigrationsTableExistsAsync(context);
+
             if (!dbExists)
             {
-                // Apply migrations to create the database with schema
+                _logger.LogInformation("Creating new database for tenant: {TenantName}", tenant.Name);
                 await context.Database.MigrateAsync();
-                
-                // Seed initial data
-                await SeedTenantDataAsync(context);
-                
-                _logger.LogInformation("Successfully created database for tenant {TenantName}", tenant.Name);
+                await EnsureRolesSeededAsync(context);
+            }
+            else if (!hasMigrationsHistory)
+            {
+                _logger.LogInformation("Database exists but needs migration setup for tenant: {TenantName}", tenant.Name);
+                // Drop and recreate the database to handle existing tables
+                await context.Database.EnsureDeletedAsync();
+                await context.Database.MigrateAsync();
+                await EnsureRolesSeededAsync(context);
             }
             else
             {
-                _logger.LogInformation("Database already exists for tenant {TenantName}", tenant.Name);
+                _logger.LogInformation("Checking pending migrations for tenant: {TenantName}", tenant.Name);
+                if ((await context.Database.GetPendingMigrationsAsync()).Any())
+                {
+                    await context.Database.MigrateAsync();
+                }
+                await EnsureRolesSeededAsync(context);
             }
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error creating database for tenant {TenantName}", tenant.Name);
+            _logger.LogError(ex, "Error setting up database for tenant: {TenantName}", tenant.Name);
             throw;
         }
     }
 
-    private async Task SeedTenantDataAsync(TenantDbContext context)
+    private async Task<bool> CheckMigrationsTableExistsAsync(TenantDbContext context)
     {
-        if (!context.Roles.Any())
+        try
         {
+            var conn = context.Database.GetDbConnection();
+            await using var command = conn.CreateCommand();
+            command.CommandText = @"
+                SELECT CASE 
+                    WHEN EXISTS (
+                        SELECT 1 
+                        FROM sys.tables 
+                        WHERE name = '__EFMigrationsHistory'
+                    ) THEN 1
+                    ELSE 0
+                END";
+
+            if (conn.State != System.Data.ConnectionState.Open)
+                await conn.OpenAsync();
+
+            var result = await command.ExecuteScalarAsync();
+            return Convert.ToBoolean(result);
+        }
+        catch
+        {
+            return false;
+        }
+    }
+
+    private async Task EnsureRolesSeededAsync(TenantDbContext context)
+    {
+        if (!await context.Roles.AnyAsync())
+        {
+            _logger.LogInformation("Seeding roles data");
             var roles = new[]
             {
                 new TenantRole { Name = "Admin" },
                 new TenantRole { Name = "User" }
             };
-
+            
             context.Roles.AddRange(roles);
             await context.SaveChangesAsync();
-            
-            _logger.LogInformation("Seeded default roles");
+            _logger.LogInformation("Roles seeded successfully");
         }
     }
 } 

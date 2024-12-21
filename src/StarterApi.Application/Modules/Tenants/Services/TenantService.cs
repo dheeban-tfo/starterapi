@@ -30,7 +30,13 @@ namespace StarterApi.Application.Modules.Tenants.Services
 
         public async Task<TenantDto> CreateTenantAsync(CreateTenantDto dto)
         {
-            var tenant = new Tenant(dto.Name, dto.DatabaseName);
+            var tenant = new Tenant
+            {
+                Name = dto.Name,
+                DatabaseName = dto.DatabaseName,
+                Status = TenantStatus.Active,
+                ConnectionString = $"Server=localhost;Database={dto.DatabaseName};User Id=sa;Password=MyPass@word;TrustServerCertificate=True;MultipleActiveResultSets=true;"
+            };
             
             try
             {
@@ -71,7 +77,7 @@ namespace StarterApi.Application.Modules.Tenants.Services
             if (tenant == null)
                 throw new NotFoundException($"Tenant with ID {id} not found");
 
-            tenant.Deactivate();
+            tenant.Status = TenantStatus.Inactive;
             await _tenantRepository.SaveChangesAsync();
         }
     }
