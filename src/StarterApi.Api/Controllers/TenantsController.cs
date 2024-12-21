@@ -1,11 +1,14 @@
 using Microsoft.AspNetCore.Mvc;
 using StarterApi.Application.Common.Exceptions;
+using Microsoft.AspNetCore.Authorization;
+using StarterApi.Domain.Constants;
 
 
 namespace StarterApi.Api.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize]
     public class TenantsController : ControllerBase
     {
         private readonly ITenantService _tenantService;
@@ -18,6 +21,7 @@ namespace StarterApi.Api.Controllers
         }
 
         [HttpGet]
+        [RequirePermission(Permissions.Tenants.View)]
         public async Task<ActionResult<IEnumerable<TenantDto>>> GetAll()
         {
             try
@@ -33,6 +37,7 @@ namespace StarterApi.Api.Controllers
         }
 
         [HttpGet("{id}")]
+        [RequirePermission(Permissions.Tenants.View)]
         public async Task<ActionResult<TenantDto>> GetById(Guid id)
         {
             try
@@ -52,6 +57,7 @@ namespace StarterApi.Api.Controllers
         }
 
         [HttpPost]
+        [RequirePermission(Permissions.Tenants.Create)]
         public async Task<ActionResult<TenantDto>> Create(CreateTenantDto dto)
         {
             try
@@ -67,6 +73,7 @@ namespace StarterApi.Api.Controllers
         }
 
         [HttpPut("{id}/deactivate")]
+        [RequirePermission(Permissions.Tenants.ManageUsers)]
         public async Task<IActionResult> Deactivate(Guid id)
         {
             try
@@ -86,7 +93,7 @@ namespace StarterApi.Api.Controllers
         }
 
         [HttpGet("current")]
-       // [RequireTenant]
+        [Authorize]
         public async Task<ActionResult<TenantDto>> GetCurrent([FromServices] ITenantProvider tenantProvider)
         {
             var tenantId = tenantProvider.GetCurrentTenantId();

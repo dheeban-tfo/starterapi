@@ -8,6 +8,7 @@ namespace StarterApi.Infrastructure.Services
     {
         private readonly ITenantProvider _tenantProvider;
         private readonly ITenantService _tenantService;
+        private TenantInternalDto _currentTenant;
 
         public TenantInfo(
             ITenantProvider tenantProvider,
@@ -26,15 +27,18 @@ namespace StarterApi.Infrastructure.Services
 
         private TenantInternalDto GetCurrentTenant()
         {
-            var tenantId = _tenantProvider.GetCurrentTenantId() ?? 
-                throw new InvalidOperationException("No tenant ID found in context");
-            
-            var tenant = _tenantService.GetTenantByIdAsync(tenantId).Result;
-            if (tenant == null)
-                throw new InvalidOperationException($"Tenant with ID {tenantId} not found");
+            if (_currentTenant != null)
+                return _currentTenant;
 
-            // Manual mapping
-            return new TenantInternalDto
+            var tenantId = _tenantProvider.GetCurrentTenantId();
+            if (!tenantId.HasValue)
+                return null; // Return null instead of throwing
+
+            var tenant = _tenantService.GetTenantByIdAsync(tenantId.Value).Result;
+            if (tenant == null)
+                return null; // Return null instead of throwing
+
+            _currentTenant = new TenantInternalDto
             {
                 Id = tenant.Id,
                 Name = tenant.Name,
@@ -44,6 +48,8 @@ namespace StarterApi.Infrastructure.Services
                 CreatedAt = tenant.CreatedAt,
                 UpdatedAt = tenant.UpdatedAt
             };
+
+            return _currentTenant;
         }
     }
 } 

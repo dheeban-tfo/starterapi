@@ -24,32 +24,64 @@ public class TenantResolutionMiddleware
         ITenantService tenantService,
         ITenantProvider tenantProvider)
     {
-        var tenantIdHeader = context.Request.Headers["X-TenantId"].FirstOrDefault();
+        _logger.LogInformation("Starting tenant resolution for path: {Path}", context.Request.Path);
 
-        if (!string.IsNullOrEmpty(tenantIdHeader) && Guid.TryParse(tenantIdHeader, out Guid tenantId))
+        var allClaims = context.User.Claims.ToList();
+        _logger.LogInformation("All claims in tenant middleware: {@Claims}", 
+            allClaims.Select(c => new { c.Type, c.Value }));
+
+        if (context.User.Identity?.IsAuthenticated != true)
         {
+            _logger.LogWarning("Request is not authenticated");
+            await _next(context);
+            return;
+        }
+
+        var tokenType = context.User.FindFirst("token_type")?.Value;
+        _logger.LogInformation("Token type from claims: {TokenType}", tokenType);
+
+        if (tokenType != "tenant_token" && tokenType != "base_token")
+        {
+            _logger.LogWarning("Invalid token type: {TokenType}", tokenType);
+            context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+            await context.Response.WriteAsJsonAsync(new { message = "Valid token required" });
+            return;
+        }
+
+        if (tokenType == "tenant_token")
+        {
+            var tenantId = context.User.FindFirst("tenant_id")?.Value;
+            _logger.LogInformation("Tenant ID from claims: {TenantId}", tenantId);
+
+            if (string.IsNullOrEmpty(tenantId) || !Guid.TryParse(tenantId, out Guid parsedTenantId))
+            {
+                _logger.LogWarning("Invalid tenant ID in token: {TenantId}", tenantId);
+                context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+                await context.Response.WriteAsJsonAsync(new { message = "Invalid tenant token" });
+                return;
+            }
+
             try
             {
-                // Verify tenant exists and is active
-                var tenant = await tenantService.GetTenantByIdAsync(tenantId);
+                var tenant = await tenantService.GetTenantByIdAsync(parsedTenantId);
                 if (tenant != null)
                 {
-                    tenantProvider.SetCurrentTenantId(tenantId);
-                    _logger.LogInformation("Tenant resolved: {TenantId}", tenantId);
+                    tenantProvider.SetCurrentTenantId(parsedTenantId);
+                    _logger.LogInformation("Successfully set tenant context: {TenantId}", parsedTenantId);
                 }
                 else
                 {
-                    _logger.LogWarning("Invalid tenant ID provided: {TenantId}", tenantId);
-                    context.Response.StatusCode = StatusCodes.Status400BadRequest;
-                    await context.Response.WriteAsJsonAsync(new { error = "Invalid tenant ID" });
+                    _logger.LogWarning("Tenant not found: {TenantId}", parsedTenantId);
+                    context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+                    await context.Response.WriteAsJsonAsync(new { message = "Invalid tenant" });
                     return;
                 }
             }
-            catch (NotFoundException)
+            catch (Exception ex)
             {
-                _logger.LogWarning("Tenant not found: {TenantId}", tenantId);
-                context.Response.StatusCode = StatusCodes.Status400BadRequest;
-                await context.Response.WriteAsJsonAsync(new { error = "Invalid tenant ID" });
+                _logger.LogError(ex, "Error resolving tenant");
+                context.Response.StatusCode = StatusCodes.Status500InternalServerError;
+                await context.Response.WriteAsJsonAsync(new { message = "Error resolving tenant" });
                 return;
             }
         }

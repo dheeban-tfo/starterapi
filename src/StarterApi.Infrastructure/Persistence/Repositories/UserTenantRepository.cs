@@ -70,5 +70,54 @@ namespace StarterApi.Infrastructure.Persistence.Repositories
                 .Include(ut => ut.User)
                 .FirstOrDefaultAsync(ut => ut.UserId == userId && ut.TenantId == tenantId);
         }
+
+        public async Task<bool> UserHasPermissionAsync(Guid userId, Guid tenantId, string permission)
+    {
+        return await _context.UserTenants
+            .Where(ut => ut.UserId == userId && ut.TenantId == tenantId)
+            .Join(_context.RolePermissions,
+                ut => ut.RoleId,
+                rp => rp.RoleId,
+                (ut, rp) => rp.Permission)
+            .Join(_context.Permissions,
+                rp => rp.Id,
+                p => p.Id,
+                (rp, p) => p.SystemName)
+            .AnyAsync(p => p == permission);
+    }
+
+        public async Task<List<Role>> GetTenantRolesAsync(Guid tenantId)
+        {
+            return await _context.Roles
+                .Where(r => r.TenantId == tenantId)
+                .Include(r => r.RolePermissions)
+                    .ThenInclude(rp => rp.Permission)
+                .ToListAsync();
+        }
+
+        public async Task<List<Permission>> GetTenantPermissionsAsync(Guid tenantId)
+        {
+            return await _context.Permissions
+                .Where(p => _context.RolePermissions
+                    .Any(rp => rp.Permission.Id == p.Id && 
+                              rp.Role.TenantId == tenantId))
+                .ToListAsync();
+        }
+
+        public async Task<List<string>> GetUserPermissionsAsync(Guid userId, Guid tenantId)
+        {
+            return await _context.UserTenants
+                .Where(ut => ut.UserId == userId && ut.TenantId == tenantId)
+                .Join(_context.RolePermissions,
+                    ut => ut.RoleId,
+                    rp => rp.RoleId,
+                    (ut, rp) => rp.Permission)
+                .Join(_context.Permissions,
+                    rp => rp.Id,
+                    p => p.Id,
+                    (rp, p) => p.SystemName)
+                .Distinct()
+                .ToListAsync();
+        }
     }
 }

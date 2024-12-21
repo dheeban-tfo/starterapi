@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 
@@ -33,6 +34,7 @@ namespace StarterApi.Api.Controllers
         }
 
         [HttpPost("request-otp")]
+        [AllowAnonymous]
         public async Task<IActionResult> RequestOtp(OtpRequestDto request)
         {
             try
@@ -48,6 +50,7 @@ namespace StarterApi.Api.Controllers
         }
 
         [HttpPost("verify-otp")]
+        [AllowAnonymous]
         public async Task<ActionResult<AuthResponseDto>> VerifyOtp(OtpVerificationDto request)
         {
             try
@@ -67,6 +70,7 @@ namespace StarterApi.Api.Controllers
         }
 
         [HttpPost("set-tenant")]
+        [Authorize]
         public async Task<ActionResult<TenantContextResponseDto>> SetTenant(SetTenantRequestDto request)
         {
             try
@@ -90,6 +94,7 @@ namespace StarterApi.Api.Controllers
         }
 
         [HttpPost("refresh-token")]
+        [AllowAnonymous]
         public async Task<ActionResult<RefreshTokenResponseDto>> RefreshToken(RefreshTokenRequestDto request)
         {
             try

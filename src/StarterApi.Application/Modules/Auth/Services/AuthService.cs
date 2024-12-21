@@ -144,32 +144,49 @@ namespace StarterApi.Application.Modules.Auth.Services
 
         public async Task<TenantContextResponseDto> SetTenantAsync(SetTenantRequestDto request)
         {
-            var principal = _jwtService.ValidateToken(request.BaseToken);
-            var userId = Guid.Parse(principal.FindFirst(ClaimTypes.NameIdentifier)?.Value);
-            var tokenType = principal.FindFirst("token_type")?.Value;
+            _logger.LogInformation("Setting tenant context. TenantId: {TenantId}", request.TenantId);
 
-            if (tokenType != "base_token")
-                throw new UnauthorizedException("Invalid token type");
-
-            var user = await _userRepository.GetByIdAsync(userId);
-            if (user == null)
-                throw new NotFoundException("User not found");
-
-            var tenantToken = await _tenantTokenService.GenerateTenantTokenAsync(user, request.TenantId);
-            var userTenant = await _userTenantRepository.GetByUserAndTenantIdAsync(userId, request.TenantId);
-            var tenant = await _tenantRepository.GetByIdAsync(request.TenantId);
-
-            return new TenantContextResponseDto
+            try
             {
-                AccessToken = tenantToken,
-                TenantContext = new TenantContextDto
+                var principal = _jwtService.ValidateToken(request.BaseToken);
+                var tokenType = principal.FindFirst("token_type")?.Value;
+                
+                _logger.LogInformation("Token type: {TokenType}", tokenType);
+
+                if (tokenType != "base_token")
                 {
-                    TenantId = tenant.Id,
-                    TenantName = tenant.Name,
-                    Role = userTenant.RoleId.ToString(),
-                    Permissions = new List<string>() // TODO: Get actual permissions
+                    _logger.LogWarning("Invalid token type: {TokenType}", tokenType);
+                    throw new UnauthorizedException("Invalid token type - expected 'base_token'");
                 }
-            };
+
+                var userId = Guid.Parse(principal.FindFirst(ClaimTypes.NameIdentifier)?.Value 
+                    ?? throw new UnauthorizedException("User ID not found in token"));
+
+                var user = await _userRepository.GetByIdAsync(userId);
+                if (user == null)
+                    throw new NotFoundException("User not found");
+
+                var tenantToken = await _tenantTokenService.GenerateTenantTokenAsync(user, request.TenantId);
+                var userTenant = await _userTenantRepository.GetByUserAndTenantIdAsync(userId, request.TenantId);
+                var tenant = await _tenantRepository.GetByIdAsync(request.TenantId);
+
+                return new TenantContextResponseDto
+                {
+                    AccessToken = tenantToken,
+                    TenantContext = new TenantContextDto
+                    {
+                        TenantId = tenant.Id,
+                        TenantName = tenant.Name,
+                        Role = userTenant.RoleId.ToString(),
+                        Permissions = new List<string>() // TODO: Get actual permissions
+                    }
+                };
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error setting tenant context");
+                throw;
+            }
         }
     }
 } 

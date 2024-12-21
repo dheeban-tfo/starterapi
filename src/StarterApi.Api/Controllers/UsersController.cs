@@ -4,11 +4,15 @@ using StarterApi.Application.Modules.Users.Interfaces;
 using StarterApi.Application.Modules.Users.Services;
 using StarterApi.Application.Common.Exceptions;
 using StarterApi.Application.Modules.Users.DTOs;
+using Microsoft.AspNetCore.Authorization;
+using StarterApi.Domain.Constants;
+
 
 namespace StarterApi.Api.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize]
     public class UsersController : ControllerBase
     {
         private readonly ITenantUserService _userService;
@@ -23,6 +27,7 @@ namespace StarterApi.Api.Controllers
         }
 
         [HttpPost]
+        [RequirePermission(Permissions.Users.Create)]
         public async Task<ActionResult<UserDto>> CreateUser(CreateUserDto dto)
         {
             try
@@ -38,6 +43,7 @@ namespace StarterApi.Api.Controllers
         }
 
         [HttpGet]
+        [RequirePermission(Permissions.Users.View)]
         public async Task<ActionResult<IEnumerable<UserDto>>> GetUsers()
         {
             try
@@ -53,6 +59,7 @@ namespace StarterApi.Api.Controllers
         }
 
         [HttpGet("{id}")]
+        [RequirePermission(Permissions.Users.View)]
         public async Task<ActionResult<UserDto>> GetUser(Guid id)
         {
             try

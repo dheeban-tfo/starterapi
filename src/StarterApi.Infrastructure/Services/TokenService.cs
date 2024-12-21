@@ -26,7 +26,7 @@ public class TokenService : ITokenService
 
     public string GenerateToken(IEnumerable<Claim> claims)
     {
-        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_settings.Key));
+        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_settings.SecretKey));
         var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
         var token = new JwtSecurityToken(
@@ -51,7 +51,7 @@ public class TokenService : ITokenService
     public ClaimsPrincipal ValidateToken(string token)
     {
         var tokenHandler = new JwtSecurityTokenHandler();
-        var key = Encoding.UTF8.GetBytes(_settings.Key);
+        var key = Encoding.UTF8.GetBytes(_settings.SecretKey);
         var tokenValidationParameters = new TokenValidationParameters
         {
             ValidateIssuer = true,

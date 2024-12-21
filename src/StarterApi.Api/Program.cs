@@ -15,6 +15,9 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using System.Text;
 using StarterApi.Application.Interfaces;
 using StarterApi.Domain.Settings;
+using StarterApi.Domain.Constants;
+using Microsoft.AspNetCore.Authorization;
+using System.Reflection;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -24,17 +27,24 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
-    c.SwaggerDoc("v1", new OpenApiInfo { Title = "StarterApi", Version = "v1" });
-    
-    // Add X-TenantId header parameter globally
-    c.AddSecurityDefinition("TenantId", new OpenApiSecurityScheme
+    c.SwaggerDoc("v1", new OpenApiInfo
     {
-        Type = SecuritySchemeType.ApiKey,
-        In = ParameterLocation.Header,
-        Name = "X-TenantId",
-        Description = "Tenant ID for multi-tenancy",
+        Title = "StarterApi",
+        Version = "v1",
+        Description = "API for StarterApi with JWT Authentication"
     });
 
+    // Add JWT Bearer Authentication
+    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Description = "JWT Authorization header using the Bearer scheme. Example: 'Bearer {token}'",
+        Name = "Authorization",
+        In = ParameterLocation.Header,
+        Type = SecuritySchemeType.ApiKey,
+        Scheme = "Bearer"
+    });
+
+    // Add Security Requirement
     c.AddSecurityRequirement(new OpenApiSecurityRequirement
     {
         {
@@ -43,12 +53,20 @@ builder.Services.AddSwaggerGen(c =>
                 Reference = new OpenApiReference
                 {
                     Type = ReferenceType.SecurityScheme,
-                    Id = "TenantId"
+                    Id = "Bearer"
                 }
             },
-            new string[] {}
+            Array.Empty<string>()
         }
     });
+
+    // Add XML comments if they exist
+    var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+    var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+    if (File.Exists(xmlPath))
+    {
+        c.IncludeXmlComments(xmlPath);
+    }
 });
 
 // Add AutoMapper
@@ -103,6 +121,48 @@ builder.Services.AddScoped<ITenantTokenService, TenantTokenService>(); // Handle
 builder.Services.AddScoped<IAuthService, AuthService>();            // Handles authentication flow
 builder.Services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
 
+// Add JWT Authentication
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+.AddJwtBearer(options =>
+{
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidateLifetime = true,
+        ValidateIssuerSigningKey = true,
+        ValidIssuer = builder.Configuration["JwtSettings:Issuer"],
+        ValidAudience = builder.Configuration["JwtSettings:Audience"],
+        IssuerSigningKey = new SymmetricSecurityKey(
+            Encoding.UTF8.GetBytes(builder.Configuration["JwtSettings:SecretKey"]))
+    };
+});
+
+// Add Authorization with Policies
+builder.Services.AddAuthorization(options =>
+{
+    // Add policies for each permission
+    foreach (var property in typeof(Permissions).GetNestedTypes()
+        .SelectMany(t => t.GetFields())
+        .Where(f => f.IsStatic))
+    {
+        var permission = property.GetValue(null)?.ToString();
+        if (!string.IsNullOrEmpty(permission))
+        {
+           // logger.LogInformation("Registering policy for permission: {Permission}", permission);
+            options.AddPolicy($"Permission_{permission}", policy =>
+                policy.Requirements.Add(new PermissionRequirement(permission)));
+        }
+    }
+});
+
+// Register the authorization handler
+builder.Services.AddScoped<IAuthorizationHandler, PermissionAuthorizationHandler>();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline
@@ -114,11 +174,13 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-// Add tenant resolution middleware before authorization
-app.UseTenantResolution();
-
-// Add JWT Authorization middleware before MVC
+// First JWT authorization to validate token and set claims
 app.UseMiddleware<JwtAuthorizationMiddleware>();
+
+// Then tenant resolution using the claims
+app.UseMiddleware<TenantResolutionMiddleware>();
+
+// Then built-in auth middleware
 app.UseAuthentication();
 app.UseAuthorization();
 
