@@ -10,6 +10,7 @@ namespace StarterApi.Infrastructure.Persistence.Contexts
 
         public DbSet<TenantUser> Users { get; set; }
         public DbSet<TenantRole> Roles { get; set; }
+        public DbSet<TenantPermission> Permissions { get; set; }
 
         public TenantDbContext(string connectionString)
         {
@@ -40,6 +41,19 @@ namespace StarterApi.Infrastructure.Persistence.Contexts
                 entity.ToTable("Roles");
                 entity.HasKey(e => e.Id);
                 entity.Property(e => e.Name).IsRequired();
+            });
+
+            modelBuilder.Entity<TenantPermission>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.Name).IsRequired().HasMaxLength(100);
+                entity.Property(e => e.SystemName).IsRequired().HasMaxLength(100);
+                entity.Property(e => e.Group).IsRequired().HasMaxLength(50);
+                
+                entity.HasOne(e => e.Role)
+                    .WithMany(r => r.Permissions)
+                    .HasForeignKey(e => e.TenantRoleId)
+                    .OnDelete(DeleteBehavior.Cascade);
             });
         }
     }

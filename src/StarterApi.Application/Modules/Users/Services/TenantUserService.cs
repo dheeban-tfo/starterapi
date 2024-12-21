@@ -73,7 +73,8 @@ namespace StarterApi.Application.Modules.Users.Services
                 {
                     UserId = tenantUser.Id,
                     TenantId = _tenantProvider.GetCurrentTenantId().Value,
-                    RoleId =  Guid.Empty
+                    RoleId = await GetDefaultRoleId(),
+                    CreatedAt = DateTime.UtcNow
                 };
 
                 await _userTenantRepository.AddAsync(userTenant);
@@ -101,6 +102,17 @@ namespace StarterApi.Application.Modules.Users.Services
                 throw new NotFoundException($"User with ID {id} not found");
 
             return _mapper.Map<UserDto>(user);
+        }
+
+       private async Task<Guid> GetDefaultRoleId()
+        {
+            var defaultRole = await _context.Roles
+                .FirstOrDefaultAsync(r => r.Name == "User");
+            
+            if (defaultRole == null)
+                throw new NotFoundException("Default role not found");
+                
+            return defaultRole.Id;
         }
     }
 } 

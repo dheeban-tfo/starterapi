@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 
 using StarterApi.Domain.Entities;
+using StarterApi.Infrastructure.Persistence.Configurations;
 
 namespace StarterApi.Infrastructure.Persistence.Contexts
 {
@@ -11,6 +12,9 @@ namespace StarterApi.Infrastructure.Persistence.Contexts
         public DbSet<UserTenant> UserTenants { get; set; }
         public DbSet<OtpRequest> OtpRequests { get; set; }
         public DbSet<RefreshToken> RefreshTokens { get; set; }
+        public DbSet<Permission> Permissions { get; set; }
+        public DbSet<Role> Roles { get; set; }
+        public DbSet<RolePermission> RolePermissions { get; set; }
 
         public RootDbContext(DbContextOptions<RootDbContext> options) : base(options)
         {
@@ -37,6 +41,10 @@ namespace StarterApi.Infrastructure.Persistence.Contexts
                 .HasOne(rt => rt.User)
                 .WithMany()
                 .HasForeignKey(rt => rt.UserId);
+
+            modelBuilder.ApplyConfiguration(new PermissionConfiguration());
+            modelBuilder.ApplyConfiguration(new RoleConfiguration());
+            modelBuilder.ApplyConfiguration(new RolePermissionConfiguration());
         }
     }
 } 
