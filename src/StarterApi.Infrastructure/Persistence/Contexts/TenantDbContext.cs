@@ -1,39 +1,46 @@
 using Microsoft.EntityFrameworkCore;
+using StarterApi.Application.Common.Interfaces;
+using StarterApi.Domain.Entities;
 
-public class TenantDbContext : DbContext
+namespace StarterApi.Infrastructure.Persistence.Contexts
 {
-    private readonly string _connectionString;
-
-    public DbSet<TenantUser> Users { get; set; }
-    public DbSet<TenantRole> Roles { get; set; }
-
-    public TenantDbContext(string connectionString)
+    public class TenantDbContext : DbContext, ITenantDbContext
     {
-        _connectionString = connectionString;
-    }
+        private readonly string _connectionString;
 
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-    {
-        optionsBuilder.UseSqlServer(_connectionString);
-    }
+        public DbSet<TenantUser> Users { get; set; }
+        public DbSet<TenantRole> Roles { get; set; }
 
-    protected override void OnModelCreating(ModelBuilder modelBuilder)
-    {
-        base.OnModelCreating(modelBuilder);
-
-        modelBuilder.Entity<TenantUser>(entity =>
+        public TenantDbContext(string connectionString)
         {
-            entity.ToTable("Users");
-            entity.HasKey(e => e.Id);
-            entity.Property(e => e.Name).IsRequired();
-            entity.Property(e => e.Email).IsRequired();
-        });
+            _connectionString = connectionString;
+        }
 
-        modelBuilder.Entity<TenantRole>(entity =>
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            entity.ToTable("Roles");
-            entity.HasKey(e => e.Id);
-            entity.Property(e => e.Name).IsRequired();
-        });
+            optionsBuilder.UseSqlServer(_connectionString);
+        }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<TenantUser>(entity =>
+            {
+                entity.ToTable("Users");
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.FirstName).IsRequired();
+                entity.Property(e => e.LastName).IsRequired();
+                entity.Property(e => e.Email).IsRequired();
+                entity.Property(e => e.MobileNumber).IsRequired();
+            });
+
+            modelBuilder.Entity<TenantRole>(entity =>
+            {
+                entity.ToTable("Roles");
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.Name).IsRequired();
+            });
+        }
     }
-} 
+}

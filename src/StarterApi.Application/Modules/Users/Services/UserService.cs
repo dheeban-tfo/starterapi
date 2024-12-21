@@ -1,5 +1,6 @@
 using AutoMapper;
 using Microsoft.Extensions.Logging;
+using StarterApi.Application.Common.Exceptions;
 using StarterApi.Application.Modules.Users.DTOs;
 using StarterApi.Application.Modules.Users.Interfaces;
 using StarterApi.Domain.Entities;
@@ -30,16 +31,12 @@ namespace StarterApi.Application.Modules.Users.Services
 
         public async Task<UserDto> CreateUserAsync(CreateUserDto dto)
         {
-            var existingUser = await _userRepository.GetByEmailAsync(dto.Email);
-            if (existingUser != null)
-                throw new InvalidOperationException($"User with email {dto.Email} already exists");
-
             var user = new User
             {
-                Email = dto.Email,
                 FirstName = dto.FirstName,
                 LastName = dto.LastName,
-                PasswordHash = dto.PasswordHash,
+                Email = dto.Email,
+                MobileNumber = dto.MobileNumber,
                 UserType = dto.UserType,
                 IsActive = true
             };

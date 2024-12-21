@@ -1,8 +1,11 @@
 using System;
 
-public class NotFoundException : Exception
+namespace StarterApi.Application.Common.Exceptions
 {
-    public NotFoundException(string message) : base(message)
+    public class NotFoundException : Exception
     {
+        public NotFoundException(string message) : base(message)
+        {
+        }
     }
 } 

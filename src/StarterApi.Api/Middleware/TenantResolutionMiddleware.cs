@@ -3,6 +3,7 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
+using StarterApi.Application.Common.Exceptions;
 
 
 public class TenantResolutionMiddleware

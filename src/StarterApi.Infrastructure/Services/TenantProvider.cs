@@ -1,28 +1,28 @@
 using Microsoft.AspNetCore.Http;
-using System;
-using System.Linq;
+using StarterApi.Application.Common.Interfaces;
 
-public class TenantProvider : ITenantProvider
+namespace StarterApi.Infrastructure.Services
 {
-    private readonly IHttpContextAccessor _httpContextAccessor;
-    private const string TenantIdHeader = "X-TenantId";
-
-    public TenantProvider(IHttpContextAccessor httpContextAccessor)
+    public class TenantProvider : ITenantProvider
     {
-        _httpContextAccessor = httpContextAccessor;
-    }
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
-    public Guid? GetCurrentTenantId()
-    {
-        var tenantIdString = _httpContextAccessor.HttpContext?.Request.Headers[TenantIdHeader].FirstOrDefault();
-        return Guid.TryParse(tenantIdString, out Guid tenantId) ? tenantId : null;
-    }
-
-    public void SetCurrentTenantId(Guid tenantId)
-    {
-        if (_httpContextAccessor.HttpContext != null)
+        public TenantProvider(IHttpContextAccessor httpContextAccessor)
         {
-            _httpContextAccessor.HttpContext.Request.Headers[TenantIdHeader] = tenantId.ToString();
+            _httpContextAccessor = httpContextAccessor;
+        }
+
+        public Guid? GetCurrentTenantId()
+        {
+            return _httpContextAccessor.HttpContext?.Items["TenantId"] as Guid?;
+        }
+
+        public void SetCurrentTenantId(Guid tenantId)
+        {
+            if (_httpContextAccessor.HttpContext != null)
+            {
+                _httpContextAccessor.HttpContext.Items["TenantId"] = tenantId;
+            }
         }
     }
 } 

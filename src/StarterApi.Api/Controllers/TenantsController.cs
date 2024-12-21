@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using StarterApi.Application.Common.Exceptions;
 
 
 namespace StarterApi.Api.Controllers

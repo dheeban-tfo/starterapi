@@ -37,7 +37,7 @@ public class RootDataSeeder
                 Email = "admin@example.com",
                 FirstName = "Admin",
                 LastName = "User",
-                PasswordHash = "hashed_password",
+                MobileNumber = "1234567890",
                 UserType = UserType.TenantAdmin,
                 IsActive = true
             };

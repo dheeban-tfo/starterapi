@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using AutoMapper;
 using StarterApi.Domain.Entities;
 using Microsoft.Extensions.Logging;
+using StarterApi.Application.Common.Exceptions;
 
 
 
@@ -56,13 +57,22 @@ namespace StarterApi.Application.Modules.Tenants.Services
             }
         }
 
-        public async Task<TenantDto> GetTenantByIdAsync(Guid id)
+        public async Task<TenantInternalDto> GetTenantByIdAsync(Guid id)
         {
             var tenant = await _tenantRepository.GetByIdAsync(id);
             if (tenant == null)
                 throw new NotFoundException($"Tenant with ID {id} not found");
 
-            return _mapper.Map<TenantDto>(tenant);
+            return new TenantInternalDto
+            {
+                Id = tenant.Id,
+                Name = tenant.Name,
+                DatabaseName = tenant.DatabaseName,
+                Status = tenant.Status.ToString(),
+                ConnectionString = tenant.ConnectionString,
+                CreatedAt = tenant.CreatedAt,
+                UpdatedAt = tenant.UpdatedAt
+            };
         }
 
         public async Task<IEnumerable<TenantDto>> GetAllTenantsAsync()
@@ -79,6 +89,11 @@ namespace StarterApi.Application.Modules.Tenants.Services
 
             tenant.Status = TenantStatus.Inactive;
             await _tenantRepository.SaveChangesAsync();
+        }
+
+        public Task<bool> DeleteTenantAsync(Guid id)
+        {
+            throw new NotImplementedException();
         }
     }
 } 
