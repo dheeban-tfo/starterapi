@@ -10,6 +10,12 @@ using Microsoft.OpenApi.Models;
 using StarterApi.Infrastructure.Services;
 using StarterApi.Application.Modules.Auth.Services;
 
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using System.Text;
+using StarterApi.Application.Interfaces;
+using StarterApi.Domain.Settings;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container
@@ -86,6 +92,31 @@ builder.Services.AddScoped<RootDataSeeder>();
 builder.Services.AddScoped<IOtpRepository, OtpRepository>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 
+// Add JWT Configuration
+builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("JwtSettings"));
+
+// Add Authentication
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options => {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = builder.Configuration["JwtSettings:Issuer"],
+            ValidAudience = builder.Configuration["JwtSettings:Audience"],
+            IssuerSigningKey = new SymmetricSecurityKey(
+                Encoding.UTF8.GetBytes(builder.Configuration["JwtSettings:Key"]))
+        };
+    });
+
+// Register JWT Service
+builder.Services.AddScoped<IJwtService, JwtService>();
+
+// Register RefreshToken Repository
+builder.Services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline
@@ -100,7 +131,9 @@ app.UseHttpsRedirection();
 // Add tenant resolution middleware before authorization
 app.UseTenantResolution();
 
+app.UseAuthentication();
 app.UseAuthorization();
+
 app.MapControllers();
 
 // Apply migrations and seed data

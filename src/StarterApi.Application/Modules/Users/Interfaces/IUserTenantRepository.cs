@@ -6,5 +6,5 @@ public interface IUserTenantRepository
     Task<IEnumerable<UserTenant>> GetByTenantIdAsync(Guid tenantId);
     Task SaveChangesAsync();
     Task<UserTenant> GetByMobileNumberAsync(string mobileNumber);
-  
+    Task<UserTenant> GetByUserAndTenantIdAsync(Guid userId, Guid tenantId);
 }

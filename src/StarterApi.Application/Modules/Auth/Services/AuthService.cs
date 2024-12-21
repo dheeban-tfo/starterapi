@@ -3,8 +3,12 @@ using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.Extensions.Logging;
 using StarterApi.Application.Common.Exceptions;
+using Microsoft.AspNetCore.Http;
 using StarterApi.Application.Modules.Users.DTOs;
-
+using StarterApi.Domain.Entities;
+using StarterApi.Application.Interfaces;
+using Microsoft.Extensions.Options;
+using StarterApi.Domain.Settings;
 
 namespace StarterApi.Application.Modules.Auth.Services
 {
@@ -16,6 +20,10 @@ namespace StarterApi.Application.Modules.Auth.Services
         private readonly IUserRepository _userRepository;
         private readonly IMapper _mapper;
         private readonly ILogger<AuthService> _logger;
+        private readonly IJwtService _jwtService;
+        private readonly IOptions<JwtSettings> _jwtSettings;
+        private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly IRefreshTokenRepository _refreshTokenRepository;
 
         public AuthService(
             IOtpRepository otpRepository,
@@ -23,7 +31,11 @@ namespace StarterApi.Application.Modules.Auth.Services
             ITenantProvider tenantProvider,
             IUserRepository userRepository,
             IMapper mapper,
-            ILogger<AuthService> logger)
+            ILogger<AuthService> logger,
+            IJwtService jwtService,
+            IOptions<JwtSettings> jwtSettings,
+            IHttpContextAccessor httpContextAccessor,
+            IRefreshTokenRepository refreshTokenRepository)
         {
             _otpRepository = otpRepository;
             _userTenantRepository = userTenantRepository;
@@ -31,6 +43,10 @@ namespace StarterApi.Application.Modules.Auth.Services
             _userRepository = userRepository;
             _mapper = mapper;
             _logger = logger;
+            _jwtService = jwtService;
+            _jwtSettings = jwtSettings;
+            _httpContextAccessor = httpContextAccessor;
+            _refreshTokenRepository = refreshTokenRepository;
         }
 
         public async Task<bool> RequestOtpAsync(OtpRequestDto request)
@@ -97,9 +113,27 @@ namespace StarterApi.Application.Modules.Auth.Services
 
             _logger.LogInformation("OTP verified successfully for user in tenant: {TenantId}", userTenant.TenantId);
 
+            var accessToken = await _jwtService.GenerateAccessTokenAsync(user, userTenant.TenantId);
+            var refreshToken = _jwtService.GenerateRefreshToken();
+
+            // Save refresh token
+            var refreshTokenEntity = new RefreshToken
+            {
+                Token = refreshToken,
+                UserId = user.Id,
+                ExpiresAt = DateTime.UtcNow.AddDays(_jwtSettings.Value.RefreshTokenDurationInDays),
+                IpAddress = _httpContextAccessor.HttpContext?.Connection.RemoteIpAddress?.ToString(),
+                UserAgent = _httpContextAccessor.HttpContext?.Request.Headers["User-Agent"].ToString()
+            };
+
+            await _refreshTokenRepository.AddAsync(refreshTokenEntity);
+            await _refreshTokenRepository.SaveChangesAsync();
+
             return new AuthResponseDto
             {
-                Token = "mock_jwt_token", // TODO: Implement JWT generation
+                AccessToken = accessToken,
+                RefreshToken = refreshToken,
+                ExpiresAt = DateTime.UtcNow.AddMinutes(_jwtSettings.Value.AccessTokenDurationInMinutes),
                 User = _mapper.Map<UserDto>(user)
             };
         }

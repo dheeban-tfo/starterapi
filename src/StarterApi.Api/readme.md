@@ -97,6 +97,8 @@ dotnet ef migrations add InitialTenantSchema --context TenantDbContext --output-
 cd ../StarterApi.Api
 dotnet ef database update --context RootDbContext
 
+dotnet ef migrations add AddRefreshTokensTable --context RootDbContext
+
    ```
 
 2. **Adding Root Features**

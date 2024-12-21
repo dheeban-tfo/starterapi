@@ -63,5 +63,12 @@ namespace StarterApi.Infrastructure.Persistence.Repositories
             return await _context.UserTenants
                 .AnyAsync(ut => ut.UserId == userId && ut.TenantId == tenantId);
         }
+
+        public async Task<UserTenant> GetByUserAndTenantIdAsync(Guid userId, Guid tenantId)
+        {
+            return await _context.UserTenants
+                .Include(ut => ut.User)
+                .FirstOrDefaultAsync(ut => ut.UserId == userId && ut.TenantId == tenantId);
+        }
     }
 }
