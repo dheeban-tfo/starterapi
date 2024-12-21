@@ -46,5 +46,11 @@ namespace StarterApi.Infrastructure.Persistence.Repositories
         {
             await _context.SaveChangesAsync();
         }
+
+        public async Task<User> GetByMobileNumberAsync(string mobileNumber)
+        {
+            return await _context.Users
+                .FirstOrDefaultAsync(u => u.MobileNumber == mobileNumber);
+        }
     }
 } 

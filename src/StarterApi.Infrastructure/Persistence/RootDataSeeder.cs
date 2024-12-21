@@ -83,7 +83,13 @@ public class RootDataSeeder
             // Add admin user to each tenant
             if (!await _userTenantRepository.ExistsAsync(adminUser.Id, tenant.Id))
             {
-                var userTenant = new UserTenant(adminUser, tenant, Guid.Parse("d42868ae-b072-486d-9077-d0d527f3ba39"));
+               // var userTenant = new UserTenant(adminUser, tenant, Guid.Parse("d42868ae-b072-486d-9077-d0d527f3ba39"));
+                var userTenant = new UserTenant
+                {
+                    UserId = adminUser.Id,
+                    TenantId = tenant.Id,
+                    RoleId = Guid.Parse("d42868ae-b072-486d-9077-d0d527f3ba39")
+                };
                 await _userTenantRepository.AddAsync(userTenant);
                 await _userTenantRepository.SaveChangesAsync();
             }

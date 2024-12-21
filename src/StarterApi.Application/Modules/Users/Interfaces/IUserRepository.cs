@@ -6,4 +6,6 @@ public interface IUserRepository
     Task<User> AddAsync(User user);
     Task<User> UpdateAsync(User user);
     Task SaveChangesAsync();
+     Task<User> GetByMobileNumberAsync(string mobileNumber);
 }
+

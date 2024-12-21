@@ -2,22 +2,14 @@ using StarterApi.Domain.Entities;
 
 public class UserTenant : BaseEntity
 {
-    public Guid UserId { get; private set; }
-    public User User { get; private set; }
+    public Guid UserId { get;  set; }
+    public User User { get;  set; }
     
-    public Guid TenantId { get; private set; }
-    public Tenant Tenant { get; private set; }
+    public Guid TenantId { get;  set; }
+    public Tenant Tenant { get;  set; }
     
-    public Guid RoleId { get; private set; }
+    public Guid RoleId { get;  set; }
 
-    private UserTenant() : base() { } // For EF Core
+    //private UserTenant() : base() { } // For EF Core
 
-    public UserTenant(User user, Tenant tenant, Guid roleId) : base()
-    {
-        User = user ?? throw new ArgumentNullException(nameof(user));
-        UserId = user.Id;
-        Tenant = tenant ?? throw new ArgumentNullException(nameof(tenant));
-        TenantId = tenant.Id;
-        RoleId = roleId;
-    }
 } 

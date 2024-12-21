@@ -18,31 +18,74 @@ namespace StarterApi.Application.Modules.Users.Services
         private readonly ITenantDbContext _context;
         private readonly IMapper _mapper;
         private readonly ILogger<TenantUserService> _logger;
+        private readonly ITenantProvider _tenantProvider;
+        private readonly IUserTenantRepository _userTenantRepository;
+        private readonly IUserRepository _userRepository;
 
         public TenantUserService(
             ITenantDbContext context,
             IMapper mapper,
-            ILogger<TenantUserService> logger)
+            ILogger<TenantUserService> logger,
+            ITenantProvider tenantProvider,
+            IUserTenantRepository userTenantRepository,
+            IUserRepository userRepository)
         {
             _context = context;
             _mapper = mapper;
             _logger = logger;
+            _tenantProvider = tenantProvider;
+            _userTenantRepository = userTenantRepository;
+            _userRepository = userRepository;
         }
 
         public async Task<UserDto> CreateUserAsync(CreateUserDto dto)
         {
-            var user = new TenantUser
+            try
             {
-                FirstName = dto.FirstName,
-                LastName = dto.LastName,
-                Email = dto.Email,
-                MobileNumber = dto.MobileNumber
-            };
+                // 1. Create user in tenant database first
+                var tenantUser = new TenantUser
+                {
+                    FirstName = dto.FirstName,
+                    LastName = dto.LastName,
+                    Email = dto.Email,
+                    MobileNumber = dto.MobileNumber
+                };
 
-            await _context.Users.AddAsync(user);
-            await _context.SaveChangesAsync();
+                await _context.Users.AddAsync(tenantUser);
+                await _context.SaveChangesAsync();
 
-            return _mapper.Map<UserDto>(user);
+                // 2. Create user in root database
+                var rootUser = new User
+                {
+                    Id = tenantUser.Id,  // Use same ID
+                    FirstName = dto.FirstName,
+                    LastName = dto.LastName,
+                    Email = dto.Email,
+                    MobileNumber = dto.MobileNumber,
+                    IsActive = true
+                };
+
+                await _userRepository.AddAsync(rootUser);
+                await _userRepository.SaveChangesAsync();
+
+                // 3. Create UserTenant mapping
+                var userTenant = new UserTenant
+                {
+                    UserId = tenantUser.Id,
+                    TenantId = _tenantProvider.GetCurrentTenantId().Value,
+                    RoleId =  Guid.Empty
+                };
+
+                await _userTenantRepository.AddAsync(userTenant);
+                await _userTenantRepository.SaveChangesAsync();
+
+                return _mapper.Map<UserDto>(tenantUser);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error creating user in tenant {TenantId}", _tenantProvider.GetCurrentTenantId());
+                throw;
+            }
         }
 
         public async Task<IEnumerable<UserDto>> GetUsersAsync()

@@ -85,7 +85,10 @@ namespace StarterApi.Application.Modules.Users.Services
             if (await _userTenantRepository.ExistsAsync(userId, tenantId))
                 throw new InvalidOperationException("User already has access to this tenant");
 
-            var userTenant = new UserTenant(user, tenant, roleId);
+            var userTenant = new UserTenant();
+            userTenant.UserId = userId;
+            userTenant.TenantId = tenantId;
+            userTenant.RoleId = roleId;
             await _userTenantRepository.AddAsync(userTenant);
             await _userTenantRepository.SaveChangesAsync();
 

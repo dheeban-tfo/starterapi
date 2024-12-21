@@ -92,6 +92,11 @@ dotnet ef migrations add InitialRootSchema --context RootDbContext --output-dir 
 
 # Create Tenant DB migration
 dotnet ef migrations add InitialTenantSchema --context TenantDbContext --output-dir Persistence/Migrations/TenantDb
+
+# To Update Database
+cd ../StarterApi.Api
+dotnet ef database update --context RootDbContext
+
    ```
 
 2. **Adding Root Features**

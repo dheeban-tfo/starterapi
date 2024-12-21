@@ -9,6 +9,7 @@ namespace StarterApi.Infrastructure.Persistence.Contexts
         public DbSet<Tenant> Tenants { get; set; }
         public DbSet<User> Users { get; set; }
         public DbSet<UserTenant> UserTenants { get; set; }
+        public DbSet<OtpRequest> OtpRequests { get; set; }
 
         public RootDbContext(DbContextOptions<RootDbContext> options) : base(options)
         {

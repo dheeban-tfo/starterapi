@@ -8,6 +8,7 @@ using StarterApi.Infrastructure.Persistence.Repositories;
 using StarterApi.Domain.Interfaces;
 using Microsoft.OpenApi.Models;
 using StarterApi.Infrastructure.Services;
+using StarterApi.Application.Modules.Auth.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -80,6 +81,10 @@ builder.Services.AddScoped<ITenantDbContext>(serviceProvider =>
 
 // Add Data Seeders
 builder.Services.AddScoped<RootDataSeeder>();
+
+// Register auth services
+builder.Services.AddScoped<IOtpRepository, OtpRepository>();
+builder.Services.AddScoped<IAuthService, AuthService>();
 
 var app = builder.Build();
 
