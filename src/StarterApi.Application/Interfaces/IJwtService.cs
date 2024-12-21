@@ -1,10 +1,13 @@
+using System.Security.Claims;
 using StarterApi.Domain.Entities;
 
 namespace StarterApi.Application.Interfaces
 {
     public interface IJwtService
     {
-        Task<string> GenerateAccessTokenAsync(User user, Guid tenantId);
+        string GenerateBaseToken(User user);
+        Task<string> GenerateTenantTokenAsync(User user, Guid tenantId);
         string GenerateRefreshToken();
+        ClaimsPrincipal ValidateToken(string token);
     }
 } 

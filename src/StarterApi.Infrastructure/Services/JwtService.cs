@@ -1,4 +1,3 @@
-using Microsoft.Extensions.Options;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
@@ -8,74 +7,43 @@ using StarterApi.Domain.Entities;
 using Microsoft.IdentityModel.Tokens;
 using StarterApi.Application.Interfaces;
 using StarterApi.Domain.Settings;
+using StarterApi.Application.Common.Exceptions;
+
 
 
 public class JwtService : IJwtService
 {
-    private readonly JwtSettings _settings;
-    private readonly IUserTenantRepository _userTenantRepository;
+    private readonly ITokenService _tokenService;
 
-    public JwtService(IOptions<JwtSettings> settings, IUserTenantRepository userTenantRepository)
+    public JwtService(ITokenService tokenService)
     {
-        _settings = settings.Value;
-        _userTenantRepository = userTenantRepository;
+        _tokenService = tokenService;
     }
 
-    public async Task<string> GenerateAccessTokenAsync(User user, Guid tenantId)
+    public string GenerateBaseToken(User user)
     {
-        var userTenant = await _userTenantRepository.GetByUserAndTenantIdAsync(user.Id, tenantId);
-        
         var claims = new List<Claim>
         {
             new(ClaimTypes.NameIdentifier, user.Id.ToString()),
             new(ClaimTypes.Email, user.Email),
-            new("tenant_id", tenantId.ToString()),
-            new("role_id", userTenant.RoleId.ToString())
+            new("token_type", "base_token")
         };
 
-        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_settings.Key));
-        var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-
-        var token = new JwtSecurityToken(
-            issuer: _settings.Issuer,
-            audience: _settings.Audience,
-            claims: claims,
-            expires: DateTime.UtcNow.AddMinutes(_settings.AccessTokenDurationInMinutes),
-            signingCredentials: creds
-        );
-
-        return new JwtSecurityTokenHandler().WriteToken(token);
+        return _tokenService.GenerateToken(claims);
     }
 
     public string GenerateRefreshToken()
     {
-        var randomNumber = new byte[32];
-        using var rng = RandomNumberGenerator.Create();
-        rng.GetBytes(randomNumber);
-        return Convert.ToBase64String(randomNumber);
+        return _tokenService.GenerateRefreshToken();
     }
 
     public ClaimsPrincipal ValidateToken(string token)
     {
-        var tokenHandler = new JwtSecurityTokenHandler();
-        var key = Encoding.UTF8.GetBytes(_settings.Key);
-        var tokenValidationParameters = new TokenValidationParameters
-        {
-            ValidateIssuer = true,
-            ValidateAudience = true,
-            ValidateLifetime = true,
-            ValidateIssuerSigningKey = true,
-            ValidIssuer = _settings.Issuer,
-            ValidAudience = _settings.Audience,
-            IssuerSigningKey = new SymmetricSecurityKey(key)
-        };
+        return _tokenService.ValidateToken(token);
+    }
 
-        var principal = tokenHandler.ValidateToken(token, tokenValidationParameters, out SecurityToken securityToken);
-        if (securityToken is not JwtSecurityToken jwtSecurityToken || !jwtSecurityToken.Header.Alg.Equals(SecurityAlgorithms.HmacSha256, StringComparison.InvariantCultureIgnoreCase))
-        {
-            throw new SecurityTokenException("Invalid token");
-        }
-
-        return principal;
+    public async Task<string> GenerateTenantTokenAsync(User user, Guid tenantId)
+    {
+        throw new NotImplementedException("Use ITenantTokenService for tenant-specific operations");
     }
 } 

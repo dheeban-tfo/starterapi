@@ -130,3 +130,114 @@ dotnet ef migrations add AddRefreshTokensTable --context RootDbContext
 - Role-based access control
 - Tenant database backup/restore
 - Tenant data migration tools
+
+
+
+
+
+6. Register the middleware in Program.cs:
+
+```csharp:src/StarterApi.Api/Program.cs
+// ... existing using statements ...
+using StarterApi.Api.Middleware;
+
+var builder = WebApplication.CreateBuilder(args);
+
+// ... existing configurations ...
+
+// JWT and Auth configurations
+builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("JwtSettings"));
+builder.Services.AddScoped<IJwtService, JwtService>();
+
+var app = builder.Build();
+
+// ... existing middleware ...
+
+// Add JWT Authorization middleware before MVC
+app.UseMiddleware<JwtAuthorizationMiddleware>();
+app.UseAuthentication();
+app.UseAuthorization();
+
+// ... rest of configuration
+```
+
+
+Now let's test the complete flow:
+
+1. **Request OTP:**
+```bash
+curl -X POST 'http://localhost:5126/api/Auth/request-otp' \
+-H 'Content-Type: application/json' \
+-d '{
+  "mobileNumber": "+1234567890"
+}'
+```
+
+
+2. **Verify OTP (Get Base Token):**
+```bash
+curl -X POST 'http://localhost:5126/api/Auth/verify-otp' \
+-H 'Content-Type: application/json' \
+-d '{
+  "mobileNumber": "+1234567890",
+  "otpCode": "111000"
+}'
+```
+Response:
+```json
+{
+  "baseToken": "eyJhbG...",
+  "refreshToken": "abc...",
+  "user": {
+    "id": "guid",
+    "firstName": "Test",
+    "lastName": "User"
+  },
+  "availableTenants": [
+    {
+      "tenantId": "guid1",
+      "tenantName": "Alpha",
+      "role": "Admin"
+    }
+  ]
+}
+```
+
+
+3. **Set Tenant (Get Tenant Token):**
+```bash
+curl -X POST 'http://localhost:5126/api/Auth/set-tenant' \
+-H 'Content-Type: application/json' \
+-d '{
+  "baseToken": "eyJhbG...",
+  "tenantId": "guid1"
+}'
+```
+Response:
+```json
+{
+  "accessToken": "eyJhbG...",
+  "tenantContext": {
+    "tenantId": "guid1",
+    "tenantName": "Alpha",
+    "role": "Admin",
+    "permissions": []
+  }
+}
+```
+
+
+4. **Access Protected Resource:**
+```bash
+curl -X GET 'http://localhost:5126/api/Users' \
+-H 'Authorization: Bearer eyJhbG...'
+```
+
+
+The flow ensures:
+1. Initial authentication gives base token
+2. User can see available tenants
+3. Tenant selection gives tenant-specific token
+4. Protected resources require tenant token
+
+Would you like me to explain any part in more detail or proceed with implementing the permissions system?

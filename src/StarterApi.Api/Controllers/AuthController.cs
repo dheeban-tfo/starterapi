@@ -66,6 +66,29 @@ namespace StarterApi.Api.Controllers
             }
         }
 
+        [HttpPost("set-tenant")]
+        public async Task<ActionResult<TenantContextResponseDto>> SetTenant(SetTenantRequestDto request)
+        {
+            try
+            {
+                var response = await _authService.SetTenantAsync(request);
+                return Ok(response);
+            }
+            catch (UnauthorizedException ex)
+            {
+                return Unauthorized(new { message = ex.Message });
+            }
+            catch (NotFoundException ex)
+            {
+                return NotFound(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error setting tenant");
+                return StatusCode(500, "An error occurred while processing your request");
+            }
+        }
+
         [HttpPost("refresh-token")]
         public async Task<ActionResult<RefreshTokenResponseDto>> RefreshToken(RefreshTokenRequestDto request)
         {
@@ -78,7 +101,7 @@ namespace StarterApi.Api.Controllers
                 }
 
                 // Generate new tokens
-                var accessToken = await _jwtService.GenerateAccessTokenAsync(refreshToken.User, request.TenantId);
+                var accessToken = await _jwtService.GenerateTenantTokenAsync(refreshToken.User, request.TenantId);
                 var newRefreshToken = _jwtService.GenerateRefreshToken();
 
                 // Revoke old refresh token
