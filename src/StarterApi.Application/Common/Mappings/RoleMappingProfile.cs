@@ -12,6 +12,8 @@ namespace StarterApi.Application.Common.Mappings
                 .ForMember(d => d.Permissions, opt => opt
                     .MapFrom(s => s.Permissions.Select(p => p.SystemName)));
 
+            CreateMap<TenantPermission, PermissionDto>();
+            
             CreateMap<CreateRoleDto, TenantRole>();
             CreateMap<UpdateRoleDto, TenantRole>();
         }

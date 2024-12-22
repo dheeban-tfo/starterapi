@@ -177,7 +177,17 @@ builder.Services.AddAuthorization(options =>
 builder.Services.AddScoped<IAuthorizationHandler, PermissionAuthorizationHandler>();
 
 // Add Role services
+// builder.Services.AddScoped<IRoleRepository, RoleRepository>();
 builder.Services.AddScoped<IRoleService, RoleService>();
+
+// Add HttpContextAccessor
+builder.Services.AddHttpContextAccessor();
+
+// Add CurrentUserService
+builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
+
+// Register interfaces
+builder.Services.AddScoped<IRootDbContext, RootDbContext>();
 
 var app = builder.Build();
 

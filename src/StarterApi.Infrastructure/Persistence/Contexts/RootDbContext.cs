@@ -1,11 +1,11 @@
 using Microsoft.EntityFrameworkCore;
-
+using StarterApi.Application.Common.Interfaces;
 using StarterApi.Domain.Entities;
 using StarterApi.Infrastructure.Persistence.Configurations;
 
 namespace StarterApi.Infrastructure.Persistence.Contexts
 {
-    public class RootDbContext : DbContext
+    public class RootDbContext : DbContext, IRootDbContext
     {
         public DbSet<Tenant> Tenants { get; set; }
         public DbSet<User> Users { get; set; }

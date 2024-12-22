@@ -119,5 +119,64 @@ namespace StarterApi.Application.Modules.Users.Services
                 
             return defaultRole.Id;
         }
+
+        public async Task<UserRoleDto> GetUserRoleAsync(Guid userId)
+        {
+            var user = await _context.Users
+                .Include(u => u.Role)
+                .FirstOrDefaultAsync(u => u.Id == userId);
+
+            if (user == null)
+                throw new NotFoundException($"User with ID {userId} not found");
+
+            return new UserRoleDto
+            {
+                UserId = user.Id,
+                RoleId = user.RoleId,
+                RoleName = user.Role.Name
+            };
+        }
+
+        public async Task<UserRoleDto> UpdateUserRoleAsync(Guid userId, UpdateUserRoleDto dto)
+        {
+            var user = await _context.Users
+                .Include(u => u.Role)
+                .FirstOrDefaultAsync(u => u.Id == userId);
+
+            if (user == null)
+                throw new NotFoundException($"User with ID {userId} not found");
+
+            var role = await _context.Roles.FindAsync(dto.RoleId);
+            if (role == null)
+                throw new NotFoundException($"Role with ID {dto.RoleId} not found");
+
+            user.RoleId = dto.RoleId;
+            user.UpdatedAt = DateTime.UtcNow;
+
+            await _context.SaveChangesAsync();
+
+            return new UserRoleDto
+            {
+                UserId = user.Id,
+                RoleId = user.RoleId,
+                RoleName = role.Name
+            };
+        }
+
+        public async Task<List<UsersByRoleDto>> GetUsersByRoleAsync(Guid roleId)
+        {
+            var users = await _context.Users
+                .Where(u => u.RoleId == roleId)
+                .Select(u => new UsersByRoleDto
+                {
+                    UserId = u.Id,
+                    Email = u.Email,
+                    FirstName = u.FirstName,
+                    LastName = u.LastName
+                })
+                .ToListAsync();
+
+            return users;
+        }
     }
 } 

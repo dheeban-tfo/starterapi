@@ -241,3 +241,42 @@ The flow ensures:
 4. Protected resources require tenant token
 
 Would you like me to explain any part in more detail or proceed with implementing the permissions system?
+
+
+# Get all roles
+GET /api/Roles
+
+# Create a new role
+POST /api/Roles
+{
+    "name": "Manager",
+    "description": "Department Manager",
+    "permissions": ["Users.View", "Users.Create"]
+}
+
+# Get role permissions
+GET /api/Roles/{roleId}/permissions
+
+# Update role permissions
+PUT /api/Roles/{roleId}/permissions
+{
+    "permissions": ["Users.View", "Users.Create", "Users.Edit"]
+    
+}
+
+
+# Get user's current role
+GET /api/Users/{userId}/role
+
+# Update user's role
+PUT /api/Users/{userId}/role
+{
+    "roleId": "guid-of-new-role"
+}
+
+# Get all users in a role
+GET /api/Users/by-role/{roleId}
+
+
+# Get all available permissions
+GET /api/Roles/permissions

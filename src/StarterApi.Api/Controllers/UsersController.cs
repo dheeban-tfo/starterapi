@@ -77,5 +77,26 @@ namespace StarterApi.Api.Controllers
                 return StatusCode(500, "An error occurred while retrieving the user");
             }
         }
+
+        [HttpGet("{userId}/role")]
+        [RequirePermission(Permissions.Users.View)]
+        public async Task<ActionResult<UserRoleDto>> GetUserRole(Guid userId)
+        {
+            return Ok(await _userService.GetUserRoleAsync(userId));
+        }
+
+        [HttpPut("{userId}/role")]
+        [RequirePermission(Permissions.Users.Edit)]
+        public async Task<ActionResult<UserRoleDto>> UpdateUserRole(Guid userId, UpdateUserRoleDto dto)
+        {
+            return Ok(await _userService.UpdateUserRoleAsync(userId, dto));
+        }
+
+        [HttpGet("by-role/{roleId}")]
+        [RequirePermission(Permissions.Users.View)]
+        public async Task<ActionResult<List<UsersByRoleDto>>> GetUsersByRole(Guid roleId)
+        {
+            return Ok(await _userService.GetUsersByRoleAsync(roleId));
+        }
     }
 } 
