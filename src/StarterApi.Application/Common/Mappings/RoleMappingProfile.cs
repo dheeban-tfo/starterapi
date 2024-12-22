@@ -2,11 +2,18 @@ using AutoMapper;
 
 using StarterApi.Domain.Entities;
 
-public class RoleMappingProfile : Profile
+namespace StarterApi.Application.Common.Mappings
 {
-    public RoleMappingProfile()
+    public class RoleMappingProfile : Profile
     {
-        CreateMap<Role, RoleDto>();
-        CreateMap<Permission, PermissionDto>();
+        public RoleMappingProfile()
+        {
+            CreateMap<TenantRole, RoleDto>()
+                .ForMember(d => d.Permissions, opt => opt
+                    .MapFrom(s => s.Permissions.Select(p => p.SystemName)));
+
+            CreateMap<CreateRoleDto, TenantRole>();
+            CreateMap<UpdateRoleDto, TenantRole>();
+        }
     }
 } 

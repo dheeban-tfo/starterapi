@@ -18,6 +18,8 @@ using StarterApi.Domain.Settings;
 using StarterApi.Domain.Constants;
 using Microsoft.AspNetCore.Authorization;
 using System.Reflection;
+using StarterApi.Application.Modules.Roles.Interfaces;
+using StarterApi.Application.Modules.Roles.Services;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -173,6 +175,9 @@ builder.Services.AddAuthorization(options =>
 
 // Register the authorization handler
 builder.Services.AddScoped<IAuthorizationHandler, PermissionAuthorizationHandler>();
+
+// Add Role services
+builder.Services.AddScoped<IRoleService, RoleService>();
 
 var app = builder.Build();
 

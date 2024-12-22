@@ -1,10 +1,8 @@
-using Microsoft.AspNetCore.Mvc;
-using StarterApi.Application.Common.Interfaces;
-
-using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+
+using StarterApi.Application.Modules.Roles.Interfaces;
 using StarterApi.Domain.Constants;
-using StarterApi.Application.Common.Extensions;
 
 namespace StarterApi.Api.Controllers
 {
@@ -13,56 +11,50 @@ namespace StarterApi.Api.Controllers
     [Authorize]
     public class RolesController : ControllerBase
     {
-        private readonly IUserTenantRepository _userTenantRepository;
-        private readonly ITenantProvider _tenantProvider;
-        private readonly IMapper _mapper;
+        private readonly IRoleService _roleService;
+        private readonly ILogger<RolesController> _logger;
 
-        public RolesController(
-            IUserTenantRepository userTenantRepository,
-            ITenantProvider tenantProvider,
-            IMapper mapper)
+        public RolesController(IRoleService roleService, ILogger<RolesController> logger)
         {
-            _userTenantRepository = userTenantRepository;
-            _tenantProvider = tenantProvider;
-            _mapper = mapper;
+            _roleService = roleService;
+            _logger = logger;
         }
 
         [HttpGet]
         [RequirePermission(Permissions.Roles.View)]
         public async Task<ActionResult<List<RoleDto>>> GetRoles()
         {
-            var tenantId = _tenantProvider.GetCurrentTenantId();
-            if (!tenantId.HasValue)
-                return BadRequest("Tenant not specified");
-
-            var roles = await _userTenantRepository.GetTenantRolesAsync(tenantId.Value);
-            return Ok(_mapper.Map<List<RoleDto>>(roles));
+            return Ok(await _roleService.GetRolesAsync());
         }
 
-        [HttpGet("permissions")]
+        [HttpGet("{id}")]
         [RequirePermission(Permissions.Roles.View)]
-        public async Task<ActionResult<List<PermissionDto>>> GetPermissions()
+        public async Task<ActionResult<RoleDto>> GetRole(Guid id)
         {
-            var tenantId = _tenantProvider.GetCurrentTenantId();
-            if (!tenantId.HasValue)
-                return BadRequest("Tenant not specified");
-
-            var permissions = await _userTenantRepository.GetTenantPermissionsAsync(tenantId.Value);
-            return Ok(_mapper.Map<List<PermissionDto>>(permissions));
+            return Ok(await _roleService.GetRoleByIdAsync(id));
         }
 
-        [HttpGet("my-permissions")]
-        [Authorize]
-        public async Task<ActionResult<List<string>>> GetMyPermissions()
+        [HttpPost]
+        [RequirePermission(Permissions.Roles.Create)]
+        public async Task<ActionResult<RoleDto>> CreateRole(CreateRoleDto dto)
         {
-            var userId = User.GetUserId();
-            var tenantId = _tenantProvider.GetCurrentTenantId();
-            
-            if (!tenantId.HasValue)
-                return BadRequest("Tenant not specified");
+            var role = await _roleService.CreateRoleAsync(dto);
+            return CreatedAtAction(nameof(GetRole), new { id = role.Id }, role);
+        }
 
-            var permissions = await _userTenantRepository.GetUserPermissionsAsync(userId, tenantId.Value);
-            return Ok(permissions);
+        [HttpPut("{id}")]
+        [RequirePermission(Permissions.Roles.Edit)]
+        public async Task<ActionResult<RoleDto>> UpdateRole(Guid id, UpdateRoleDto dto)
+        {
+            return Ok(await _roleService.UpdateRoleAsync(id, dto));
+        }
+
+        [HttpDelete("{id}")]
+        [RequirePermission(Permissions.Roles.Delete)]
+        public async Task<ActionResult> DeleteRole(Guid id)
+        {
+            await _roleService.DeleteRoleAsync(id);
+            return NoContent();
         }
     }
 }
