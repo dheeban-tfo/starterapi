@@ -9,6 +9,7 @@ namespace StarterApi.Domain.Constants
             public const string Edit = "Users.Edit";
             public const string Delete = "Users.Delete";
             public const string ManageRoles = "Users.ManageRoles";
+            public const string InviteUser = "Users.Invite";
         }
 
         public static class Roles

@@ -93,11 +93,32 @@ namespace StarterApi.Application.Modules.Users.Services
                 throw;
             }
         }
+        // public async Task<IEnumerable<UserDto>> GetUsersAsync()
+        // {
+        //     var users = await _context.Users.ToListAsync();
+        //     return _mapper.Map<IEnumerable<UserDto>>(users);
+        // }
 
-        public async Task<IEnumerable<UserDto>> GetUsersAsync()
+        public async Task<IEnumerable<UserProfileDto>> GetUsersAsync()
         {
-            var users = await _context.Users.ToListAsync();
-            return _mapper.Map<IEnumerable<UserDto>>(users);
+            var users = await _context.Users
+                .Include(u => u.Role)
+                .Select(u => new UserProfileDto
+                {
+                    Id = u.Id,
+                    FirstName = u.FirstName,
+                    LastName = u.LastName,
+                    Email = u.Email,
+                    MobileNumber = u.MobileNumber,
+                    
+                    IsActive = u.IsActive,
+                    LastLoginAt = u.LastLoginAt,
+                    RoleName = u.Role.Name,
+                    CreatedAt = u.CreatedAt
+                })
+                .ToListAsync();
+
+            return users;
         }
 
         public async Task<UserDto> GetUserByIdAsync(Guid id)
@@ -177,6 +198,142 @@ namespace StarterApi.Application.Modules.Users.Services
                 .ToListAsync();
 
             return users;
+        }
+
+        public async Task<UserProfileDto> InviteUserAsync(UserInvitationDto dto)
+        {
+            try
+            {
+                // Create user in tenant database
+                var tenantUser = new TenantUser
+                {
+                    FirstName = dto.FirstName,
+                    LastName = dto.LastName,
+                    Email = dto.Email,
+                    MobileNumber = dto.MobileNumber,
+                    RoleId = dto.RoleId,
+                    IsActive = true,
+                    CreatedAt = DateTime.UtcNow
+                };
+
+                await _context.Users.AddAsync(tenantUser);
+                await _context.SaveChangesAsync();
+
+                // Create user in root database
+                var rootUser = new User
+                {
+                    Id = tenantUser.Id,
+                    FirstName = dto.FirstName,
+                    LastName = dto.LastName,
+                    Email = dto.Email,
+                    MobileNumber = dto.MobileNumber,
+                    IsActive = true
+                };
+
+                await _userRepository.AddAsync(rootUser);
+
+                // Create UserTenant mapping
+                var userTenant = new UserTenant
+                {
+                    UserId = tenantUser.Id,
+                    TenantId = _tenantProvider.GetCurrentTenantId().Value,
+                    RoleId = dto.RoleId
+                };
+
+                await _userTenantRepository.AddAsync(userTenant);
+                await _userTenantRepository.SaveChangesAsync();
+
+                // Send invitation SMS
+                // This would integrate with your SMS service
+                await SendInvitationSms(dto.MobileNumber);
+
+                return await GetUserProfileAsync(tenantUser.Id);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error inviting user");
+                throw;
+            }
+        }
+
+        public async Task<bool> ToggleUserStatusAsync(Guid userId)
+        {
+            var user = await _context.Users.FindAsync(userId);
+            if (user == null)
+                throw new NotFoundException($"User with ID {userId} not found");
+
+            user.IsActive = !user.IsActive;
+            user.UpdatedAt = DateTime.UtcNow;
+
+            await _context.SaveChangesAsync();
+
+            // Update root user status
+            var rootUser = await _userRepository.GetByIdAsync(userId);
+            if (rootUser != null)
+            {
+                rootUser.IsActive = user.IsActive;
+                await _userRepository.SaveChangesAsync();
+            }
+
+            return user.IsActive;
+        }
+
+        private async Task SendInvitationSms(string mobileNumber)
+        {
+            // Implementation would depend on your SMS service
+            // For now, just log it
+            _logger.LogInformation("Invitation SMS would be sent to {MobileNumber}", mobileNumber);
+        }
+
+        public async Task<UserProfileDto> GetUserProfileAsync(Guid userId)
+        {
+            var user = await _context.Users
+                .Include(u => u.Role)
+                .FirstOrDefaultAsync(u => u.Id == userId);
+
+            if (user == null)
+                throw new NotFoundException($"User with ID {userId} not found");
+
+            return new UserProfileDto
+            {
+                Id = user.Id,
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                Email = user.Email,
+                MobileNumber = user.MobileNumber,
+               
+                IsActive = user.IsActive,
+                LastLoginAt = user.LastLoginAt,
+                RoleName = user.Role.Name,
+                CreatedAt = user.CreatedAt
+            };
+        }
+
+        public async Task<UserProfileDto> UpdateUserProfileAsync(Guid userId, UserProfileDto dto)
+        {
+            var user = await _context.Users.FindAsync(userId);
+            if (user == null)
+                throw new NotFoundException($"User with ID {userId} not found");
+
+            user.FirstName = dto.FirstName;
+            user.LastName = dto.LastName;
+            user.Email = dto.Email;
+            
+            user.UpdatedAt = DateTime.UtcNow;
+
+            await _context.SaveChangesAsync();
+
+            // Update root user as well
+            var rootUser = await _userRepository.GetByIdAsync(userId);
+            if (rootUser != null)
+            {
+                rootUser.FirstName = dto.FirstName;
+                rootUser.LastName = dto.LastName;
+                rootUser.Email = dto.Email;
+                await _userRepository.SaveChangesAsync();
+            }
+
+            return await GetUserProfileAsync(userId);
         }
     }
 } 

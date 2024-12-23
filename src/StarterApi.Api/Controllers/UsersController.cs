@@ -98,5 +98,41 @@ namespace StarterApi.Api.Controllers
         {
             return Ok(await _userService.GetUsersByRoleAsync(roleId));
         }
+
+        [HttpPost("invite")]
+        [RequirePermission(Permissions.Users.InviteUser)]
+        public async Task<ActionResult<UserProfileDto>> InviteUser(UserInvitationDto dto)
+        {
+            try
+            {
+                var user = await _userService.InviteUserAsync(dto);
+                return CreatedAtAction(nameof(GetUser), new { id = user.Id }, user);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error inviting user");
+                return StatusCode(500, "An error occurred while processing your request");
+            }
+        }
+
+        [HttpPost("{id}/toggle-status")]
+        [RequirePermission(Permissions.Users.Edit)]
+        public async Task<ActionResult<bool>> ToggleUserStatus(Guid id)
+        {
+            try
+            {
+                var isActive = await _userService.ToggleUserStatusAsync(id);
+                return Ok(isActive);
+            }
+            catch (NotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error toggling user status");
+                return StatusCode(500, "An error occurred while processing your request");
+            }
+        }
     }
 } 

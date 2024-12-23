@@ -280,3 +280,81 @@ GET /api/Users/by-role/{roleId}
 
 # Get all available permissions
 GET /api/Roles/permissions
+
+I'll help you test the user management features in Swagger. Here's how to test each endpoint:
+
+1. **Invite a User**
+```http
+POST /api/Users/invite
+{
+  "firstName": "John",
+  "lastName": "Doe",
+  "email": "john.doe@example.com",
+  "mobileNumber": "1234567890",
+  "department": "Engineering",
+  "jobTitle": "Software Engineer",
+  "roleId": "GUID-OF-EXISTING-ROLE"
+}
+```
+
+2. **Get All Users**
+```http
+GET /api/Users
+```
+This will return all users with their complete profiles.
+
+3. **Get User Profile**
+```http
+GET /api/Users/{userId}/profile
+```
+Replace `{userId}` with the GUID from the invite response.
+
+4. **Update User Profile**
+```http
+PUT /api/Users/{userId}/profile
+{
+  "firstName": "John",
+  "lastName": "Doe",
+  "email": "john.updated@example.com",
+  "mobileNumber": "1234567890",
+  "department": "Engineering",
+  "jobTitle": "Senior Software Engineer",
+  "isActive": true
+}
+```
+
+5. **Toggle User Status**
+```http
+POST /api/Users/{userId}/toggle-status
+```
+
+Testing Flow:
+1. First, get a valid JWT token:
+   ```http
+   POST /api/Auth/request-otp
+   {
+     "mobileNumber": "1234567890"
+   }
+   ```
+   Then verify OTP:
+   ```http
+   POST /api/Auth/verify-otp
+   {
+     "mobileNumber": "1234567890",
+     "otpCode": "123456"
+   }
+   ```
+
+2. Use the returned token in Swagger:
+   - Click the "Authorize" button at the top
+   - Enter: `Bearer your-token-here`
+   - Click "Authorize"
+
+3. Now you can test the endpoints in this order:
+   - Invite a new user
+   - Get all users to verify the invitation
+   - Get the specific user's profile
+   - Update the user's profile
+   - Toggle the user's status
+
+Would you like me to add any specific endpoints or provide more detailed testing scenarios?
