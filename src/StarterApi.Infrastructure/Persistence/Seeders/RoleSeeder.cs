@@ -27,6 +27,7 @@ namespace StarterApi.Infrastructure.Persistence.Seeders
                         Description = "Super administrator with full system access",
                         
                         TenantId = tenantId,
+                        CreatedBy = tenantId,
                         CreatedAt = DateTime.UtcNow
                     }
                 };
@@ -41,6 +42,7 @@ namespace StarterApi.Infrastructure.Persistence.Seeders
                 {
                     RoleId = roles[0].Id,
                     PermissionId = p.Id,
+                    CreatedBy = tenantId,
                     CreatedAt = DateTime.UtcNow
                 });
 

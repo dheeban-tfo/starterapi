@@ -2,17 +2,15 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using StarterApi.Domain.Entities;
 
-namespace StarterApi.Infrastructure.Persistence.Configurations
+namespace StarterApi.Infrastructure.Persistence.Configurations.Root
 {
     public class PermissionConfiguration : BaseConfiguration<Permission>
     {
-        public void Configure(EntityTypeBuilder<Permission> builder)
+        public override void Configure(EntityTypeBuilder<Permission> builder)
         {
-            builder.HasKey(p => p.Id);
+            base.Configure(builder);
 
-            builder.Property(p => p.SystemName)
-                .IsRequired()
-                .HasMaxLength(100);
+            builder.ToTable("Permissions");
 
             builder.Property(p => p.Name)
                 .IsRequired()
@@ -24,10 +22,6 @@ namespace StarterApi.Infrastructure.Persistence.Configurations
             builder.Property(p => p.Group)
                 .IsRequired()
                 .HasMaxLength(50);
-
-            // Ensure SystemName is unique
-            builder.HasIndex(p => p.SystemName)
-                .IsUnique();
         }
     }
 } 

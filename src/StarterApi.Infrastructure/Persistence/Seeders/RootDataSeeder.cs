@@ -39,14 +39,17 @@ public class RootDataSeeder
         var rootAdmin = await _context.Users.FirstOrDefaultAsync(u => u.Email == "rootadmin@example.com");
         if (rootAdmin == null)
         {
+            Guid rootUserId = Guid.NewGuid();
             rootAdmin = new User
             {
+                Id = rootUserId,
                 Email = "rootadmin@example.com",
                 FirstName = "Root",
                 LastName = "Admin",
                 MobileNumber = "1234567890",
                 UserType = UserType.RootAdmin,
                 IsActive = true,
+                CreatedBy= rootUserId,
                 CreatedAt = DateTime.UtcNow
             };
             _context.Users.Add(rootAdmin);
@@ -56,7 +59,7 @@ public class RootDataSeeder
         // 3. Create default tenants first
         var tenants = new[]
         {
-            new { Name = "Alpha", DbName = "Alpha_Tenant" },
+            new { Name = "Alpha", DbName = "Alpha_Tenant", },
             new { Name = "Beta", DbName = "Beta_Tenant" }
         };
 
@@ -70,7 +73,9 @@ public class RootDataSeeder
                     Name = t.Name,
                     DatabaseName = t.DbName,
                     Status = TenantStatus.Active,
-                    ConnectionString = $"Server=localhost;Database={t.DbName};User Id=sa;Password=MyPass@word;TrustServerCertificate=True;MultipleActiveResultSets=true;"
+                    ConnectionString = $"Server=localhost;Database={t.DbName};User Id=sa;Password=MyPass@word;TrustServerCertificate=True;MultipleActiveResultSets=true;",
+                    CreatedAt = DateTime.UtcNow,
+                    CreatedBy = rootAdmin.Id
                 };
                 _context.Tenants.Add(tenant);
                 await _context.SaveChangesAsync();
@@ -92,7 +97,9 @@ public class RootDataSeeder
                         UserId = rootAdmin.Id,
                         TenantId = tenant.Id,
                         RoleId = await GetRootAdminRoleId(tenant.Id),
-                        CreatedAt = DateTime.UtcNow
+                        CreatedAt = DateTime.UtcNow,
+                        CreatedBy = rootAdmin.Id
+                        
                     };
                     await _userTenantRepository.AddAsync(userTenant);
                     await _userTenantRepository.SaveChangesAsync();

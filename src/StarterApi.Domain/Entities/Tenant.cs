@@ -1,7 +1,5 @@
 using System;
 using System.Collections.Generic;
-
-
 namespace StarterApi.Domain.Entities
 {
     public class Tenant : BaseEntity

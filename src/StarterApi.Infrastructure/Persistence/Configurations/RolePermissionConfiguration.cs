@@ -4,12 +4,14 @@ using StarterApi.Domain.Entities;
 
 namespace StarterApi.Infrastructure.Persistence.Configurations
 {
-    public class RolePermissionConfiguration : IEntityTypeConfiguration<RolePermission>
+    public class RolePermissionConfiguration : BaseConfiguration<RolePermission>
     {
-        public void Configure(EntityTypeBuilder<RolePermission> builder)
+        public override void Configure(EntityTypeBuilder<RolePermission> builder)
         {
+            base.Configure(builder);
+            
             builder.HasKey(rp => new { rp.RoleId, rp.PermissionId });
-
+            
             // Configure relationship with Role
             builder.HasOne(rp => rp.Role)
                 .WithMany(r => r.RolePermissions)

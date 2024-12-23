@@ -1,6 +1,4 @@
-using System.Collections.Generic;
-
-namespace StarterApi.Domain.Entities
+using System.Collections.Generic;namespace StarterApi.Domain.Entities
 {
     public class Permission : BaseEntity
     {

@@ -4,7 +4,7 @@ using StarterApi.Domain.Entities;
 
 namespace StarterApi.Infrastructure.Persistence.Configurations
 {
-    public class RoleConfiguration : IEntityTypeConfiguration<Role>
+    public class RoleConfiguration : BaseConfiguration<Role>
     {
         public void Configure(EntityTypeBuilder<Role> builder)
         {

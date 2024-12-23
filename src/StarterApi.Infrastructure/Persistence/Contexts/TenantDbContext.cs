@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using StarterApi.Application.Common.Interfaces;
 using StarterApi.Domain.Entities;
+using StarterApi.Infrastructure.Persistence.Configurations;
 
 namespace StarterApi.Infrastructure.Persistence.Contexts
 {
@@ -11,6 +12,35 @@ namespace StarterApi.Infrastructure.Persistence.Contexts
         public DbSet<TenantUser> Users { get; set; }
         public DbSet<TenantRole> Roles { get; set; }
         public DbSet<TenantPermission> Permissions { get; set; }
+        
+        // Society Management
+        public DbSet<Society> Societies { get; set; }
+        public DbSet<Block> Blocks { get; set; }
+        public DbSet<Floor> Floors { get; set; }
+        public DbSet<Unit> Units { get; set; }
+        
+        // People
+        public DbSet<Owner> Owners { get; set; }
+        public DbSet<Resident> Residents { get; set; }
+        
+        // Contracts and Bookings
+        public DbSet<RentalContract> RentalContracts { get; set; }
+        public DbSet<FacilityBooking> FacilityBookings { get; set; }
+        
+        // Facilities and Parking
+        public DbSet<Facility> Facilities { get; set; }
+        public DbSet<ParkingSlot> ParkingSlots { get; set; }
+        public DbSet<ParkingAllocation> ParkingAllocations { get; set; }
+        public DbSet<Vehicle> Vehicles { get; set; }
+        
+        // Communication and Management
+        public DbSet<Visitor> Visitors { get; set; }
+        public DbSet<Announcement> Announcements { get; set; }
+        public DbSet<Complaint> Complaints { get; set; }
+        public DbSet<Notification> Notifications { get; set; }
+        
+        // Auditing
+        public DbSet<AuditHistory> AuditHistory { get; set; }
 
         public TenantDbContext(string connectionString)
         {
@@ -55,6 +85,25 @@ namespace StarterApi.Infrastructure.Persistence.Contexts
                     .HasForeignKey(e => e.TenantRoleId)
                     .OnDelete(DeleteBehavior.Cascade);
             });
+
+            // Apply new configurations
+            modelBuilder.ApplyConfiguration(new SocietyConfiguration());
+            modelBuilder.ApplyConfiguration(new BlockConfiguration());
+            modelBuilder.ApplyConfiguration(new FloorConfiguration());
+            modelBuilder.ApplyConfiguration(new UnitConfiguration());
+            modelBuilder.ApplyConfiguration(new OwnerConfiguration());
+            modelBuilder.ApplyConfiguration(new ResidentConfiguration());
+            modelBuilder.ApplyConfiguration(new RentalContractConfiguration());
+            modelBuilder.ApplyConfiguration(new FacilityConfiguration());
+            modelBuilder.ApplyConfiguration(new FacilityBookingConfiguration());
+            modelBuilder.ApplyConfiguration(new ParkingSlotConfiguration());
+            modelBuilder.ApplyConfiguration(new ParkingAllocationConfiguration());
+            modelBuilder.ApplyConfiguration(new VehicleConfiguration());
+            modelBuilder.ApplyConfiguration(new VisitorConfiguration());
+            modelBuilder.ApplyConfiguration(new AnnouncementConfiguration());
+            modelBuilder.ApplyConfiguration(new ComplaintConfiguration());
+            modelBuilder.ApplyConfiguration(new NotificationConfiguration());
+            modelBuilder.ApplyConfiguration(new AuditHistoryConfiguration());
         }
     }
 }

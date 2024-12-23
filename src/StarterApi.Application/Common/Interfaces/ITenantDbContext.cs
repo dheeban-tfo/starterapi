@@ -8,6 +8,36 @@ namespace StarterApi.Application.Common.Interfaces
         DbSet<TenantUser> Users { get; set; }
         DbSet<TenantRole> Roles { get; set; }
         DbSet<TenantPermission> Permissions { get; set; }
+        
+        // Society Management
+        DbSet<Society> Societies { get; set; }
+        DbSet<Block> Blocks { get; set; }
+        DbSet<Floor> Floors { get; set; }
+        DbSet<Unit> Units { get; set; }
+        
+        // People
+        DbSet<Owner> Owners { get; set; }
+        DbSet<Resident> Residents { get; set; }
+        
+        // Contracts and Bookings
+        DbSet<RentalContract> RentalContracts { get; set; }
+        DbSet<FacilityBooking> FacilityBookings { get; set; }
+        
+        // Facilities and Parking
+        DbSet<Facility> Facilities { get; set; }
+        DbSet<ParkingSlot> ParkingSlots { get; set; }
+        DbSet<ParkingAllocation> ParkingAllocations { get; set; }
+        DbSet<Vehicle> Vehicles { get; set; }
+        
+        // Communication and Management
+        DbSet<Visitor> Visitors { get; set; }
+        DbSet<Announcement> Announcements { get; set; }
+        DbSet<Complaint> Complaints { get; set; }
+        DbSet<Notification> Notifications { get; set; }
+        
+        // Auditing
+        DbSet<AuditHistory> AuditHistory { get; set; }
+        
         Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
     }
 } 

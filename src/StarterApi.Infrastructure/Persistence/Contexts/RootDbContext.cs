@@ -2,6 +2,9 @@ using Microsoft.EntityFrameworkCore;
 using StarterApi.Application.Common.Interfaces;
 using StarterApi.Domain.Entities;
 using StarterApi.Infrastructure.Persistence.Configurations;
+using StarterApi.Infrastructure.Persistence.Configurations.Root;
+using PermissionConfiguration = StarterApi.Infrastructure.Persistence.Configurations.Root.PermissionConfiguration;
+using RoleConfiguration = StarterApi.Infrastructure.Persistence.Configurations.Root.RoleConfiguration;
 
 namespace StarterApi.Infrastructure.Persistence.Contexts
 {
@@ -42,8 +45,9 @@ namespace StarterApi.Infrastructure.Persistence.Contexts
                 .WithMany()
                 .HasForeignKey(rt => rt.UserId);
 
-            modelBuilder.ApplyConfiguration(new PermissionConfiguration());
+            modelBuilder.ApplyConfiguration(new UserConfiguration());
             modelBuilder.ApplyConfiguration(new RoleConfiguration());
+            modelBuilder.ApplyConfiguration(new PermissionConfiguration());
             modelBuilder.ApplyConfiguration(new RolePermissionConfiguration());
         }
     }
