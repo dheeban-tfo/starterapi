@@ -8,6 +8,7 @@ namespace StarterApi.Application.Common.Interfaces
         DbSet<TenantUser> Users { get; set; }
         DbSet<TenantRole> Roles { get; set; }
         DbSet<TenantPermission> Permissions { get; set; }
+        DbSet<TenantRolePermission> RolePermissions { get; set; }
         
         // Society Management
         DbSet<Society> Societies { get; set; }

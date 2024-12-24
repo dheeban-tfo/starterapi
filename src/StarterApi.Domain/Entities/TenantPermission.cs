@@ -6,6 +6,5 @@ public class TenantPermission : BaseEntity
     public string Group { get; set; }
     public bool IsEnabled { get; set; }
     public bool IsSystem { get; set; }
-    public Guid TenantRoleId { get; set; }
-    public virtual TenantRole Role { get; set; }
+    public virtual ICollection<TenantRolePermission> RolePermissions { get; set; }
 } 

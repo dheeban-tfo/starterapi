@@ -1133,9 +1133,6 @@ namespace StarterApi.Infrastructure.Persistence.Migrations.TenantDb
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
-                    b.Property<Guid>("TenantRoleId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
 
@@ -1143,8 +1140,6 @@ namespace StarterApi.Infrastructure.Persistence.Migrations.TenantDb
                         .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("TenantRoleId");
 
                     b.ToTable("Permissions");
                 });
@@ -1181,6 +1176,39 @@ namespace StarterApi.Infrastructure.Persistence.Migrations.TenantDb
                     b.HasKey("Id");
 
                     b.ToTable("Roles", (string)null);
+                });
+
+            modelBuilder.Entity("TenantRolePermission", b =>
+                {
+                    b.Property<Guid>("RoleId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("PermissionId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("CreatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("UpdatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("RoleId", "PermissionId");
+
+                    b.HasIndex("PermissionId");
+
+                    b.ToTable("RolePermissions");
                 });
 
             modelBuilder.Entity("TenantUser", b =>
@@ -1434,13 +1462,21 @@ namespace StarterApi.Infrastructure.Persistence.Migrations.TenantDb
                     b.Navigation("VisitedUnit");
                 });
 
-            modelBuilder.Entity("TenantPermission", b =>
+            modelBuilder.Entity("TenantRolePermission", b =>
                 {
+                    b.HasOne("TenantPermission", "Permission")
+                        .WithMany("RolePermissions")
+                        .HasForeignKey("PermissionId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
                     b.HasOne("TenantRole", "Role")
-                        .WithMany("Permissions")
-                        .HasForeignKey("TenantRoleId")
+                        .WithMany("RolePermissions")
+                        .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Permission");
 
                     b.Navigation("Role");
                 });
@@ -1448,7 +1484,7 @@ namespace StarterApi.Infrastructure.Persistence.Migrations.TenantDb
             modelBuilder.Entity("TenantUser", b =>
                 {
                     b.HasOne("TenantRole", "Role")
-                        .WithMany()
+                        .WithMany("Users")
                         .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -1501,9 +1537,16 @@ namespace StarterApi.Infrastructure.Persistence.Migrations.TenantDb
                     b.Navigation("ParkingAllocations");
                 });
 
+            modelBuilder.Entity("TenantPermission", b =>
+                {
+                    b.Navigation("RolePermissions");
+                });
+
             modelBuilder.Entity("TenantRole", b =>
                 {
-                    b.Navigation("Permissions");
+                    b.Navigation("RolePermissions");
+
+                    b.Navigation("Users");
                 });
 #pragma warning restore 612, 618
         }

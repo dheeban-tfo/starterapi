@@ -12,6 +12,7 @@ namespace StarterApi.Infrastructure.Persistence.Contexts
         public DbSet<TenantUser> Users { get; set; }
         public DbSet<TenantRole> Roles { get; set; }
         public DbSet<TenantPermission> Permissions { get; set; }
+        public DbSet<TenantRolePermission> RolePermissions { get; set; }
         
         // Society Management
         public DbSet<Society> Societies { get; set; }
@@ -79,11 +80,21 @@ namespace StarterApi.Infrastructure.Persistence.Contexts
                 entity.Property(e => e.Name).IsRequired().HasMaxLength(100);
                 entity.Property(e => e.SystemName).IsRequired().HasMaxLength(100);
                 entity.Property(e => e.Group).IsRequired().HasMaxLength(50);
-                
-                entity.HasOne(e => e.Role)
-                    .WithMany(r => r.Permissions)
-                    .HasForeignKey(e => e.TenantRoleId)
+            });
+
+            modelBuilder.Entity<TenantRolePermission>(entity =>
+            {
+                entity.HasKey(rp => new { rp.RoleId, rp.PermissionId });
+
+                entity.HasOne(rp => rp.Role)
+                    .WithMany(r => r.RolePermissions)
+                    .HasForeignKey(rp => rp.RoleId)
                     .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(rp => rp.Permission)
+                    .WithMany(p => p.RolePermissions)
+                    .HasForeignKey(rp => rp.PermissionId)
+                    .OnDelete(DeleteBehavior.Restrict);
             });
 
             // Apply new configurations

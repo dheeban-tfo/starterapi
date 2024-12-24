@@ -35,7 +35,8 @@ namespace StarterApi.Application.Modules.Roles.Services
         public async Task<List<RoleDto>> GetRolesAsync()
         {
             var roles = await _context.Roles
-                .Include(r => r.Permissions)
+                .Include(r => r.RolePermissions)
+                    .ThenInclude(rp => rp.Permission)
                 .ToListAsync();
 
             return _mapper.Map<List<RoleDto>>(roles);
@@ -44,7 +45,8 @@ namespace StarterApi.Application.Modules.Roles.Services
         public async Task<RoleDto> GetRoleByIdAsync(Guid id)
         {
             var role = await _context.Roles
-                .Include(r => r.Permissions)
+                .Include(r => r.RolePermissions)
+                    .ThenInclude(rp => rp.Permission)
                 .FirstOrDefaultAsync(r => r.Id == id);
 
             if (role == null)
@@ -58,33 +60,64 @@ namespace StarterApi.Application.Modules.Roles.Services
             if (await _context.Roles.AnyAsync(r => r.Name == dto.Name))
                 throw new ValidationException($"Role with name {dto.Name} already exists");
 
+            // Create role
             var role = new TenantRole
             {
                 Name = dto.Name,
                 Description = dto.Description,
-                CreatedAt = DateTime.UtcNow,
-                Permissions = dto.Permissions?.Select(p => new TenantPermission
-                {
-                    Name = p,
-                    SystemName = p,
-                    Description = $"Permission to {p.ToLower()}",
-                    Group = "Default",
-                    IsEnabled = true,
-                    IsSystem = false,
-                    CreatedAt = DateTime.UtcNow
-                }).ToList() ?? new List<TenantPermission>()
+                CreatedAt = DateTime.UtcNow
             };
 
             await _context.Roles.AddAsync(role);
             await _context.SaveChangesAsync();
 
-            return _mapper.Map<RoleDto>(role);
+            if (dto.Permissions?.Any() == true)
+            {
+                // Get or create permissions
+                var permissions = new List<TenantPermission>();
+                foreach (var permissionName in dto.Permissions)
+                {
+                    var permission = await _context.Permissions
+                        .FirstOrDefaultAsync(p => p.SystemName == permissionName)
+                        ?? new TenantPermission
+                        {
+                            Name = permissionName,
+                            SystemName = permissionName,
+                            Description = $"Permission to {permissionName.ToLower()}",
+                            Group = "Default",
+                            IsEnabled = true,
+                            IsSystem = false,
+                            CreatedAt = DateTime.UtcNow
+                        };
+
+                    if (permission.Id == Guid.Empty)
+                    {
+                        await _context.Permissions.AddAsync(permission);
+                        await _context.SaveChangesAsync();
+                    }
+
+                    permissions.Add(permission);
+                }
+
+                // Create role permissions
+                var rolePermissions = permissions.Select(p => new TenantRolePermission
+                {
+                    RoleId = role.Id,
+                    PermissionId = p.Id,
+                    CreatedAt = DateTime.UtcNow
+                });
+
+                await _context.RolePermissions.AddRangeAsync(rolePermissions);
+                await _context.SaveChangesAsync();
+            }
+
+            return await GetRoleByIdAsync(role.Id);
         }
 
         public async Task<RoleDto> UpdateRoleAsync(Guid id, UpdateRoleDto dto)
         {
             var role = await _context.Roles
-                .Include(r => r.Permissions)
+                .Include(r => r.RolePermissions)
                 .FirstOrDefaultAsync(r => r.Id == id);
 
             if (role == null)
@@ -98,44 +131,48 @@ namespace StarterApi.Application.Modules.Roles.Services
             role.Description = dto.Description;
             role.UpdatedAt = DateTime.UtcNow;
 
-            // Update permissions
-            if (role.Permissions != null)
-            {
-                // Get existing permissions
-                var existingPermissions = await _context.Permissions
-                    .Where(p => p.TenantRoleId == id)
-                    .ToListAsync();
-
-                // Remove existing permissions
-                _context.Permissions.RemoveRange(existingPermissions);
-                await _context.SaveChangesAsync(); // Save the removal first
-            }
-
-            // Add new permissions
-            var newPermissions = dto.Permissions?.Select(p => new TenantPermission
-            {
-                Name = p,
-                SystemName = p,
-                Description = $"Permission to {p.ToLower()}",
-                Group = "Default",
-                IsEnabled = true,
-                IsSystem = false,
-                TenantRoleId = id,
-                CreatedAt = DateTime.UtcNow
-            }).ToList() ?? new List<TenantPermission>();
-
-            // Add new permissions
-            await _context.Permissions.AddRangeAsync(newPermissions);
-            
-            // Save all changes
+            // Remove existing role permissions
+            _context.RolePermissions.RemoveRange(role.RolePermissions);
             await _context.SaveChangesAsync();
 
-            // Reload the role with updated permissions
-            role = await _context.Roles
-                .Include(r => r.Permissions)
-                .FirstOrDefaultAsync(r => r.Id == id);
+            // Add new role permissions
+            if (dto.Permissions?.Any() == true)
+            {
+                foreach (var permissionName in dto.Permissions)
+                {
+                    var permission = await _context.Permissions
+                        .FirstOrDefaultAsync(p => p.SystemName == permissionName)
+                        ?? new TenantPermission
+                        {
+                            Name = permissionName,
+                            SystemName = permissionName,
+                            Description = $"Permission to {permissionName.ToLower()}",
+                            Group = "Default",
+                            IsEnabled = true,
+                            IsSystem = false,
+                            CreatedAt = DateTime.UtcNow
+                        };
 
-            return _mapper.Map<RoleDto>(role);
+                    if (permission.Id == Guid.Empty)
+                    {
+                        await _context.Permissions.AddAsync(permission);
+                        await _context.SaveChangesAsync();
+                    }
+
+                    var rolePermission = new TenantRolePermission
+                    {
+                        RoleId = role.Id,
+                        PermissionId = permission.Id,
+                        CreatedAt = DateTime.UtcNow
+                    };
+
+                    await _context.RolePermissions.AddAsync(rolePermission);
+                }
+            }
+
+            await _context.SaveChangesAsync();
+
+            return await GetRoleByIdAsync(id);
         }
 
         public async Task DeleteRoleAsync(Guid id)
@@ -168,49 +205,61 @@ namespace StarterApi.Application.Modules.Roles.Services
 
         public async Task<List<PermissionDto>> GetRolePermissionsAsync(Guid roleId)
         {
-            var role = await _context.Roles
-                .Include(r => r.Permissions)
-                .FirstOrDefaultAsync(r => r.Id == roleId);
+            var permissions = await _context.RolePermissions
+                .Where(rp => rp.RoleId == roleId)
+                .Select(rp => rp.Permission)
+                .ToListAsync();
 
-            if (role == null)
-                throw new NotFoundException($"Role with ID {roleId} not found");
-
-            return _mapper.Map<List<PermissionDto>>(role.Permissions);
+            return _mapper.Map<List<PermissionDto>>(permissions);
         }
 
         public async Task UpdateRolePermissionsAsync(Guid roleId, RolePermissionUpdateDto dto)
         {
             var role = await _context.Roles
-                .Include(r => r.Permissions)
+                .Include(r => r.RolePermissions)
                 .FirstOrDefaultAsync(r => r.Id == roleId);
 
             if (role == null)
                 throw new NotFoundException($"Role with ID {roleId} not found");
 
             // Clear existing permissions
-            if (role.Permissions != null)
+            if (role.RolePermissions != null)
             {
-                var existingPermissions = await _context.Permissions
-                    .Where(p => p.TenantRoleId == roleId)
-                    .ToListAsync();
-                    
-                _context.Permissions.RemoveRange(existingPermissions);
+                _context.RolePermissions.RemoveRange(role.RolePermissions);
             }
 
             // Add new permissions
-            var newPermissions = dto.Permissions.Select(p => new TenantPermission
+            foreach (var permissionName in dto.Permissions)
             {
-                Name = p,
-                SystemName = p,
-                Description = $"Permission to {p.ToLower()}",
-                Group = "Default",
-                IsEnabled = true,
-                IsSystem = false,
-                TenantRoleId = roleId,
-                CreatedAt = DateTime.UtcNow
-            }).ToList();
+                var permission = await _context.Permissions
+                    .FirstOrDefaultAsync(p => p.SystemName == permissionName)
+                    ?? new TenantPermission
+                    {
+                        Name = permissionName,
+                        SystemName = permissionName,
+                        Description = $"Permission to {permissionName.ToLower()}",
+                        Group = "Default",
+                        IsEnabled = true,
+                        IsSystem = false,
+                        CreatedAt = DateTime.UtcNow
+                    };
 
-            await _context.Permissions.AddRangeAsync(newPermissions);
+                if (permission.Id == Guid.Empty)
+                {
+                    await _context.Permissions.AddAsync(permission);
+                    await _context.SaveChangesAsync();
+                }
+
+                var rolePermission = new TenantRolePermission
+                {
+                    RoleId = roleId,
+                    PermissionId = permission.Id,
+                    CreatedAt = DateTime.UtcNow
+                };
+
+                await _context.RolePermissions.AddAsync(rolePermission);
+            }
+
             await _context.SaveChangesAsync();
         }
 
@@ -252,7 +301,8 @@ namespace StarterApi.Application.Modules.Roles.Services
             var user = await _context.Users
                 .AsNoTracking()
                 .Include(u => u.Role)
-                    .ThenInclude(r => r.Permissions)
+                    .ThenInclude(r => r.RolePermissions)
+                        .ThenInclude(rp => rp.Permission)
                 .FirstOrDefaultAsync(u => u.Id == userId);
 
             if (user == null)
@@ -267,8 +317,10 @@ namespace StarterApi.Application.Modules.Roles.Services
                 return new List<PermissionDto>();
             }
 
-            var permissions = user.Role.Permissions ?? new List<TenantPermission>();
+            var permissions = user.Role.RolePermissions?.Select(rp => rp.Permission) ?? new List<TenantPermission>();
             return _mapper.Map<List<PermissionDto>>(permissions);
         }
+
+       
     }
 }

@@ -10,7 +10,7 @@ namespace StarterApi.Application.Common.Mappings
         {
             CreateMap<TenantRole, RoleDto>()
                 .ForMember(d => d.Permissions, opt => opt
-                    .MapFrom(s => s.Permissions.Select(p => p.SystemName)));
+                    .MapFrom(s => s.RolePermissions.Select(rp => rp.Permission.SystemName)));
 
             CreateMap<TenantPermission, PermissionDto>();
             

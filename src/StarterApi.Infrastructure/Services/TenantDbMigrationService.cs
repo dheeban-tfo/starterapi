@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using StarterApi.Domain.Entities;
 using StarterApi.Infrastructure.Persistence.Contexts;
+using StarterApi.Infrastructure.Persistence.Seeders;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,10 +11,14 @@ using System.Threading.Tasks;
 public class TenantDbMigrationService : ITenantDbMigrationService
 {
     private readonly ILogger<TenantDbMigrationService> _logger;
+    private readonly ILogger<TenantPermissionSeeder> _permissionSeederLogger;
 
-    public TenantDbMigrationService(ILogger<TenantDbMigrationService> logger)
+    public TenantDbMigrationService(
+        ILogger<TenantDbMigrationService> logger,
+        ILogger<TenantPermissionSeeder> permissionSeederLogger)
     {
         _logger = logger;
+        _permissionSeederLogger = permissionSeederLogger;
     }
 
     public async Task CreateTenantDatabaseAsync(Tenant tenant)
@@ -88,60 +93,63 @@ public class TenantDbMigrationService : ITenantDbMigrationService
     }
 
     private async Task EnsureRolesSeededAsync(TenantDbContext context)
-{
-    if (!await context.Roles.AnyAsync())
     {
-        _logger.LogInformation("Seeding tenant roles and users");
-
-        // Create TenantAdmin role
-        var tenantAdminRole = new TenantRole
+        if (!await context.Roles.AnyAsync())
         {
-            Name = "Tenant Admin",
-            Description = "Tenant administrator with full tenant access",
+            _logger.LogInformation("Seeding tenant roles and users");
+
+            // First seed permissions
+            var permissionSeeder = new TenantPermissionSeeder(context, _permissionSeederLogger);
+            await permissionSeeder.SeedAsync();
+            _logger.LogInformation("Tenant permissions seeded successfully");
+
+            // Create TenantAdmin role
+            var tenantAdminRole = new TenantRole
+            {
+                Name = "Tenant Admin",
+                Description = "Tenant administrator with full tenant access",
+                CreatedAt = DateTime.UtcNow
+            };
+
+            // Create User role
+            var userRole = new TenantRole
+            {
+                Name = "User",
+                Description = "Regular tenant user",
+                CreatedAt = DateTime.UtcNow
+            };
+
+            context.Roles.AddRange(new[] { tenantAdminRole, userRole });
+            await context.SaveChangesAsync();
+            _logger.LogInformation("Tenant roles created successfully");
+
+            // Assign permissions to roles through RolePermissions
+            var permissions = await context.Permissions.ToListAsync();
             
-            CreatedAt = DateTime.UtcNow
-        };
-
-        // Create User role
-        var userRole = new TenantRole
-        {
-            Name = "User",
-            Description = "Regular tenant user",
+            // Assign all permissions to Tenant Admin
+            var adminRolePermissions = permissions.Select(p => new TenantRolePermission
+            {
+                RoleId = tenantAdminRole.Id,
+                PermissionId = p.Id,
+                CreatedAt = DateTime.UtcNow
+            });
             
-            CreatedAt = DateTime.UtcNow
-        };
+            // Assign basic permissions to User role
+            var userPermissions = permissions
+                .Where(p => p.SystemName == "Users.View" || p.SystemName == "Roles.View")
+                .Select(p => new TenantRolePermission
+                {
+                    RoleId = userRole.Id,
+                    PermissionId = p.Id,
+                    CreatedAt = DateTime.UtcNow
+                });
 
-        context.Roles.AddRange(new[] { tenantAdminRole, userRole });
-        await context.SaveChangesAsync();
-
-        // Create default TenantAdmin user
-        var tenantAdmin = new TenantUser
-        {
-            Email = "tenantadmin@example.com",
-            FirstName = "Tenant",
-            LastName = "Admin",
-            MobileNumber = "1234567890",
-            RoleId = tenantAdminRole.Id,
-            CreatedAt = DateTime.UtcNow
-        };
-
-        // Create default User
-        var defaultUser = new TenantUser
-        {
-            Email = "user@example.com",
-            FirstName = "Default",
-            LastName = "User",
-            MobileNumber = "0987654321", 
-            RoleId = userRole.Id,
-            CreatedAt = DateTime.UtcNow
-        };
-
-        context.Users.AddRange(new[] { tenantAdmin, defaultUser });
-        await context.SaveChangesAsync();
-
-        _logger.LogInformation("Tenant roles and users seeded successfully");
+            await context.RolePermissions.AddRangeAsync(adminRolePermissions);
+            await context.RolePermissions.AddRangeAsync(userPermissions);
+            await context.SaveChangesAsync();
+            _logger.LogInformation("Role permissions assigned successfully");
+        }
     }
-}
 
     private IEnumerable<TenantPermission> GetDefaultAdminPermissions(Guid roleId)
     {
@@ -174,7 +182,7 @@ public class TenantDbMigrationService : ITenantDbMigrationService
             Group = group,
             IsEnabled = true,
             IsSystem = true,
-            TenantRoleId = roleId,
+          
             CreatedAt = DateTime.UtcNow
         };
     }
