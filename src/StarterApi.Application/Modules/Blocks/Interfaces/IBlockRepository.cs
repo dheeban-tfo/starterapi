@@ -1,3 +1,4 @@
+using StarterApi.Application.Common.Models;
 using StarterApi.Domain.Entities;
 
 namespace StarterApi.Application.Modules.Blocks.Interfaces
@@ -5,12 +6,12 @@ namespace StarterApi.Application.Modules.Blocks.Interfaces
     public interface IBlockRepository
     {
         Task<Block> GetByIdAsync(Guid id);
-        Task<IEnumerable<Block>> GetAllAsync();
-        Task<IEnumerable<Block>> GetBySocietyIdAsync(Guid societyId);
+        Task<PagedResult<Block>> GetPagedAsync(QueryParameters parameters);
         Task<Block> AddAsync(Block block);
         Task<Block> UpdateAsync(Block block);
         Task SaveChangesAsync();
-        Task<bool> ExistsAsync(Guid societyId, string code);
+        Task<Block> GetByCodeAsync(string code, Guid societyId);
+        Task<bool> ExistsAsync(string code, Guid societyId);
         Task<int> GetBlockCountBySocietyAsync(Guid societyId);
     }
 }

@@ -1,4 +1,6 @@
 using Microsoft.EntityFrameworkCore;
+using StarterApi.Application.Common.Extensions;
+using StarterApi.Application.Common.Models;
 using StarterApi.Application.Modules.Units.Interfaces;
 using StarterApi.Domain.Entities;
 using StarterApi.Infrastructure.Persistence.Contexts;
@@ -16,31 +18,24 @@ namespace StarterApi.Infrastructure.Persistence.Repositories
 
         public async Task<Unit> GetByIdAsync(Guid id)
         {
-            return await _context.Units
-                .Include(u => u.Floor)
-                    .ThenInclude(f => f.Block)
-                .Include(u => u.CurrentOwner)
-                .FirstOrDefaultAsync(u => u.Id == id);
+            return await _context.Units.FindAsync(id);
         }
 
-        public async Task<IEnumerable<Unit>> GetAllAsync()
+        public async Task<PagedResult<Unit>> GetPagedAsync(QueryParameters parameters)
         {
-            return await _context.Units
-                .Include(u => u.Floor)
-                    .ThenInclude(f => f.Block)
-                .Include(u => u.CurrentOwner)
-                .ToListAsync();
-        }
+            var query = _context.Units.AsQueryable();
 
-        public async Task<IEnumerable<Unit>> GetByFloorIdAsync(Guid floorId)
-        {
-            return await _context.Units
-                .Include(u => u.Floor)
-                    .ThenInclude(f => f.Block)
-                .Include(u => u.CurrentOwner)
-                .Where(u => u.FloorId == floorId)
-                .OrderBy(u => u.UnitNumber)
-                .ToListAsync();
+            // Apply Search
+            query = query.ApplySearch(parameters.SearchTerm);
+
+            // Apply Filters
+            query = query.ApplyFiltering(parameters.Filters);
+
+            // Apply Sorting
+            query = query.ApplySort(parameters.SortBy, parameters.IsDescending);
+
+            // Return Paged Result
+            return await query.ToPagedResultAsync(parameters);
         }
 
         public async Task<Unit> AddAsync(Unit unit)
@@ -60,32 +55,22 @@ namespace StarterApi.Infrastructure.Persistence.Repositories
             await _context.SaveChangesAsync();
         }
 
-        public async Task<bool> ExistsAsync(Guid floorId, string unitNumber)
+        public async Task<Unit> GetByNumberAsync(string number, Guid floorId)
         {
             return await _context.Units
-                .AnyAsync(u => u.FloorId == floorId && u.UnitNumber == unitNumber);
+                .FirstOrDefaultAsync(u => u.UnitNumber == number && u.FloorId == floorId);
+        }
+
+        public async Task<bool> ExistsAsync(string number, Guid floorId)
+        {
+            return await _context.Units
+                .AnyAsync(u => u.UnitNumber == number && u.FloorId == floorId);
         }
 
         public async Task<int> GetUnitCountByFloorAsync(Guid floorId)
         {
             return await _context.Units
                 .CountAsync(u => u.FloorId == floorId);
-        }
-
-        public async Task<Unit> GetByFloorAndNumberAsync(Guid floorId, string unitNumber)
-        {
-            return await _context.Units
-                .Include(u => u.Floor)
-                    .ThenInclude(f => f.Block)
-                .Include(u => u.CurrentOwner)
-                .FirstOrDefaultAsync(u => u.FloorId == floorId && u.UnitNumber == unitNumber);
-        }
-
-        public async Task<decimal> GetTotalMaintenanceByFloorAsync(Guid floorId)
-        {
-            return await _context.Units
-                .Where(u => u.FloorId == floorId)
-                .SumAsync(u => u.MonthlyMaintenanceFee);
         }
     }
 } 

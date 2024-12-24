@@ -1,3 +1,4 @@
+using StarterApi.Application.Common.Models;
 using StarterApi.Application.Modules.Blocks.DTOs;
 
 namespace StarterApi.Application.Modules.Blocks.Interfaces
@@ -8,8 +9,7 @@ namespace StarterApi.Application.Modules.Blocks.Interfaces
         Task<BlockDto> UpdateBlockAsync(Guid id, UpdateBlockDto dto);
         Task<bool> DeleteBlockAsync(Guid id);
         Task<BlockDto> GetBlockByIdAsync(Guid id);
-        Task<IEnumerable<BlockDto>> GetAllBlocksAsync();
-        Task<IEnumerable<BlockDto>> GetBlocksBySocietyAsync(Guid societyId);
-        Task<bool> ExistsByCodeAsync(Guid societyId, string code);
+        Task<PagedResult<BlockDto>> GetBlocksAsync(QueryParameters parameters);
+        Task<bool> ExistsByCodeAsync(string code, Guid societyId);
     }
 }

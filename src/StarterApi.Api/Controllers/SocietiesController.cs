@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using StarterApi.Application.Common.Exceptions;
+using StarterApi.Application.Common.Models;
 using StarterApi.Application.Modules.Societies.DTOs;
 using StarterApi.Application.Modules.Societies.Interfaces;
 using StarterApi.Domain.Constants;
@@ -41,11 +42,11 @@ namespace StarterApi.Api.Controllers
 
         [HttpGet]
         [RequirePermission(Permissions.Societies.View)]
-        public async Task<ActionResult<IEnumerable<SocietyDto>>> GetSocieties()
+        public async Task<ActionResult<PagedResult<SocietyDto>>> GetSocieties([FromQuery] QueryParameters parameters)
         {
             try
             {
-                var societies = await _societyService.GetAllSocietiesAsync();
+                var societies = await _societyService.GetSocietiesAsync(parameters);
                 return Ok(societies);
             }
             catch (Exception ex)

@@ -1,3 +1,4 @@
+using StarterApi.Application.Common.Models;
 using StarterApi.Application.Modules.Units.DTOs;
 
 namespace StarterApi.Application.Modules.Units.Interfaces
@@ -8,8 +9,7 @@ namespace StarterApi.Application.Modules.Units.Interfaces
         Task<UnitDto> UpdateUnitAsync(Guid id, UpdateUnitDto dto);
         Task<bool> DeleteUnitAsync(Guid id);
         Task<UnitDto> GetUnitByIdAsync(Guid id);
-        Task<IEnumerable<UnitDto>> GetAllUnitsAsync();
-        Task<IEnumerable<UnitDto>> GetUnitsByFloorAsync(Guid floorId);
-        Task<bool> ExistsByNumberAsync(Guid floorId, string unitNumber);
+        Task<PagedResult<UnitDto>> GetUnitsAsync(QueryParameters parameters);
+        Task<bool> ExistsByNumberAsync(string number, Guid floorId);
     }
 }

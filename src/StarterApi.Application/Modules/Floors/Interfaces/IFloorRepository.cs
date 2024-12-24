@@ -1,3 +1,4 @@
+using StarterApi.Application.Common.Models;
 using StarterApi.Domain.Entities;
 
 namespace StarterApi.Application.Modules.Floors.Interfaces
@@ -5,13 +6,12 @@ namespace StarterApi.Application.Modules.Floors.Interfaces
     public interface IFloorRepository
     {
         Task<Floor> GetByIdAsync(Guid id);
-        Task<IEnumerable<Floor>> GetAllAsync();
-        Task<IEnumerable<Floor>> GetByBlockIdAsync(Guid blockId);
+        Task<PagedResult<Floor>> GetPagedAsync(QueryParameters parameters);
         Task<Floor> AddAsync(Floor floor);
         Task<Floor> UpdateAsync(Floor floor);
         Task SaveChangesAsync();
-        Task<bool> ExistsAsync(Guid blockId, int floorNumber);
+        Task<Floor> GetByNumberAsync(int number, Guid blockId);
+        Task<bool> ExistsAsync(int number, Guid blockId);
         Task<int> GetFloorCountByBlockAsync(Guid blockId);
-        Task<Floor> GetByBlockAndNumberAsync(Guid blockId, int floorNumber);
     }
 }

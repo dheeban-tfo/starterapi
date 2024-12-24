@@ -204,3 +204,45 @@ GET /api/units/floor/{floorId}
 
 
 
+// Get societies with filtering and sorting
+GET /api/societies?pageNumber=1&pageSize=10&sortBy=name&isDescending=false&searchTerm=green
+
+// With specific filters
+GET /api/societies?filters=[
+  {
+    "propertyName": "city",
+    "operation": "eq",
+    "value": "New York"
+  },
+  {
+    "propertyName": "totalBlocks",
+    "operation": "gt",
+    "value": "5"
+  }
+]
+
+# Get paginated societies with search and filters
+GET /api/societies?pageNumber=1&pageSize=10&searchTerm=green&sortBy=name&isDescending=false&filters=[
+  {
+    "propertyName": "city",
+    "operation": "eq",
+    "value": "New York"
+  }
+]
+# Get paginated blocks with search and filters
+GET /api/blocks?pageNumber=1&pageSize=10&searchTerm=tower&sortBy=name&isDescending=false&filters=[
+  {
+    "propertyName": "societyId",
+    "operation": "eq",
+    "value": "some-guid"
+  }
+]
+
+# Get paginated floors with search and filters
+GET /api/floors?pageNumber=1&pageSize=10&searchTerm=level&sortBy=floorNumber&isDescending=false&filters=[
+  {
+    "propertyName": "blockId",
+    "operation": "eq",
+    "value": "some-guid"
+  }
+]

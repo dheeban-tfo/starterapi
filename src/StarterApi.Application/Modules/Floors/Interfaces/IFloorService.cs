@@ -1,3 +1,4 @@
+using StarterApi.Application.Common.Models;
 using StarterApi.Application.Modules.Floors.DTOs;
 
 namespace StarterApi.Application.Modules.Floors.Interfaces
@@ -8,8 +9,7 @@ namespace StarterApi.Application.Modules.Floors.Interfaces
         Task<FloorDto> UpdateFloorAsync(Guid id, UpdateFloorDto dto);
         Task<bool> DeleteFloorAsync(Guid id);
         Task<FloorDto> GetFloorByIdAsync(Guid id);
-        Task<IEnumerable<FloorDto>> GetAllFloorsAsync();
-        Task<IEnumerable<FloorDto>> GetFloorsByBlockAsync(Guid blockId);
-        Task<bool> ExistsByNumberAsync(Guid blockId, int floorNumber);
+        Task<PagedResult<FloorDto>> GetFloorsAsync(QueryParameters parameters);
+        Task<bool> ExistsByNumberAsync(int number, Guid blockId);
     }
 }

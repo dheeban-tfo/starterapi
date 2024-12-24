@@ -1,4 +1,6 @@
 using Microsoft.EntityFrameworkCore;
+using StarterApi.Application.Common.Extensions;
+using StarterApi.Application.Common.Models;
 using StarterApi.Application.Modules.Floors.Interfaces;
 using StarterApi.Domain.Entities;
 using StarterApi.Infrastructure.Persistence.Contexts;
@@ -16,25 +18,24 @@ namespace StarterApi.Infrastructure.Persistence.Repositories
 
         public async Task<Floor> GetByIdAsync(Guid id)
         {
-            return await _context.Floors
-                .Include(f => f.Block)
-                .FirstOrDefaultAsync(f => f.Id == id);
+            return await _context.Floors.FindAsync(id);
         }
 
-        public async Task<IEnumerable<Floor>> GetAllAsync()
+        public async Task<PagedResult<Floor>> GetPagedAsync(QueryParameters parameters)
         {
-            return await _context.Floors
-                .Include(f => f.Block)
-                .ToListAsync();
-        }
+            var query = _context.Floors.AsQueryable();
 
-        public async Task<IEnumerable<Floor>> GetByBlockIdAsync(Guid blockId)
-        {
-            return await _context.Floors
-                .Include(f => f.Block)
-                .Where(f => f.BlockId == blockId)
-                .OrderBy(f => f.FloorNumber)
-                .ToListAsync();
+            // Apply Search
+            query = query.ApplySearch(parameters.SearchTerm);
+
+            // Apply Filters
+            query = query.ApplyFiltering(parameters.Filters);
+
+            // Apply Sorting
+            query = query.ApplySort(parameters.SortBy, parameters.IsDescending);
+
+            // Return Paged Result
+            return await query.ToPagedResultAsync(parameters);
         }
 
         public async Task<Floor> AddAsync(Floor floor)
@@ -54,23 +55,22 @@ namespace StarterApi.Infrastructure.Persistence.Repositories
             await _context.SaveChangesAsync();
         }
 
-        public async Task<bool> ExistsAsync(Guid blockId, int floorNumber)
+        public async Task<Floor> GetByNumberAsync(int number, Guid blockId)
         {
             return await _context.Floors
-                .AnyAsync(f => f.BlockId == blockId && f.FloorNumber == floorNumber);
+                .FirstOrDefaultAsync(f => f.FloorNumber == number && f.BlockId == blockId);
+        }
+
+        public async Task<bool> ExistsAsync(int number, Guid blockId)
+        {
+            return await _context.Floors
+                .AnyAsync(f => f.FloorNumber == number && f.BlockId == blockId);
         }
 
         public async Task<int> GetFloorCountByBlockAsync(Guid blockId)
         {
             return await _context.Floors
                 .CountAsync(f => f.BlockId == blockId);
-        }
-
-        public async Task<Floor> GetByBlockAndNumberAsync(Guid blockId, int floorNumber)
-        {
-            return await _context.Floors
-                .Include(f => f.Block)
-                .FirstOrDefaultAsync(f => f.BlockId == blockId && f.FloorNumber == floorNumber);
         }
     }
 } 

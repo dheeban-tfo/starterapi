@@ -1,6 +1,7 @@
 using AutoMapper;
 using Microsoft.Extensions.Logging;
 using StarterApi.Application.Common.Exceptions;
+using StarterApi.Application.Common.Models;
 using StarterApi.Application.Modules.Societies.DTOs;
 using StarterApi.Application.Modules.Societies.Interfaces;
 using StarterApi.Domain.Entities;
@@ -86,7 +87,6 @@ namespace StarterApi.Application.Modules.Societies.Services
             if (society == null)
                 throw new NotFoundException($"Society with ID {id} not found");
 
-            // Add validation for active residents if needed
             society.IsActive = false;
             await _societyRepository.UpdateAsync(society);
             await _societyRepository.SaveChangesAsync();
@@ -94,10 +94,22 @@ namespace StarterApi.Application.Modules.Societies.Services
             return true;
         }
 
-        public async Task<IEnumerable<SocietyDto>> GetAllSocietiesAsync()
+        public async Task<PagedResult<SocietyDto>> GetSocietiesAsync(QueryParameters parameters)
         {
-            var societies = await _societyRepository.GetAllAsync();
-            return _mapper.Map<IEnumerable<SocietyDto>>(societies);
+            var pagedSocieties = await _societyRepository.GetPagedAsync(parameters);
+            
+            var societyDtos = _mapper.Map<IEnumerable<SocietyDto>>(pagedSocieties.Items);
+            
+            return new PagedResult<SocietyDto>
+            {
+                Items = societyDtos,
+                TotalItems = pagedSocieties.TotalItems,
+                PageNumber = pagedSocieties.PageNumber,
+                PageSize = pagedSocieties.PageSize,
+                TotalPages = pagedSocieties.TotalPages,
+                HasNextPage = pagedSocieties.HasNextPage,
+                HasPreviousPage = pagedSocieties.HasPreviousPage
+            };
         }
 
         public async Task<bool> ExistsByRegistrationNumberAsync(string registrationNumber)

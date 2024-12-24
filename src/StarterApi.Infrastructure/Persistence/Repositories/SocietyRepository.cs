@@ -1,4 +1,6 @@
 using Microsoft.EntityFrameworkCore;
+using StarterApi.Application.Common.Extensions;
+using StarterApi.Application.Common.Models;
 using StarterApi.Application.Modules.Societies.Interfaces;
 using StarterApi.Domain.Entities;
 using StarterApi.Infrastructure.Persistence.Contexts;
@@ -19,9 +21,21 @@ namespace StarterApi.Infrastructure.Persistence.Repositories
             return await _context.Societies.FindAsync(id);
         }
 
-        public async Task<IEnumerable<Society>> GetAllAsync()
+        public async Task<PagedResult<Society>> GetPagedAsync(QueryParameters parameters)
         {
-            return await _context.Societies.ToListAsync();
+            var query = _context.Societies.AsQueryable();
+
+            // Apply Search
+            query = query.ApplySearch(parameters.SearchTerm);
+
+            // Apply Filters
+            query = query.ApplyFiltering(parameters.Filters);
+
+            // Apply Sorting
+            query = query.ApplySort(parameters.SortBy, parameters.IsDescending);
+
+            // Return Paged Result
+            return await query.ToPagedResultAsync(parameters);
         }
 
         public async Task<Society> AddAsync(Society society)

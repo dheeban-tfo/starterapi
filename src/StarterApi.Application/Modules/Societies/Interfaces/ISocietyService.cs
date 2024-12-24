@@ -1,3 +1,4 @@
+using StarterApi.Application.Common.Models;
 using StarterApi.Application.Modules.Societies.DTOs;
 
 namespace StarterApi.Application.Modules.Societies.Interfaces
@@ -8,7 +9,7 @@ namespace StarterApi.Application.Modules.Societies.Interfaces
         Task<SocietyDto> UpdateSocietyAsync(Guid id, UpdateSocietyDto dto);
         Task<bool> DeleteSocietyAsync(Guid id);
         Task<SocietyDto> GetSocietyByIdAsync(Guid id);
-        Task<IEnumerable<SocietyDto>> GetAllSocietiesAsync();
+        Task<PagedResult<SocietyDto>> GetSocietiesAsync(QueryParameters parameters);
         Task<bool> ExistsByRegistrationNumberAsync(string registrationNumber);
     }
 }

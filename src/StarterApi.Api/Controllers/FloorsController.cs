@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using StarterApi.Application.Common.Exceptions;
+using StarterApi.Application.Common.Models;
 using StarterApi.Application.Modules.Floors.DTOs;
 using StarterApi.Application.Modules.Floors.Interfaces;
 using StarterApi.Domain.Constants;
@@ -24,17 +25,13 @@ namespace StarterApi.Api.Controllers
         }
 
         [HttpPost]
-        [RequirePermission(Permissions.Societies.ManageBlocks)]
+        [RequirePermission(Permissions.Societies.Create)]
         public async Task<ActionResult<FloorDto>> CreateFloor(CreateFloorDto dto)
         {
             try
             {
                 var floor = await _floorService.CreateFloorAsync(dto);
                 return CreatedAtAction(nameof(GetFloor), new { id = floor.Id }, floor);
-            }
-            catch (NotFoundException ex)
-            {
-                return NotFound(ex.Message);
             }
             catch (Exception ex)
             {
@@ -45,32 +42,16 @@ namespace StarterApi.Api.Controllers
 
         [HttpGet]
         [RequirePermission(Permissions.Societies.View)]
-        public async Task<ActionResult<IEnumerable<FloorDto>>> GetFloors()
+        public async Task<ActionResult<PagedResult<FloorDto>>> GetFloors([FromQuery] QueryParameters parameters)
         {
             try
             {
-                var floors = await _floorService.GetAllFloorsAsync();
+                var floors = await _floorService.GetFloorsAsync(parameters);
                 return Ok(floors);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error retrieving floors");
-                return StatusCode(500, "An error occurred while retrieving floors");
-            }
-        }
-
-        [HttpGet("block/{blockId}")]
-        [RequirePermission(Permissions.Societies.View)]
-        public async Task<ActionResult<IEnumerable<FloorDto>>> GetFloorsByBlock(Guid blockId)
-        {
-            try
-            {
-                var floors = await _floorService.GetFloorsByBlockAsync(blockId);
-                return Ok(floors);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error retrieving floors for block");
                 return StatusCode(500, "An error occurred while retrieving floors");
             }
         }
@@ -96,7 +77,7 @@ namespace StarterApi.Api.Controllers
         }
 
         [HttpPut("{id}")]
-        [RequirePermission(Permissions.Societies.ManageBlocks)]
+        [RequirePermission(Permissions.Societies.Edit)]
         public async Task<ActionResult<FloorDto>> UpdateFloor(Guid id, UpdateFloorDto dto)
         {
             try
@@ -116,7 +97,7 @@ namespace StarterApi.Api.Controllers
         }
 
         [HttpDelete("{id}")]
-        [RequirePermission(Permissions.Societies.ManageBlocks)]
+        [RequirePermission(Permissions.Societies.Delete)]
         public async Task<ActionResult<bool>> DeleteFloor(Guid id)
         {
             try

@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using StarterApi.Application.Common.Exceptions;
+using StarterApi.Application.Common.Models;
 using StarterApi.Application.Modules.Blocks.DTOs;
 using StarterApi.Application.Modules.Blocks.Interfaces;
 using StarterApi.Domain.Constants;
@@ -24,17 +25,13 @@ namespace StarterApi.Api.Controllers
         }
 
         [HttpPost]
-        [RequirePermission(Permissions.Societies.ManageBlocks)]
+        [RequirePermission(Permissions.Societies.Create)]
         public async Task<ActionResult<BlockDto>> CreateBlock(CreateBlockDto dto)
         {
             try
             {
                 var block = await _blockService.CreateBlockAsync(dto);
                 return CreatedAtAction(nameof(GetBlock), new { id = block.Id }, block);
-            }
-            catch (NotFoundException ex)
-            {
-                return NotFound(ex.Message);
             }
             catch (Exception ex)
             {
@@ -45,32 +42,16 @@ namespace StarterApi.Api.Controllers
 
         [HttpGet]
         [RequirePermission(Permissions.Societies.View)]
-        public async Task<ActionResult<IEnumerable<BlockDto>>> GetBlocks()
+        public async Task<ActionResult<PagedResult<BlockDto>>> GetBlocks([FromQuery] QueryParameters parameters)
         {
             try
             {
-                var blocks = await _blockService.GetAllBlocksAsync();
+                var blocks = await _blockService.GetBlocksAsync(parameters);
                 return Ok(blocks);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error retrieving blocks");
-                return StatusCode(500, "An error occurred while retrieving blocks");
-            }
-        }
-
-        [HttpGet("society/{societyId}")]
-        [RequirePermission(Permissions.Societies.View)]
-        public async Task<ActionResult<IEnumerable<BlockDto>>> GetBlocksBySociety(Guid societyId)
-        {
-            try
-            {
-                var blocks = await _blockService.GetBlocksBySocietyAsync(societyId);
-                return Ok(blocks);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error retrieving blocks for society");
                 return StatusCode(500, "An error occurred while retrieving blocks");
             }
         }
@@ -96,7 +77,7 @@ namespace StarterApi.Api.Controllers
         }
 
         [HttpPut("{id}")]
-        [RequirePermission(Permissions.Societies.ManageBlocks)]
+        [RequirePermission(Permissions.Societies.Edit)]
         public async Task<ActionResult<BlockDto>> UpdateBlock(Guid id, UpdateBlockDto dto)
         {
             try
@@ -116,7 +97,7 @@ namespace StarterApi.Api.Controllers
         }
 
         [HttpDelete("{id}")]
-        [RequirePermission(Permissions.Societies.ManageBlocks)]
+        [RequirePermission(Permissions.Societies.Delete)]
         public async Task<ActionResult<bool>> DeleteBlock(Guid id)
         {
             try

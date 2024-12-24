@@ -1,4 +1,6 @@
 using Microsoft.EntityFrameworkCore;
+using StarterApi.Application.Common.Extensions;
+using StarterApi.Application.Common.Models;
 using StarterApi.Application.Modules.Blocks.Interfaces;
 using StarterApi.Domain.Entities;
 using StarterApi.Infrastructure.Persistence.Contexts;
@@ -16,24 +18,24 @@ namespace StarterApi.Infrastructure.Persistence.Repositories
 
         public async Task<Block> GetByIdAsync(Guid id)
         {
-            return await _context.Blocks
-                .Include(b => b.Society)
-                .FirstOrDefaultAsync(b => b.Id == id);
+            return await _context.Blocks.FindAsync(id);
         }
 
-        public async Task<IEnumerable<Block>> GetAllAsync()
+        public async Task<PagedResult<Block>> GetPagedAsync(QueryParameters parameters)
         {
-            return await _context.Blocks
-                .Include(b => b.Society)
-                .ToListAsync();
-        }
+            var query = _context.Blocks.AsQueryable();
 
-        public async Task<IEnumerable<Block>> GetBySocietyIdAsync(Guid societyId)
-        {
-            return await _context.Blocks
-                .Include(b => b.Society)
-                .Where(b => b.SocietyId == societyId)
-                .ToListAsync();
+            // Apply Search
+            query = query.ApplySearch(parameters.SearchTerm);
+
+            // Apply Filters
+            query = query.ApplyFiltering(parameters.Filters);
+
+            // Apply Sorting
+            query = query.ApplySort(parameters.SortBy, parameters.IsDescending);
+
+            // Return Paged Result
+            return await query.ToPagedResultAsync(parameters);
         }
 
         public async Task<Block> AddAsync(Block block)
@@ -53,10 +55,16 @@ namespace StarterApi.Infrastructure.Persistence.Repositories
             await _context.SaveChangesAsync();
         }
 
-        public async Task<bool> ExistsAsync(Guid societyId, string code)
+        public async Task<Block> GetByCodeAsync(string code, Guid societyId)
         {
             return await _context.Blocks
-                .AnyAsync(b => b.SocietyId == societyId && b.Code == code);
+                .FirstOrDefaultAsync(b => b.Code == code && b.SocietyId == societyId);
+        }
+
+        public async Task<bool> ExistsAsync(string code, Guid societyId)
+        {
+            return await _context.Blocks
+                .AnyAsync(b => b.Code == code && b.SocietyId == societyId);
         }
 
         public async Task<int> GetBlockCountBySocietyAsync(Guid societyId)
