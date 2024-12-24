@@ -30,6 +30,15 @@ namespace StarterApi.Domain.Constants
             public const string ManageUsers = "Tenants.ManageUsers";
         }
 
+        public static class Societies
+        {
+            public const string View = "Societies.View";
+            public const string Create = "Societies.Create";
+            public const string Edit = "Societies.Edit";
+            public const string Delete = "Societies.Delete";
+            public const string ManageBlocks = "Societies.ManageBlocks";
+        }
+
         public static IEnumerable<string> GetAllPermissions()
         {
             return typeof(Permissions)
