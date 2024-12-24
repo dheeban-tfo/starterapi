@@ -4,14 +4,15 @@ using StarterApi.Application.Common.Models;
 using StarterApi.Application.Modules.Societies.Interfaces;
 using StarterApi.Domain.Entities;
 using StarterApi.Infrastructure.Persistence.Contexts;
+using StarterApi.Application.Common.Interfaces;
 
 namespace StarterApi.Infrastructure.Persistence.Repositories
 {
     public class SocietyRepository : ISocietyRepository
     {
-        private readonly TenantDbContext _context;
+        private readonly ITenantDbContext _context;
 
-        public SocietyRepository(TenantDbContext context)
+        public SocietyRepository(ITenantDbContext context)
         {
             _context = context;
         }
@@ -46,7 +47,7 @@ namespace StarterApi.Infrastructure.Persistence.Repositories
 
         public async Task<Society> UpdateAsync(Society society)
         {
-            _context.Entry(society).State = EntityState.Modified;
+            ((DbContext)_context).Entry(society).State = EntityState.Modified;
             return society;
         }
 

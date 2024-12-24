@@ -4,14 +4,15 @@ using StarterApi.Application.Common.Models;
 using StarterApi.Application.Modules.Units.Interfaces;
 using StarterApi.Domain.Entities;
 using StarterApi.Infrastructure.Persistence.Contexts;
+using StarterApi.Application.Common.Interfaces;
 
 namespace StarterApi.Infrastructure.Persistence.Repositories
 {
     public class UnitRepository : IUnitRepository
     {
-        private readonly TenantDbContext _context;
+        private readonly ITenantDbContext _context;
 
-        public UnitRepository(TenantDbContext context)
+        public UnitRepository(ITenantDbContext context)
         {
             _context = context;
         }
@@ -46,7 +47,7 @@ namespace StarterApi.Infrastructure.Persistence.Repositories
 
         public async Task<Unit> UpdateAsync(Unit unit)
         {
-            _context.Entry(unit).State = EntityState.Modified;
+            ((DbContext)_context).Entry(unit).State = EntityState.Modified;
             return unit;
         }
 

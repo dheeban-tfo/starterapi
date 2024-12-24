@@ -20,6 +20,14 @@ using Microsoft.AspNetCore.Authorization;
 using System.Reflection;
 using StarterApi.Application.Modules.Roles.Interfaces;
 using StarterApi.Application.Modules.Roles.Services;
+using StarterApi.Application.Modules.Societies.Interfaces;
+using StarterApi.Application.Modules.Blocks.Interfaces;
+using StarterApi.Application.Modules.Floors.Interfaces;
+using StarterApi.Application.Modules.Units.Interfaces;
+using StarterApi.Application.Modules.Societies.Services;
+using StarterApi.Application.Modules.Blocks.Services;
+using StarterApi.Application.Modules.Floors.Services;
+using StarterApi.Application.Modules.Units.Services;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -96,11 +104,19 @@ builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<ITenantRepository, TenantRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IUserTenantRepository, UserTenantRepository>();
+builder.Services.AddScoped<ISocietyRepository, SocietyRepository>();
+builder.Services.AddScoped<IBlockRepository, BlockRepository>();
+builder.Services.AddScoped<IFloorRepository, FloorRepository>();
+builder.Services.AddScoped<IUnitRepository, UnitRepository>();
 
 // Register services
 builder.Services.AddScoped<ITenantDbMigrationService, TenantDbMigrationService>();
 builder.Services.AddScoped<ITenantService, TenantService>();
 builder.Services.AddScoped<ITenantUserService, TenantUserService>();
+builder.Services.AddScoped<ISocietyService, SocietyService>();
+builder.Services.AddScoped<IBlockService, BlockService>();
+builder.Services.AddScoped<IFloorService, FloorService>();
+builder.Services.AddScoped<IUnitService, UnitService>();
 
 // Register tenant-related services
 builder.Services.AddScoped<ITenantProvider, TenantProvider>();
@@ -109,6 +125,7 @@ builder.Services.AddScoped<ITenantInfo, TenantInfo>();
 // Add DbContext configurations
 builder.Services.AddDbContext<RootDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("RootDatabase")));
+
 
 // Add Scoped TenantDbContext
 builder.Services.AddScoped<ITenantDbContext>(serviceProvider =>

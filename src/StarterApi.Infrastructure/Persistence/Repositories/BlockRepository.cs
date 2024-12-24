@@ -4,14 +4,15 @@ using StarterApi.Application.Common.Models;
 using StarterApi.Application.Modules.Blocks.Interfaces;
 using StarterApi.Domain.Entities;
 using StarterApi.Infrastructure.Persistence.Contexts;
+using StarterApi.Application.Common.Interfaces;
 
 namespace StarterApi.Infrastructure.Persistence.Repositories
 {
     public class BlockRepository : IBlockRepository
     {
-        private readonly TenantDbContext _context;
+        private readonly ITenantDbContext _context;
 
-        public BlockRepository(TenantDbContext context)
+        public BlockRepository(ITenantDbContext context)
         {
             _context = context;
         }
@@ -46,7 +47,7 @@ namespace StarterApi.Infrastructure.Persistence.Repositories
 
         public async Task<Block> UpdateAsync(Block block)
         {
-            _context.Entry(block).State = EntityState.Modified;
+            ((DbContext)_context).Entry(block).State = EntityState.Modified;
             return block;
         }
 

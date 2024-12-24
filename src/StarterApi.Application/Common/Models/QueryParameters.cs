@@ -13,9 +13,9 @@ namespace StarterApi.Application.Common.Models
             set => _pageSize = value > MaxPageSize ? MaxPageSize : value;
         }
 
-        public string SortBy { get; set; }
+        public string? SortBy { get; set; }
         public bool IsDescending { get; set; }
-        public string SearchTerm { get; set; }
+        public string? SearchTerm { get; set; }
         public List<FilterCriteria> Filters { get; set; } = new();
     }
 

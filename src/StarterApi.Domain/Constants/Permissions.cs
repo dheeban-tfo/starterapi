@@ -39,6 +39,32 @@ namespace StarterApi.Domain.Constants
             public const string ManageBlocks = "Societies.ManageBlocks";
         }
 
+        public static class Blocks
+        {
+            public const string View = "Blocks.View";
+            public const string Create = "Blocks.Create";
+            public const string Edit = "Blocks.Edit";
+            public const string Delete = "Blocks.Delete";
+            public const string ManageFloors = "Blocks.ManageFloors";
+        }
+
+        public static class Floors
+        {
+            public const string View = "Floors.View";
+            public const string Create = "Floors.Create";
+            public const string Edit = "Floors.Edit";
+            public const string Delete = "Floors.Delete";
+            public const string ManageUnits = "Floors.ManageUnits";
+        }
+
+        public static class Units
+        {
+            public const string View = "Units.View";
+            public const string Create = "Units.Create";
+            public const string Edit = "Units.Edit";
+            public const string Delete = "Units.Delete";
+        }
+
         public static IEnumerable<string> GetAllPermissions()
         {
             return typeof(Permissions)

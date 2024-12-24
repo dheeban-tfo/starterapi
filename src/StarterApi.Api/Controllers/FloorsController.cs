@@ -25,7 +25,7 @@ namespace StarterApi.Api.Controllers
         }
 
         [HttpPost]
-        [RequirePermission(Permissions.Societies.Create)]
+        [RequirePermission(Permissions.Floors.Create)]
         public async Task<ActionResult<FloorDto>> CreateFloor(CreateFloorDto dto)
         {
             try
@@ -41,7 +41,7 @@ namespace StarterApi.Api.Controllers
         }
 
         [HttpGet]
-        [RequirePermission(Permissions.Societies.View)]
+        [RequirePermission(Permissions.Floors.View)]
         public async Task<ActionResult<PagedResult<FloorDto>>> GetFloors([FromQuery] QueryParameters parameters)
         {
             try
@@ -57,7 +57,7 @@ namespace StarterApi.Api.Controllers
         }
 
         [HttpGet("{id}")]
-        [RequirePermission(Permissions.Societies.View)]
+        [RequirePermission(Permissions.Floors.View)]
         public async Task<ActionResult<FloorDto>> GetFloor(Guid id)
         {
             try
@@ -77,7 +77,7 @@ namespace StarterApi.Api.Controllers
         }
 
         [HttpPut("{id}")]
-        [RequirePermission(Permissions.Societies.Edit)]
+        [RequirePermission(Permissions.Floors.Edit)]
         public async Task<ActionResult<FloorDto>> UpdateFloor(Guid id, UpdateFloorDto dto)
         {
             try
@@ -97,7 +97,7 @@ namespace StarterApi.Api.Controllers
         }
 
         [HttpDelete("{id}")]
-        [RequirePermission(Permissions.Societies.Delete)]
+        [RequirePermission(Permissions.Floors.Delete)]
         public async Task<ActionResult<bool>> DeleteFloor(Guid id)
         {
             try

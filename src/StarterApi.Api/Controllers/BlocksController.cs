@@ -25,7 +25,7 @@ namespace StarterApi.Api.Controllers
         }
 
         [HttpPost]
-        [RequirePermission(Permissions.Societies.Create)]
+        [RequirePermission(Permissions.Blocks.Create)]
         public async Task<ActionResult<BlockDto>> CreateBlock(CreateBlockDto dto)
         {
             try
@@ -41,7 +41,7 @@ namespace StarterApi.Api.Controllers
         }
 
         [HttpGet]
-        [RequirePermission(Permissions.Societies.View)]
+        [RequirePermission(Permissions.Blocks.View)]
         public async Task<ActionResult<PagedResult<BlockDto>>> GetBlocks([FromQuery] QueryParameters parameters)
         {
             try
@@ -57,7 +57,7 @@ namespace StarterApi.Api.Controllers
         }
 
         [HttpGet("{id}")]
-        [RequirePermission(Permissions.Societies.View)]
+        [RequirePermission(Permissions.Blocks.View)]
         public async Task<ActionResult<BlockDto>> GetBlock(Guid id)
         {
             try
@@ -77,7 +77,7 @@ namespace StarterApi.Api.Controllers
         }
 
         [HttpPut("{id}")]
-        [RequirePermission(Permissions.Societies.Edit)]
+        [RequirePermission(Permissions.Blocks.Edit)]
         public async Task<ActionResult<BlockDto>> UpdateBlock(Guid id, UpdateBlockDto dto)
         {
             try
@@ -97,7 +97,7 @@ namespace StarterApi.Api.Controllers
         }
 
         [HttpDelete("{id}")]
-        [RequirePermission(Permissions.Societies.Delete)]
+        [RequirePermission(Permissions.Blocks.Delete)]
         public async Task<ActionResult<bool>> DeleteBlock(Guid id)
         {
             try

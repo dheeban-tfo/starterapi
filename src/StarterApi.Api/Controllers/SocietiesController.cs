@@ -33,6 +33,11 @@ namespace StarterApi.Api.Controllers
                 var society = await _societyService.CreateSocietyAsync(dto);
                 return CreatedAtAction(nameof(GetSociety), new { id = society.Id }, society);
             }
+            catch (InvalidOperationException ex)
+            {
+                _logger.LogWarning(ex, "Conflict while creating society");
+                return Conflict(ex.Message);
+            }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error creating society");

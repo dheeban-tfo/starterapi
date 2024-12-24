@@ -14,6 +14,11 @@ namespace StarterApi.Application.Modules.Units.DTOs
         public string Status { get; set; }
         public Guid? CurrentOwnerId { get; set; }
         public decimal MonthlyMaintenanceFee { get; set; }
+        public string FloorName { get; set; }
+        public int FloorNumber { get; set; }
+        public string BlockName { get; set; }
+        public string BlockCode { get; set; }
+        public string SocietyName { get; set; }
     }
 
     public class CreateUnitDto

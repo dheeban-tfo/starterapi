@@ -1,6 +1,10 @@
 using AutoMapper;
 using StarterApi.Application.Modules.Tenants;
 using StarterApi.Application.Modules.Users.DTOs;
+using StarterApi.Application.Modules.Societies.DTOs;
+using StarterApi.Application.Modules.Blocks.DTOs;
+using StarterApi.Application.Modules.Floors.DTOs;
+using StarterApi.Application.Modules.Units.DTOs;
 using StarterApi.Domain.Entities;
 
 public class MappingProfile : Profile
@@ -30,5 +34,28 @@ public class MappingProfile : Profile
             .ForMember(dest => dest.LastName, opt => opt.MapFrom(src => src.LastName))
             .ForMember(dest => dest.Email, opt => opt.MapFrom(src => src.Email))
             .ForMember(dest => dest.MobileNumber, opt => opt.MapFrom(src => src.MobileNumber));
+
+        // Society mappings
+        CreateMap<Society, SocietyDto>();
+        CreateMap<CreateSocietyDto, Society>();
+        CreateMap<UpdateSocietyDto, Society>();
+
+        // Block mappings
+        CreateMap<Block, BlockDto>()
+            .ForMember(dest => dest.SocietyName, opt => opt.MapFrom(src => src.Society.Name));
+        CreateMap<CreateBlockDto, Block>();
+        CreateMap<UpdateBlockDto, Block>();
+
+        // Floor mappings
+        CreateMap<Floor, FloorDto>()
+            .ForMember(dest => dest.BlockName, opt => opt.MapFrom(src => src.Block.Name))
+            .ForMember(dest => dest.BlockCode, opt => opt.MapFrom(src => src.Block.Code));
+        CreateMap<CreateFloorDto, Floor>();
+        CreateMap<UpdateFloorDto, Floor>();
+
+        // Unit mappings
+        CreateMap<Unit, UnitDto>();
+        CreateMap<CreateUnitDto, Unit>();
+        CreateMap<UpdateUnitDto, Unit>();
     }
 } 

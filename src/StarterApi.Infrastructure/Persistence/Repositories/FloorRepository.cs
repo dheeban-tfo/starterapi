@@ -4,14 +4,15 @@ using StarterApi.Application.Common.Models;
 using StarterApi.Application.Modules.Floors.Interfaces;
 using StarterApi.Domain.Entities;
 using StarterApi.Infrastructure.Persistence.Contexts;
+using StarterApi.Application.Common.Interfaces;
 
 namespace StarterApi.Infrastructure.Persistence.Repositories
 {
     public class FloorRepository : IFloorRepository
     {
-        private readonly TenantDbContext _context;
+        private readonly ITenantDbContext _context;
 
-        public FloorRepository(TenantDbContext context)
+        public FloorRepository(ITenantDbContext context)
         {
             _context = context;
         }
@@ -46,7 +47,7 @@ namespace StarterApi.Infrastructure.Persistence.Repositories
 
         public async Task<Floor> UpdateAsync(Floor floor)
         {
-            _context.Entry(floor).State = EntityState.Modified;
+            ((DbContext)_context).Entry(floor).State = EntityState.Modified;
             return floor;
         }
 
