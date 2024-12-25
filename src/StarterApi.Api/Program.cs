@@ -30,6 +30,7 @@ using StarterApi.Application.Modules.Floors.Services;
 using StarterApi.Application.Modules.Units.Services;
 using StarterApi.Application.Modules.Individuals.Interfaces;
 using StarterApi.Application.Modules.Individuals.Services;
+using StarterApi.Application.Common.Services;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -211,6 +212,10 @@ builder.Services.AddScoped<IRootDbContext, RootDbContext>();
 // Individual services
 builder.Services.AddScoped<IIndividualRepository, IndividualRepository>();
 builder.Services.AddScoped<IIndividualService, IndividualService>();
+
+// Add Lookup services
+builder.Services.AddScoped<ILookupRepository, LookupRepository>();
+builder.Services.AddScoped<ILookupService, LookupService>();
 
 var app = builder.Build();
 
