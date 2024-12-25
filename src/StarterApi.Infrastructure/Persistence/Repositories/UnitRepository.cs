@@ -35,8 +35,22 @@ namespace StarterApi.Infrastructure.Persistence.Repositories
             // Apply Sorting
             query = query.ApplySort(parameters.SortBy, parameters.IsDescending);
 
-            // Return Paged Result
-            return await query.ToPagedResultAsync(parameters);
+            // Get total count
+            var totalItems = await query.CountAsync();
+
+            // Apply Pagination
+            var items = await query
+                .Skip((parameters.PageNumber - 1) * parameters.PageSize)
+                .Take(parameters.PageSize)
+                .ToListAsync();
+
+            return new PagedResult<Unit>
+            {
+                Items = items,
+                TotalItems = totalItems,
+                PageNumber = parameters.PageNumber,
+                PageSize = parameters.PageSize
+            };
         }
 
         public async Task<Unit> AddAsync(Unit unit)
@@ -47,7 +61,7 @@ namespace StarterApi.Infrastructure.Persistence.Repositories
 
         public async Task<Unit> UpdateAsync(Unit unit)
         {
-            ((DbContext)_context).Entry(unit).State = EntityState.Modified;
+            _context.Units.Update(unit);
             return unit;
         }
 
@@ -68,10 +82,36 @@ namespace StarterApi.Infrastructure.Persistence.Repositories
                 .AnyAsync(u => u.UnitNumber == number && u.FloorId == floorId);
         }
 
+        public async Task<Owner> GetOwnerByIdAsync(Guid id)
+        {
+            return await _context.Owners
+                .Include(o => o.Individual)
+                .FirstOrDefaultAsync(o => o.Id == id);
+        }
+
         public async Task<int> GetUnitCountByFloorAsync(Guid floorId)
         {
             return await _context.Units
                 .CountAsync(u => u.FloorId == floorId);
+        }
+
+        public async Task<Individual> GetIndividualByIdAsync(Guid id)
+        {
+            return await _context.Individuals
+                .FirstOrDefaultAsync(i => i.Id == id);
+        }
+
+        public async Task<Owner> GetOwnerByIndividualIdAsync(Guid individualId)
+        {
+            return await _context.Owners
+                .Include(o => o.Individual)
+                .FirstOrDefaultAsync(o => o.IndividualId == individualId);
+        }
+
+        public async Task<Owner> AddOwnerAsync(Owner owner)
+        {
+            await _context.Owners.AddAsync(owner);
+            return owner;
         }
     }
 } 

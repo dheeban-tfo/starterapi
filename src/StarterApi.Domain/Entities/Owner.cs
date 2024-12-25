@@ -1,18 +1,14 @@
- namespace StarterApi.Domain.Entities
+namespace StarterApi.Domain.Entities
 {
     public class Owner : BaseEntity
     {
-        public string Name { get; set; }
-        public string ContactNumber { get; set; }
-        public string Email { get; set; }
-        public string AlternateContactNumber { get; set; }
-        public string Address { get; set; }
-        public string IDProofType { get; set; }
-        public string IDProofNumber { get; set; }
-        public string EmergencyContactName { get; set; }
-        public string EmergencyContactNumber { get; set; }
+        public Guid IndividualId { get; set; }
+        public string OwnershipType { get; set; }
+        public DateTime? OwnershipStartDate { get; set; }
+        public DateTime? OwnershipEndDate { get; set; }
 
-        private readonly List<Unit> _units = new();
-        public IReadOnlyCollection<Unit> Units => _units.AsReadOnly();
+        // Navigation properties
+        public virtual Individual Individual { get; set; }
+        public virtual ICollection<Unit> Units { get; set; } = new List<Unit>();
     }
 } 

@@ -13,5 +13,9 @@ namespace StarterApi.Application.Modules.Units.Interfaces
         Task<Unit> GetByNumberAsync(string number, Guid floorId);
         Task<bool> ExistsAsync(string number, Guid floorId);
         Task<int> GetUnitCountByFloorAsync(Guid floorId);
+        Task<Owner> GetOwnerByIdAsync(Guid id);
+        Task<Individual> GetIndividualByIdAsync(Guid id);
+        Task<Owner> GetOwnerByIndividualIdAsync(Guid individualId);
+        Task<Owner> AddOwnerAsync(Owner owner);
     }
 }

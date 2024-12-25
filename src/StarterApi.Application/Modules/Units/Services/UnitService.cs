@@ -27,7 +27,30 @@ namespace StarterApi.Application.Modules.Units.Services
         public async Task<UnitDto> CreateUnitAsync(CreateUnitDto dto)
         {
             if (await _unitRepository.ExistsAsync(dto.UnitNumber, dto.FloorId))
-                throw new InvalidOperationException($"Unit number {dto.UnitNumber} already exists on this floor");
+                throw new InvalidOperationException($"Unit with number {dto.UnitNumber} already exists on this floor");
+
+            if (dto.CurrentOwnerId.HasValue)
+            {
+                var individual = await _unitRepository.GetIndividualByIdAsync(dto.CurrentOwnerId.Value);
+                if (individual == null)
+                    throw new NotFoundException($"Individual with ID {dto.CurrentOwnerId} not found");
+
+                // Get or create owner for this individual
+                var owner = await _unitRepository.GetOwnerByIndividualIdAsync(dto.CurrentOwnerId.Value);
+                if (owner == null)
+                {
+                    owner = new Owner
+                    {
+                        IndividualId = dto.CurrentOwnerId.Value,
+                        OwnershipType = "Primary", // Default value
+                        OwnershipStartDate = DateTime.UtcNow
+                    };
+                    await _unitRepository.AddOwnerAsync(owner);
+                    await _unitRepository.SaveChangesAsync();
+                }
+                
+                dto.CurrentOwnerId = owner.Id;
+            }
 
             var unit = new Unit
             {
