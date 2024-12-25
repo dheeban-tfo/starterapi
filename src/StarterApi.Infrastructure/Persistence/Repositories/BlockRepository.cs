@@ -19,12 +19,19 @@ namespace StarterApi.Infrastructure.Persistence.Repositories
 
         public async Task<Block> GetByIdAsync(Guid id)
         {
-            return await _context.Blocks.FindAsync(id);
+            return await _context.Blocks
+                .Include(b => b.Society)
+                .Include(b => b.Floors.Where(f => f.IsActive))
+                .FirstOrDefaultAsync(b => b.Id == id);
         }
 
         public async Task<PagedResult<Block>> GetPagedAsync(QueryParameters parameters)
         {
-            var query = _context.Blocks.AsQueryable();
+            var query = _context.Blocks
+                .Include(b => b.Society)
+                .Include(b => b.Floors.Where(f => f.IsActive))
+                .Where(b => b.IsActive)
+                .AsQueryable();
 
             // Apply Search
             query = query.ApplySearch(parameters.SearchTerm);

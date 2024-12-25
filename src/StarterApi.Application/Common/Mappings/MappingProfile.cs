@@ -36,13 +36,15 @@ public class MappingProfile : Profile
             .ForMember(dest => dest.MobileNumber, opt => opt.MapFrom(src => src.MobileNumber));
 
         // Society mappings
-        CreateMap<Society, SocietyDto>();
+        CreateMap<Society, SocietyDto>()
+            .ForMember(dest => dest.TotalBlocks, opt => opt.MapFrom(src => src.Blocks.Count(b => b.IsActive)));
         CreateMap<CreateSocietyDto, Society>();
         CreateMap<UpdateSocietyDto, Society>();
 
         // Block mappings
         CreateMap<Block, BlockDto>()
-            .ForMember(dest => dest.SocietyName, opt => opt.MapFrom(src => src.Society.Name));
+            .ForMember(dest => dest.SocietyName, opt => opt.MapFrom(src => src.Society.Name))
+            .ForMember(dest => dest.TotalFloors, opt => opt.MapFrom(src => src.Floors.Count(f => f.IsActive)));
         CreateMap<CreateBlockDto, Block>();
         CreateMap<UpdateBlockDto, Block>();
 

@@ -21,7 +21,27 @@ namespace StarterApi.Application.Common.Extensions
             {
                 var property = Expression.Property(parameter, filter.PropertyName);
                 var propertyType = ((PropertyInfo)property.Member).PropertyType;
-                var value = Expression.Constant(Convert.ChangeType(filter.Value, propertyType));
+                
+                object convertedValue;
+                if (propertyType == typeof(Guid))
+                {
+                    if (!Guid.TryParse(filter.Value, out Guid guidValue))
+                        continue; // Skip this filter if Guid parsing fails
+                    convertedValue = guidValue;
+                }
+                else
+                {
+                    try
+                    {
+                        convertedValue = Convert.ChangeType(filter.Value, propertyType);
+                    }
+                    catch
+                    {
+                        continue; // Skip this filter if conversion fails
+                    }
+                }
+
+                var value = Expression.Constant(convertedValue);
 
                 Expression comparison = filter.Operation.ToLower() switch
                 {
