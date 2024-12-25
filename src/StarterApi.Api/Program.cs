@@ -28,6 +28,8 @@ using StarterApi.Application.Modules.Societies.Services;
 using StarterApi.Application.Modules.Blocks.Services;
 using StarterApi.Application.Modules.Floors.Services;
 using StarterApi.Application.Modules.Units.Services;
+using StarterApi.Application.Modules.Individuals.Interfaces;
+using StarterApi.Application.Modules.Individuals.Services;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -206,6 +208,10 @@ builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
 // Register interfaces
 builder.Services.AddScoped<IRootDbContext, RootDbContext>();
 
+// Individual services
+builder.Services.AddScoped<IIndividualRepository, IndividualRepository>();
+builder.Services.AddScoped<IIndividualService, IndividualService>();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline
@@ -243,12 +249,17 @@ using (var scope = app.Services.CreateScope())
 
         var seeder = services.GetRequiredService<RootDataSeeder>();
         await seeder.SeedAsync();
+
+        // Update all tenant databases
+        var tenantDbMigrationService = services.GetRequiredService<ITenantDbMigrationService>();
+        var tenantRepository = services.GetRequiredService<ITenantRepository>();
+        var tenants = await tenantRepository.GetAllAsync();
+        await tenantDbMigrationService.UpdateAllTenantDatabasesAsync(tenants);
     }
     catch (Exception ex)
     {
         var logger = services.GetRequiredService<ILogger<Program>>();
         logger.LogError(ex, "An error occurred while migrating or seeding the database");
-        throw;
     }
 }
 

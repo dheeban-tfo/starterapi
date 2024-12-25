@@ -15,6 +15,7 @@ namespace StarterApi.Application.Common.Interfaces
         DbSet<Block> Blocks { get; set; }
         DbSet<Floor> Floors { get; set; }
         DbSet<Unit> Units { get; set; }
+        DbSet<Individual> Individuals { get; set; }
         
         // People
         DbSet<Owner> Owners { get; set; }

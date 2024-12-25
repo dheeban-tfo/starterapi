@@ -65,6 +65,15 @@ namespace StarterApi.Domain.Constants
             public const string Delete = "Units.Delete";
         }
 
+        public static class Individuals
+        {
+            public const string View = "Individuals.View";
+            public const string Create = "Individuals.Create";
+            public const string Edit = "Individuals.Edit";
+            public const string Delete = "Individuals.Delete";
+            public const string Verify = "Individuals.Verify";
+        }
+
         public static IEnumerable<string> GetAllPermissions()
         {
             return typeof(Permissions)

@@ -13,37 +13,21 @@ namespace StarterApi.Application.Modules.Units.Services
         private readonly IUnitRepository _unitRepository;
         private readonly IMapper _mapper;
         private readonly ILogger<UnitService> _logger;
-        private readonly IFloorRepository _floorRepository;
-        private readonly IOwnerRepository _ownerRepository;
 
         public UnitService(
             IUnitRepository unitRepository,
             IMapper mapper,
-            ILogger<UnitService> logger,
-            IFloorRepository floorRepository,
-            IOwnerRepository ownerRepository)
+            ILogger<UnitService> logger)
         {
             _unitRepository = unitRepository;
             _mapper = mapper;
             _logger = logger;
-            _floorRepository = floorRepository;
-            _ownerRepository = ownerRepository;
         }
 
         public async Task<UnitDto> CreateUnitAsync(CreateUnitDto dto)
         {
-            // Validate floor exists
-            var floor = await _floorRepository.GetByIdAsync(dto.FloorId);
-            if (floor == null)
-                throw new NotFoundException($"Floor with ID {dto.FloorId} not found");
-
-            // Validate owner exists if provided
-            if (dto.CurrentOwnerId.HasValue)
-            {
-                var owner = await _ownerRepository.GetByIdAsync(dto.CurrentOwnerId.Value);
-                if (owner == null)
-                    throw new NotFoundException($"Owner with ID {dto.CurrentOwnerId} not found");
-            }
+            if (await _unitRepository.ExistsAsync(dto.UnitNumber, dto.FloorId))
+                throw new InvalidOperationException($"Unit number {dto.UnitNumber} already exists on this floor");
 
             var unit = new Unit
             {

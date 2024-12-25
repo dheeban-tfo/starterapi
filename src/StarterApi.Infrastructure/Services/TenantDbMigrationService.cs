@@ -54,6 +54,10 @@ public class TenantDbMigrationService : ITenantDbMigrationService
                 {
                     await context.Database.MigrateAsync();
                 }
+                // Always ensure permissions are up to date
+                var permissionSeeder = new TenantPermissionSeeder(context, _permissionSeederLogger);
+                await permissionSeeder.SeedAsync();
+                _logger.LogInformation("Tenant permissions updated successfully");
                 await EnsureRolesSeededAsync(context);
             }
         }
@@ -185,5 +189,22 @@ public class TenantDbMigrationService : ITenantDbMigrationService
           
             CreatedAt = DateTime.UtcNow
         };
+    }
+
+    public async Task UpdateAllTenantDatabasesAsync(IEnumerable<Tenant> tenants)
+    {
+        foreach (var tenant in tenants)
+        {
+            try
+            {
+                _logger.LogInformation("Updating database for tenant: {TenantName}", tenant.Name);
+                await CreateTenantDatabaseAsync(tenant);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error updating database for tenant: {TenantName}", tenant.Name);
+                // Continue with other tenants even if one fails
+            }
+        }
     }
 } 

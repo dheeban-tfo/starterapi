@@ -6,6 +6,7 @@ using StarterApi.Application.Modules.Blocks.DTOs;
 using StarterApi.Application.Modules.Floors.DTOs;
 using StarterApi.Application.Modules.Units.DTOs;
 using StarterApi.Domain.Entities;
+using StarterApi.Application.Modules.Individuals.DTOs;
 
 public class MappingProfile : Profile
 {
@@ -59,5 +60,10 @@ public class MappingProfile : Profile
         CreateMap<Unit, UnitDto>();
         CreateMap<CreateUnitDto, Unit>();
         CreateMap<UpdateUnitDto, Unit>();
+
+        // Individual mappings
+        CreateMap<Individual, IndividualDto>();
+        CreateMap<CreateIndividualDto, Individual>();
+        CreateMap<UpdateIndividualDto, Individual>();
     }
 } 

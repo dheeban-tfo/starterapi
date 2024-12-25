@@ -97,6 +97,16 @@ namespace StarterApi.Infrastructure.Persistence.Seeders
                     (Permissions.Units.Delete, "Delete Units", "Can delete units")
                 });
 
+                // Individuals permissions
+                await AddOrUpdatePermissionGroup(permissions, existingPermissions, "Individuals", new[]
+                {
+                    (Permissions.Individuals.View, "View Individuals", "Can view individuals in the system"),
+                    (Permissions.Individuals.Create, "Create Individuals", "Can create new individuals"),
+                    (Permissions.Individuals.Edit, "Edit Individuals", "Can edit existing individuals"),
+                    (Permissions.Individuals.Delete, "Delete Individuals", "Can delete individuals"),
+                    (Permissions.Individuals.Verify, "Verify Individuals", "Can verify individuals")
+                });
+
                 if (permissions.Any())
                 {
                     await _context.Permissions.AddRangeAsync(permissions);

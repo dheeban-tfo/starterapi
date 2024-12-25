@@ -19,6 +19,7 @@ namespace StarterApi.Infrastructure.Persistence.Contexts
         public DbSet<Block> Blocks { get; set; }
         public DbSet<Floor> Floors { get; set; }
         public DbSet<Unit> Units { get; set; }
+        public DbSet<Individual> Individuals { get; set; }
         
         // People
         public DbSet<Owner> Owners { get; set; }
