@@ -74,6 +74,17 @@ namespace StarterApi.Domain.Constants
             public const string Verify = "Individuals.Verify";
         }
 
+        public static class Documents
+        {
+            public const string View = "Documents.View";
+            public const string Create = "Documents.Create";
+            public const string Edit = "Documents.Edit";
+            public const string Delete = "Documents.Delete";
+            public const string ManageCategories = "Documents.ManageCategories";
+            public const string ManageAccess = "Documents.ManageAccess";
+            public const string ManageVersions = "Documents.ManageVersions";
+        }
+
         public static IEnumerable<string> GetAllPermissions()
         {
             return typeof(Permissions)

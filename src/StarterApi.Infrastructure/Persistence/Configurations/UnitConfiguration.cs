@@ -40,17 +40,17 @@ namespace StarterApi.Infrastructure.Persistence.Configurations
             builder.HasOne(u => u.Floor)
                 .WithMany(f => f.Units)
                 .HasForeignKey(u => u.FloorId)
-                .OnDelete(DeleteBehavior.Restrict);
+                .OnDelete(DeleteBehavior.NoAction);
                 
             builder.HasOne(u => u.CurrentOwner)
                 .WithMany()
                 .HasForeignKey(u => u.CurrentOwnerId)
-                .OnDelete(DeleteBehavior.Restrict);
+                .OnDelete(DeleteBehavior.NoAction);
                 
             builder.HasMany(u => u.Residents)
                 .WithOne(r => r.Unit)
                 .HasForeignKey(r => r.UnitId)
-                .OnDelete(DeleteBehavior.Restrict);
+                .OnDelete(DeleteBehavior.NoAction);
         }
     }
 } 

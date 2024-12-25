@@ -37,6 +37,12 @@ namespace StarterApi.Application.Common.Interfaces
         DbSet<Complaint> Complaints { get; set; }
         DbSet<Notification> Notifications { get; set; }
         
+        // Document Management
+        DbSet<Document> Documents { get; set; }
+        DbSet<DocumentVersion> DocumentVersions { get; set; }
+        DbSet<DocumentCategory> DocumentCategories { get; set; }
+        DbSet<DocumentAccess> DocumentAccesses { get; set; }
+        
         // Auditing
         DbSet<AuditHistory> AuditHistory { get; set; }
         

@@ -45,9 +45,7 @@ namespace StarterApi.Infrastructure.Persistence.Migrations.TenantDb
                         .HasColumnType("datetime2");
 
                     b.Property<bool>("IsActive")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bit")
-                        .HasDefaultValue(true);
+                        .HasColumnType("bit");
 
                     b.Property<string>("Message")
                         .IsRequired()
@@ -93,8 +91,7 @@ namespace StarterApi.Infrastructure.Persistence.Migrations.TenantDb
 
                     b.Property<string>("Action")
                         .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("ChangedAt")
                         .HasColumnType("datetime2");
@@ -110,33 +107,26 @@ namespace StarterApi.Infrastructure.Persistence.Migrations.TenantDb
 
                     b.Property<string>("IpAddress")
                         .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("IsActive")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bit")
-                        .HasDefaultValue(true);
+                        .HasColumnType("bit");
 
                     b.Property<string>("NewValue")
                         .IsRequired()
-                        .HasMaxLength(4000)
-                        .HasColumnType("nvarchar(4000)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("OldValue")
                         .IsRequired()
-                        .HasMaxLength(4000)
-                        .HasColumnType("nvarchar(4000)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("RecordId")
                         .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("TableName")
                         .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
@@ -146,12 +136,11 @@ namespace StarterApi.Infrastructure.Persistence.Migrations.TenantDb
 
                     b.Property<string>("UserAgent")
                         .IsRequired()
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
-                    b.ToTable("AuditHistory", (string)null);
+                    b.ToTable("AuditHistory");
                 });
 
             modelBuilder.Entity("StarterApi.Domain.Entities.Block", b =>
@@ -162,8 +151,7 @@ namespace StarterApi.Infrastructure.Persistence.Migrations.TenantDb
 
                     b.Property<string>("Code")
                         .IsRequired()
-                        .HasMaxLength(10)
-                        .HasColumnType("nvarchar(10)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
@@ -172,18 +160,14 @@ namespace StarterApi.Infrastructure.Persistence.Migrations.TenantDb
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<bool>("IsActive")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bit")
-                        .HasDefaultValue(true);
+                        .HasColumnType("bit");
 
                     b.Property<decimal>("MaintenanceChargePerSqft")
-                        .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<Guid>("SocietyId")
                         .HasColumnType("uniqueidentifier");
@@ -201,7 +185,7 @@ namespace StarterApi.Infrastructure.Persistence.Migrations.TenantDb
 
                     b.HasIndex("SocietyId");
 
-                    b.ToTable("Blocks", (string)null);
+                    b.ToTable("Blocks");
                 });
 
             modelBuilder.Entity("StarterApi.Domain.Entities.Complaint", b =>
@@ -268,6 +252,242 @@ namespace StarterApi.Infrastructure.Persistence.Migrations.TenantDb
                     b.ToTable("Complaints", (string)null);
                 });
 
+            modelBuilder.Entity("StarterApi.Domain.Entities.Document", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("BlobPath")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<string>("BlobUrl")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<Guid?>("BlockId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Category")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<Guid?>("CategoryId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("ContentType")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("CreatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("CurrentVersion")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasDefaultValue(1);
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("FileType")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(true);
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<long>("Size")
+                        .HasColumnType("bigint");
+
+                    b.Property<Guid?>("UnitId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("UpdatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BlockId");
+
+                    b.HasIndex("CategoryId");
+
+                    b.HasIndex("UnitId");
+
+                    b.ToTable("Documents", (string)null);
+                });
+
+            modelBuilder.Entity("StarterApi.Domain.Entities.DocumentAccess", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("AccessLevel")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("CreatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("DocumentId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(true);
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("UpdatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.HasIndex("DocumentId", "UserId")
+                        .IsUnique();
+
+                    b.ToTable("DocumentAccesses", (string)null);
+                });
+
+            modelBuilder.Entity("StarterApi.Domain.Entities.DocumentCategory", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("CreatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(true);
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<Guid?>("ParentCategoryId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("UpdatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ParentCategoryId");
+
+                    b.ToTable("DocumentCategories", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_DocumentCategory_NoSelfReference", "ParentCategoryId != Id OR ParentCategoryId IS NULL");
+                        });
+                });
+
+            modelBuilder.Entity("StarterApi.Domain.Entities.DocumentVersion", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("BlobPath")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<string>("BlobUrl")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<string>("ChangeDescription")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("ContentType")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("CreatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("DocumentId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(true);
+
+                    b.Property<long>("Size")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("UpdatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("Version")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DocumentId", "Version")
+                        .IsUnique();
+
+                    b.ToTable("DocumentVersions", (string)null);
+                });
+
             modelBuilder.Entity("StarterApi.Domain.Entities.Facility", b =>
                 {
                     b.Property<Guid>("Id")
@@ -291,9 +511,7 @@ namespace StarterApi.Infrastructure.Persistence.Migrations.TenantDb
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("IsActive")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bit")
-                        .HasDefaultValue(true);
+                        .HasColumnType("bit");
 
                     b.Property<bool>("IsChargeable")
                         .HasColumnType("bit");
@@ -414,9 +632,7 @@ namespace StarterApi.Infrastructure.Persistence.Migrations.TenantDb
                         .HasColumnType("int");
 
                     b.Property<bool>("IsActive")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bit")
-                        .HasDefaultValue(true);
+                        .HasColumnType("bit");
 
                     b.Property<int>("TotalUnits")
                         .HasColumnType("int");
@@ -431,7 +647,7 @@ namespace StarterApi.Infrastructure.Persistence.Migrations.TenantDb
 
                     b.HasIndex("BlockId");
 
-                    b.ToTable("Floors", (string)null);
+                    b.ToTable("Floors");
                 });
 
             modelBuilder.Entity("StarterApi.Domain.Entities.Individual", b =>
@@ -540,32 +756,26 @@ namespace StarterApi.Infrastructure.Persistence.Migrations.TenantDb
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<bool>("IsActive")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bit")
-                        .HasDefaultValue(true);
+                        .HasColumnType("bit");
 
                     b.Property<string>("Message")
                         .IsRequired()
-                        .HasMaxLength(1000)
-                        .HasColumnType("nvarchar(1000)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("NotificationType")
                         .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<Guid>("RecipientId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("ReferenceId")
                         .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("ReferenceType")
                         .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("SentAt")
                         .HasColumnType("datetime2");
@@ -576,13 +786,11 @@ namespace StarterApi.Infrastructure.Persistence.Migrations.TenantDb
 
                     b.Property<string>("Status")
                         .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Type")
                         .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
@@ -594,7 +802,7 @@ namespace StarterApi.Infrastructure.Persistence.Migrations.TenantDb
 
                     b.HasIndex("RecipientId");
 
-                    b.ToTable("Notifications", (string)null);
+                    b.ToTable("Notifications");
                 });
 
             modelBuilder.Entity("StarterApi.Domain.Entities.Owner", b =>
@@ -704,9 +912,7 @@ namespace StarterApi.Infrastructure.Persistence.Migrations.TenantDb
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<bool>("IsActive")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bit")
-                        .HasDefaultValue(true);
+                        .HasColumnType("bit");
 
                     b.Property<string>("Location")
                         .IsRequired()
@@ -906,8 +1112,7 @@ namespace StarterApi.Infrastructure.Persistence.Migrations.TenantDb
 
                     b.Property<string>("ContactNumber")
                         .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Country")
                         .IsRequired()
@@ -921,18 +1126,14 @@ namespace StarterApi.Infrastructure.Persistence.Migrations.TenantDb
 
                     b.Property<string>("Email")
                         .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("IsActive")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bit")
-                        .HasDefaultValue(true);
+                        .HasColumnType("bit");
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Pincode")
                         .IsRequired()
@@ -940,8 +1141,7 @@ namespace StarterApi.Infrastructure.Persistence.Migrations.TenantDb
 
                     b.Property<string>("RegistrationNumber")
                         .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("State")
                         .IsRequired()
@@ -958,7 +1158,7 @@ namespace StarterApi.Infrastructure.Persistence.Migrations.TenantDb
 
                     b.HasKey("Id");
 
-                    b.ToTable("Societies", (string)null);
+                    b.ToTable("Societies");
                 });
 
             modelBuilder.Entity("StarterApi.Domain.Entities.Unit", b =>
@@ -1112,8 +1312,7 @@ namespace StarterApi.Infrastructure.Persistence.Migrations.TenantDb
 
                     b.Property<string>("ContactNumber")
                         .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
@@ -1122,27 +1321,22 @@ namespace StarterApi.Infrastructure.Persistence.Migrations.TenantDb
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<bool>("IsActive")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bit")
-                        .HasDefaultValue(true);
+                        .HasColumnType("bit");
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Purpose")
                         .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<Guid>("RegisteredById")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Remarks")
                         .IsRequired()
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
@@ -1152,8 +1346,7 @@ namespace StarterApi.Infrastructure.Persistence.Migrations.TenantDb
 
                     b.Property<string>("VehicleRegistrationNumber")
                         .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<Guid>("VisitedUnitId")
                         .HasColumnType("uniqueidentifier");
@@ -1164,7 +1357,7 @@ namespace StarterApi.Infrastructure.Persistence.Migrations.TenantDb
 
                     b.HasIndex("VisitedUnitId");
 
-                    b.ToTable("Visitors", (string)null);
+                    b.ToTable("Visitors");
                 });
 
             modelBuilder.Entity("TenantPermission", b =>
@@ -1355,7 +1548,7 @@ namespace StarterApi.Infrastructure.Persistence.Migrations.TenantDb
                     b.HasOne("StarterApi.Domain.Entities.Society", "Society")
                         .WithMany("Blocks")
                         .HasForeignKey("SocietyId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Society");
@@ -1377,6 +1570,70 @@ namespace StarterApi.Infrastructure.Persistence.Migrations.TenantDb
                     b.Navigation("AssignedTo");
 
                     b.Navigation("Resident");
+                });
+
+            modelBuilder.Entity("StarterApi.Domain.Entities.Document", b =>
+                {
+                    b.HasOne("StarterApi.Domain.Entities.Block", "Block")
+                        .WithMany()
+                        .HasForeignKey("BlockId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("StarterApi.Domain.Entities.DocumentCategory", "DocumentCategory")
+                        .WithMany("Documents")
+                        .HasForeignKey("CategoryId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("StarterApi.Domain.Entities.Unit", "Unit")
+                        .WithMany()
+                        .HasForeignKey("UnitId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("Block");
+
+                    b.Navigation("DocumentCategory");
+
+                    b.Navigation("Unit");
+                });
+
+            modelBuilder.Entity("StarterApi.Domain.Entities.DocumentAccess", b =>
+                {
+                    b.HasOne("StarterApi.Domain.Entities.Document", "Document")
+                        .WithMany("AccessControls")
+                        .HasForeignKey("DocumentId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("TenantUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Document");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("StarterApi.Domain.Entities.DocumentCategory", b =>
+                {
+                    b.HasOne("StarterApi.Domain.Entities.DocumentCategory", "ParentCategory")
+                        .WithMany("ChildCategories")
+                        .HasForeignKey("ParentCategoryId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("ParentCategory");
+                });
+
+            modelBuilder.Entity("StarterApi.Domain.Entities.DocumentVersion", b =>
+                {
+                    b.HasOne("StarterApi.Domain.Entities.Document", "Document")
+                        .WithMany("Versions")
+                        .HasForeignKey("DocumentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Document");
                 });
 
             modelBuilder.Entity("StarterApi.Domain.Entities.FacilityBooking", b =>
@@ -1403,7 +1660,7 @@ namespace StarterApi.Infrastructure.Persistence.Migrations.TenantDb
                     b.HasOne("StarterApi.Domain.Entities.Block", "Block")
                         .WithMany("Floors")
                         .HasForeignKey("BlockId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Block");
@@ -1414,7 +1671,7 @@ namespace StarterApi.Infrastructure.Persistence.Migrations.TenantDb
                     b.HasOne("StarterApi.Domain.Entities.Resident", "Recipient")
                         .WithMany()
                         .HasForeignKey("RecipientId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Recipient");
@@ -1493,7 +1750,7 @@ namespace StarterApi.Infrastructure.Persistence.Migrations.TenantDb
                     b.HasOne("StarterApi.Domain.Entities.Unit", "Unit")
                         .WithMany("Residents")
                         .HasForeignKey("UnitId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
                     b.Navigation("Unit");
@@ -1504,12 +1761,12 @@ namespace StarterApi.Infrastructure.Persistence.Migrations.TenantDb
                     b.HasOne("StarterApi.Domain.Entities.Owner", "CurrentOwner")
                         .WithMany()
                         .HasForeignKey("CurrentOwnerId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .OnDelete(DeleteBehavior.NoAction);
 
                     b.HasOne("StarterApi.Domain.Entities.Floor", "Floor")
                         .WithMany("Units")
                         .HasForeignKey("FloorId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
                     b.HasOne("StarterApi.Domain.Entities.Owner", null)
@@ -1537,13 +1794,13 @@ namespace StarterApi.Infrastructure.Persistence.Migrations.TenantDb
                     b.HasOne("StarterApi.Domain.Entities.Resident", "RegisteredBy")
                         .WithMany()
                         .HasForeignKey("RegisteredById")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("StarterApi.Domain.Entities.Unit", "VisitedUnit")
                         .WithMany()
                         .HasForeignKey("VisitedUnitId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("RegisteredBy");
@@ -1556,13 +1813,13 @@ namespace StarterApi.Infrastructure.Persistence.Migrations.TenantDb
                     b.HasOne("TenantPermission", "Permission")
                         .WithMany("RolePermissions")
                         .HasForeignKey("PermissionId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
                     b.HasOne("TenantRole", "Role")
                         .WithMany("RolePermissions")
                         .HasForeignKey("RoleId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
                     b.Navigation("Permission");
@@ -1584,6 +1841,20 @@ namespace StarterApi.Infrastructure.Persistence.Migrations.TenantDb
             modelBuilder.Entity("StarterApi.Domain.Entities.Block", b =>
                 {
                     b.Navigation("Floors");
+                });
+
+            modelBuilder.Entity("StarterApi.Domain.Entities.Document", b =>
+                {
+                    b.Navigation("AccessControls");
+
+                    b.Navigation("Versions");
+                });
+
+            modelBuilder.Entity("StarterApi.Domain.Entities.DocumentCategory", b =>
+                {
+                    b.Navigation("ChildCategories");
+
+                    b.Navigation("Documents");
                 });
 
             modelBuilder.Entity("StarterApi.Domain.Entities.Facility", b =>

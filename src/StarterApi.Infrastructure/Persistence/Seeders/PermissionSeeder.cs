@@ -107,6 +107,18 @@ namespace StarterApi.Infrastructure.Persistence.Seeders
                     (Permissions.Individuals.Verify, "Verify Individuals", "Can verify individuals")
                 });
 
+                // Documents permissions
+                await AddOrUpdatePermissionGroup(permissions, existingPermissions, "Documents", new[]
+                {
+                    (Permissions.Documents.View, "View Documents", "Can view documents in the system"),
+                    (Permissions.Documents.Create, "Create Documents", "Can create new documents"),
+                    (Permissions.Documents.Edit, "Edit Documents", "Can edit existing documents"),
+                    (Permissions.Documents.Delete, "Delete Documents", "Can delete documents"),
+                    (Permissions.Documents.ManageCategories, "Manage Document Categories", "Can manage document categories"),
+                    (Permissions.Documents.ManageAccess, "Manage Document Access", "Can manage document access"),
+                    (Permissions.Documents.ManageVersions, "Manage Document Versions", "Can manage document versions")
+                });
+
                 if (permissions.Any())
                 {
                     await _context.Permissions.AddRangeAsync(permissions);

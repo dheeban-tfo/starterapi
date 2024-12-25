@@ -45,7 +45,12 @@ namespace StarterApi.Infrastructure.Persistence.Configurations
             builder.HasMany(r => r.Vehicles)
                 .WithOne(v => v.Resident)
                 .HasForeignKey(v => v.ResidentId)
-                .OnDelete(DeleteBehavior.Restrict);
+                .OnDelete(DeleteBehavior.NoAction);
+
+            builder.HasOne(r => r.Unit)
+                .WithMany(u => u.Residents)
+                .HasForeignKey(r => r.UnitId)
+                .OnDelete(DeleteBehavior.NoAction);
         }
     }
 } 

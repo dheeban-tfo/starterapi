@@ -7,7 +7,7 @@ namespace StarterApi.Infrastructure.Persistence.Contexts
 {
     public class TenantDbContext : DbContext, ITenantDbContext
     {
-        private readonly string _connectionString;
+         private readonly string _connectionString;
 
         public DbSet<TenantUser> Users { get; set; }
         public DbSet<TenantRole> Roles { get; set; }
@@ -40,6 +40,12 @@ namespace StarterApi.Infrastructure.Persistence.Contexts
         public DbSet<Announcement> Announcements { get; set; }
         public DbSet<Complaint> Complaints { get; set; }
         public DbSet<Notification> Notifications { get; set; }
+        
+        // Document Management
+        public DbSet<Document> Documents { get; set; }
+        public DbSet<DocumentVersion> DocumentVersions { get; set; }
+        public DbSet<DocumentCategory> DocumentCategories { get; set; }
+        public DbSet<DocumentAccess> DocumentAccesses { get; set; }
         
         // Auditing
         public DbSet<AuditHistory> AuditHistory { get; set; }
@@ -90,12 +96,12 @@ namespace StarterApi.Infrastructure.Persistence.Contexts
                 entity.HasOne(rp => rp.Role)
                     .WithMany(r => r.RolePermissions)
                     .HasForeignKey(rp => rp.RoleId)
-                    .OnDelete(DeleteBehavior.Cascade);
+                    .OnDelete(DeleteBehavior.NoAction);
 
                 entity.HasOne(rp => rp.Permission)
                     .WithMany(p => p.RolePermissions)
                     .HasForeignKey(rp => rp.PermissionId)
-                    .OnDelete(DeleteBehavior.Restrict);
+                    .OnDelete(DeleteBehavior.NoAction);
             });
 
             // Apply new configurations
@@ -116,6 +122,13 @@ namespace StarterApi.Infrastructure.Persistence.Contexts
             modelBuilder.ApplyConfiguration(new ComplaintConfiguration());
             modelBuilder.ApplyConfiguration(new NotificationConfiguration());
             modelBuilder.ApplyConfiguration(new AuditHistoryConfiguration());
+
+              // Apply Document Management configurations
+            modelBuilder.ApplyConfiguration(new DocumentConfiguration());
+            modelBuilder.ApplyConfiguration(new DocumentVersionConfiguration());
+            modelBuilder.ApplyConfiguration(new DocumentCategoryConfiguration());
+            modelBuilder.ApplyConfiguration(new DocumentAccessConfiguration());
+
         }
     }
 }
