@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using System.Linq;
 using StarterApi.Application.Common.Interfaces;
 using StarterApi.Domain.Entities;
+using StarterApi.Application.Common.Models;
 
 namespace StarterApi.Infrastructure.Services
 {
@@ -52,12 +53,14 @@ namespace StarterApi.Infrastructure.Services
             var document = new Document
             {
                 Name = fileName,
+                Description = string.Empty,
                 BlobUrl = blobUrl,
                 BlobPath = blobPath,
                 FileType = Path.GetExtension(fileName),
                 ContentType = contentType,
                 Size = content.Length,
                 CategoryId = categoryId,
+                Category = categoryId.HasValue ? null : "Uncategorized",
                 UnitId = unitId,
                 BlockId = blockId,
                 CurrentVersion = 1
@@ -185,6 +188,11 @@ namespace StarterApi.Infrastructure.Services
         public async Task RevokeAccessAsync(Guid documentId, Guid userId)
         {
             await _documentRepository.RevokeAccessAsync(documentId, userId);
+        }
+
+        public async Task<PagedResult<Document>> GetDocumentsAsync(QueryParameters parameters)
+        {
+            return await _documentRepository.GetDocumentsAsync(parameters);
         }
     }
 }

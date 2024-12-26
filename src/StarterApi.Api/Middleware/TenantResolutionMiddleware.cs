@@ -27,8 +27,8 @@ public class TenantResolutionMiddleware
         _logger.LogInformation("Starting tenant resolution for path: {Path}", context.Request.Path);
 
         var allClaims = context.User.Claims.ToList();
-        _logger.LogInformation("All claims in tenant middleware: {@Claims}", 
-            allClaims.Select(c => new { c.Type, c.Value }));
+        // _logger.LogInformation("All claims in tenant middleware: {@Claims}", //enable this line to see all claims
+        //     allClaims.Select(c => new { c.Type, c.Value }));
 
         if (context.User.Identity?.IsAuthenticated != true)
         {

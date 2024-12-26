@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using StarterApi.Application.Common.Interfaces;
+using StarterApi.Application.Common.Models;
 using StarterApi.Domain.Entities;
 using StarterApi.Application.Common.Exceptions;
 
@@ -155,6 +156,104 @@ namespace StarterApi.Infrastructure.Repositories
                 access.IsActive = false;
                 await _context.SaveChangesAsync();
             }
+        }
+
+        public async Task<PagedResult<Document>> GetDocumentsAsync(QueryParameters parameters)
+        {
+            var query = _context.Documents
+                .Include(d => d.DocumentCategory)
+                .Where(d => d.IsActive);
+
+            // Apply search
+            if (!string.IsNullOrWhiteSpace(parameters.SearchTerm))
+            {
+                var searchTerm = parameters.SearchTerm.ToLower();
+                query = query.Where(d =>
+                    d.Name.ToLower().Contains(searchTerm) ||
+                    d.Description.ToLower().Contains(searchTerm) ||
+                    d.DocumentCategory.Name.ToLower().Contains(searchTerm));
+            }
+
+            // Apply filters
+            foreach (var filter in parameters.Filters)
+            {
+                switch (filter.PropertyName.ToLower())
+                {
+                    case "categoryid":
+                        if (Guid.TryParse(filter.Value, out Guid categoryId))
+                        {
+                            query = query.Where(d => d.CategoryId == categoryId);
+                        }
+                        break;
+                    case "unitid":
+                        if (Guid.TryParse(filter.Value, out Guid unitId))
+                        {
+                            query = query.Where(d => d.UnitId == unitId);
+                        }
+                        break;
+                    case "blockid":
+                        if (Guid.TryParse(filter.Value, out Guid blockId))
+                        {
+                            query = query.Where(d => d.BlockId == blockId);
+                        }
+                        break;
+                    case "contenttype":
+                        query = query.Where(d => d.ContentType == filter.Value);
+                        break;
+                }
+            }
+
+            // Apply sorting
+            if (!string.IsNullOrWhiteSpace(parameters.SortBy))
+            {
+                switch (parameters.SortBy.ToLower())
+                {
+                    case "name":
+                        query = parameters.IsDescending
+                            ? query.OrderByDescending(d => d.Name)
+                            : query.OrderBy(d => d.Name);
+                        break;
+                    case "createdat":
+                        query = parameters.IsDescending
+                            ? query.OrderByDescending(d => d.CreatedAt)
+                            : query.OrderBy(d => d.CreatedAt);
+                        break;
+                    case "category":
+                        query = parameters.IsDescending
+                            ? query.OrderByDescending(d => d.DocumentCategory.Name)
+                            : query.OrderBy(d => d.DocumentCategory.Name);
+                        break;
+                    case "size":
+                        query = parameters.IsDescending
+                            ? query.OrderByDescending(d => d.Size)
+                            : query.OrderBy(d => d.Size);
+                        break;
+                    default:
+                        query = query.OrderByDescending(d => d.CreatedAt);
+                        break;
+                }
+            }
+            else
+            {
+                query = query.OrderByDescending(d => d.CreatedAt);
+            }
+
+            var totalItems = await query.CountAsync();
+            var items = await query
+                .Skip((parameters.PageNumber - 1) * parameters.PageSize)
+                .Take(parameters.PageSize)
+                .ToListAsync();
+
+            return new PagedResult<Document>
+            {
+                Items = items,
+                TotalItems = totalItems,
+                PageNumber = parameters.PageNumber,
+                PageSize = parameters.PageSize,
+                TotalPages = (int)Math.Ceiling(totalItems / (double)parameters.PageSize),
+                HasNextPage = parameters.PageNumber < (int)Math.Ceiling(totalItems / (double)parameters.PageSize),
+                HasPreviousPage = parameters.PageNumber > 1
+            };
         }
     }
 } 

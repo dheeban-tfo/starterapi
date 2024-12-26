@@ -17,7 +17,8 @@ namespace StarterApi.Infrastructure.Persistence.Configurations
                 .HasMaxLength(200);
 
             builder.Property(d => d.Description)
-                .HasMaxLength(500);
+                .HasMaxLength(500)
+                .IsRequired(false);
 
             builder.Property(d => d.BlobUrl)
                 .IsRequired()
@@ -39,7 +40,8 @@ namespace StarterApi.Infrastructure.Persistence.Configurations
                 .IsRequired();
 
             builder.Property(d => d.Category)
-                .HasMaxLength(100);
+                .HasMaxLength(100)
+                .IsRequired();
 
             builder.Property(d => d.CurrentVersion)
                 .IsRequired()

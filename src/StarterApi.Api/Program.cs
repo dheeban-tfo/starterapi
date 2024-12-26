@@ -33,6 +33,8 @@ using StarterApi.Application.Modules.Individuals.Interfaces;
 using StarterApi.Application.Modules.Individuals.Services;
 using StarterApi.Application.Common.Services;
 using Microsoft.Extensions.DependencyInjection;
+using StarterApi.Application.Modules.Residents.Interfaces;
+using StarterApi.Application.Modules.Residents.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -226,6 +228,10 @@ builder.Services.AddScoped<ILookupService, LookupService>();
 
 // Society Module Implementation
 builder.Services.AddScoped<ISocietyService, SocietyService>();
+
+// Add Resident services
+builder.Services.AddScoped<IResidentRepository, ResidentRepository>();
+builder.Services.AddScoped<IResidentService, ResidentService>();
 
 var app = builder.Build();
 

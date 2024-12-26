@@ -51,8 +51,8 @@ public class JwtAuthorizationMiddleware
                 var identity = new ClaimsIdentity(claims, "Bearer");
                 context.User = new ClaimsPrincipal(identity);
 
-                _logger.LogInformation("Claims after mapping: {@Claims}", 
-                    context.User.Claims.Select(c => new { c.Type, c.Value }));
+                // _logger.LogInformation("Claims after mapping: {@Claims}", 
+                //     context.User.Claims.Select(c => new { c.Type, c.Value })); //enable this line to see all claims
             }
             catch (Exception ex)
             {

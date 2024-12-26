@@ -97,6 +97,17 @@ namespace StarterApi.Infrastructure.Persistence.Seeders
                     (Permissions.Individuals.Verify, "Verify Individuals", "Can verify individuals")
                 });
 
+                // Residents permissions
+                await AddOrUpdatePermissionGroup(permissions, existingPermissions, "Residents", new[]
+                {
+                    (Permissions.Residents.View, "View Residents", "Can view residents in the system"),
+                    (Permissions.Residents.Create, "Create Residents", "Can create new residents"),
+                    (Permissions.Residents.Edit, "Edit Residents", "Can edit existing residents"),
+                    (Permissions.Residents.Delete, "Delete Residents", "Can delete residents"),
+                    (Permissions.Residents.ManageFamily, "Manage Family", "Can manage resident family members"),
+                    (Permissions.Residents.Verify, "Verify Residents", "Can verify residents")
+                });
+
                 // Documents permissions
                 await AddOrUpdatePermissionGroup(permissions, existingPermissions, "Documents", new[]
                 {

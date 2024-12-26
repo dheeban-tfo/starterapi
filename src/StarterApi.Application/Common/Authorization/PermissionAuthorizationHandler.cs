@@ -29,8 +29,8 @@ public class PermissionAuthorizationHandler : AuthorizationHandler<PermissionReq
         _logger.LogInformation("Starting permission check for: {Permission}", requirement.Permission);
         
         var user = context.User;
-        _logger.LogInformation("User claims: {@Claims}", 
-            user.Claims.Select(c => new { c.Type, c.Value }));
+        // _logger.LogInformation("User claims: {@Claims}", 
+        //     user.Claims.Select(c => new { c.Type, c.Value })); //enable this line to see all claims
 
         var userId = user.GetUserId();
         var tenantId = _tenantProvider.GetCurrentTenantId();
@@ -48,7 +48,7 @@ public class PermissionAuthorizationHandler : AuthorizationHandler<PermissionReq
         try
         {
             var permissions = await _userTenantRepository.GetUserPermissionsAsync(userId, tenantId.Value);
-            _logger.LogInformation("User permissions: {@Permissions}", permissions);
+            //_logger.LogInformation("User permissions: {@Permissions}", permissions);
 
             if (permissions.Contains(requirement.Permission))
             {

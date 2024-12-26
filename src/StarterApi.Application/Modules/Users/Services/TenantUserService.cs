@@ -73,6 +73,9 @@ namespace StarterApi.Application.Modules.Users.Services
                 await _userRepository.AddAsync(rootUser);
                 await _userRepository.SaveChangesAsync();
 
+                // Add a small delay to ensure database operations complete
+                await Task.Delay(100);
+
                 // 3. Create UserTenant mapping
                 var userTenant = new UserTenant
                 {
@@ -219,29 +222,44 @@ namespace StarterApi.Application.Modules.Users.Services
                 await _context.Users.AddAsync(tenantUser);
                 await _context.SaveChangesAsync();
 
-                // Create user in root database
-                var rootUser = new User
+                try
                 {
-                    Id = tenantUser.Id,
-                    FirstName = dto.FirstName,
-                    LastName = dto.LastName,
-                    Email = dto.Email,
-                    MobileNumber = dto.MobileNumber,
-                    IsActive = true
-                };
+                    // Create user in root database
+                    var rootUser = new User
+                    {
+                        Id = tenantUser.Id,
+                        FirstName = dto.FirstName,
+                        LastName = dto.LastName,
+                        Email = dto.Email,
+                        MobileNumber = dto.MobileNumber,
+                        IsActive = true
+                    };
 
-                await _userRepository.AddAsync(rootUser);
+                    await _userRepository.AddAsync(rootUser);
+                    await _userRepository.SaveChangesAsync();
 
-                // Create UserTenant mapping
-                var userTenant = new UserTenant
+                    // Add a small delay to ensure database operations complete
+                    await Task.Delay(100);
+
+                    // Create UserTenant mapping
+                    var userTenant = new UserTenant
+                    {
+                        UserId = tenantUser.Id,
+                        TenantId = _tenantProvider.GetCurrentTenantId().Value,
+                        RoleId = dto.RoleId,
+                        CreatedAt = DateTime.UtcNow
+                    };
+
+                    await _userTenantRepository.AddAsync(userTenant);
+                    await _userTenantRepository.SaveChangesAsync();
+                }
+                catch (Exception)
                 {
-                    UserId = tenantUser.Id,
-                    TenantId = _tenantProvider.GetCurrentTenantId().Value,
-                    RoleId = dto.RoleId
-                };
-
-                await _userTenantRepository.AddAsync(userTenant);
-                await _userTenantRepository.SaveChangesAsync();
+                    // If root user creation fails, rollback tenant user
+                    _context.Users.Remove(tenantUser);
+                    await _context.SaveChangesAsync();
+                    throw;
+                }
 
                 // Send invitation SMS
                 // This would integrate with your SMS service

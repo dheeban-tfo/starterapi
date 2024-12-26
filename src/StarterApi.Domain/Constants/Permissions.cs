@@ -74,6 +74,16 @@ namespace StarterApi.Domain.Constants
             public const string Verify = "Individuals.Verify";
         }
 
+        public static class Residents
+        {
+            public const string View = "Residents.View";
+            public const string Create = "Residents.Create";
+            public const string Edit = "Residents.Edit";
+            public const string Delete = "Residents.Delete";
+            public const string ManageFamily = "Residents.ManageFamily";
+            public const string Verify = "Residents.Verify";
+        }
+
         public static class Documents
         {
             public const string View = "Documents.View";

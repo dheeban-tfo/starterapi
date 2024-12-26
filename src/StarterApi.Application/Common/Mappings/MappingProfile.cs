@@ -8,6 +8,7 @@ using StarterApi.Application.Modules.Units.DTOs;
 using StarterApi.Domain.Entities;
 using StarterApi.Application.Modules.Individuals.DTOs;
 using StarterApi.Application.Common.Models;
+using StarterApi.Application.Modules.Residents.DTOs;
 
 public class MappingProfile : Profile
 {
@@ -61,11 +62,20 @@ public class MappingProfile : Profile
         CreateMap<Unit, UnitDto>();
         CreateMap<CreateUnitDto, Unit>();
         CreateMap<UpdateUnitDto, Unit>();
+        CreateMap<Unit, UnitLookupDto>()
+            .ForMember(dest => dest.FloorName, opt => opt.MapFrom(src => src.Floor.FloorName))
+            .ForMember(dest => dest.BlockName, opt => opt.MapFrom(src => src.Floor.Block.Name));
 
         // Individual mappings
         CreateMap<Individual, IndividualDto>();
         CreateMap<CreateIndividualDto, Individual>();
         CreateMap<UpdateIndividualDto, Individual>();
         CreateMap<Individual, IndividualLookupDto>();
+
+        // Resident mappings
+        CreateMap<Resident, ResidentDto>();
+        CreateMap<CreateResidentDto, Resident>();
+        CreateMap<UpdateResidentDto, Resident>()
+            .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
     }
 } 

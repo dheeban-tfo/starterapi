@@ -12,8 +12,8 @@ namespace StarterApi.Application.Common.Extensions
 
         public static Guid GetUserId(this ClaimsPrincipal principal)
         {
-            _logger.LogInformation("Looking for user ID in claims: {@Claims}", 
-                principal.Claims.Select(c => new { c.Type, c.Value }));
+            // _logger.LogInformation("Looking for user ID in claims: {@Claims}", 
+            //     principal.Claims.Select(c => new { c.Type, c.Value })); //enable this line to see all claims
 
             var userIdClaim = principal.FindFirst(ClaimTypes.NameIdentifier) 
                 ?? principal.FindFirst("sub")  

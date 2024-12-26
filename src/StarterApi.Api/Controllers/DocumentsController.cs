@@ -4,7 +4,9 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.Extensions.Logging;
 using StarterApi.Application.Common.Interfaces;
+using StarterApi.Application.Common.Models;
 using StarterApi.Domain.Entities;
 using StarterApi.Domain.Constants;
 using StarterApi.Application.Common.Exceptions;
@@ -27,13 +29,16 @@ namespace StarterApi.Api.Controllers
             _logger = logger;
         }
 
+        /// <summary>
+        /// Get all documents with pagination, sorting, and filtering
+        /// </summary>
         [HttpGet]
         [RequirePermission(Permissions.Documents.View)]
-        public async Task<ActionResult<IEnumerable<Document>>> GetAllDocuments()
+        public async Task<ActionResult<PagedResult<Document>>> GetDocuments([FromQuery] QueryParameters parameters)
         {
             try
             {
-                var documents = await _documentService.GetAllDocumentsAsync();
+                var documents = await _documentService.GetDocumentsAsync(parameters);
                 return Ok(documents);
             }
             catch (Exception ex)

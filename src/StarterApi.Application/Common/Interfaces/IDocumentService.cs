@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 using StarterApi.Domain.Entities;
+using StarterApi.Application.Common.Models;
 
 namespace StarterApi.Application.Common.Interfaces
 {
@@ -10,6 +11,7 @@ namespace StarterApi.Application.Common.Interfaces
     {
         Task<Document> GetDocumentByIdAsync(Guid id);
         Task<IEnumerable<Document>> GetAllDocumentsAsync();
+        Task<PagedResult<Document>> GetDocumentsAsync(QueryParameters parameters);
         Task<IEnumerable<Document>> GetDocumentsByUnitAsync(Guid unitId);
         Task<IEnumerable<Document>> GetDocumentsByBlockAsync(Guid blockId);
         Task<IEnumerable<Document>> GetDocumentsByCategoryAsync(Guid categoryId);

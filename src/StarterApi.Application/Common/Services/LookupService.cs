@@ -1,25 +1,98 @@
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
-using AutoMapper;
 using StarterApi.Application.Common.Interfaces;
 using StarterApi.Application.Common.Models;
 
-namespace StarterApi.Application.Common.Services;
-
-public class LookupService : ILookupService
+namespace StarterApi.Application.Common.Services
 {
-    private readonly ILookupRepository _repository;
-    private readonly IMapper _mapper;
-
-    public LookupService(ILookupRepository repository, IMapper mapper)
+    public class LookupService : ILookupService
     {
-        _repository = repository;
-        _mapper = mapper;
-    }
+        private readonly ILookupRepository _lookupRepository;
 
-    public async Task<IEnumerable<IndividualLookupDto>> GetIndividualLookupsAsync(LookupRequestDto request)
-    {
-        var individuals = await _repository.GetIndividualLookupsAsync(request.SearchTerm, request.MaxResults);
-        return _mapper.Map<IEnumerable<IndividualLookupDto>>(individuals);
+        public LookupService(ILookupRepository lookupRepository)
+        {
+            _lookupRepository = lookupRepository;
+        }
+
+        public async Task<IEnumerable<IndividualLookupDto>> GetIndividualLookupsAsync(LookupRequestDto request)
+        {
+            var individuals = await _lookupRepository.GetIndividualLookupsAsync(request.SearchTerm, request.MaxResults);
+
+            return individuals.Select(i => new IndividualLookupDto
+            {
+                Id = i.Id,
+                FullName = i.FullName,
+                Email = i.Email,
+                PhoneNumber = i.PhoneNumber
+            });
+        }
+
+        public async Task<IEnumerable<UnitLookupDto>> GetUnitLookupsAsync(LookupRequestDto request)
+        {
+            var units = await _lookupRepository.GetUnitLookupsAsync(request.SearchTerm, request.MaxResults);
+
+            return units.Select(u => new UnitLookupDto
+            {
+                Id = u.Id,
+                UnitNumber = u.UnitNumber,
+                FloorName = u.Floor?.FloorName,
+                BlockName = u.Floor?.Block?.Name
+            });
+        }
+
+        public async Task<IEnumerable<BlockLookupDto>> GetBlockLookupsAsync(LookupRequestDto request)
+        {
+            var blocks = await _lookupRepository.GetBlockLookupsAsync(request.SearchTerm, request.MaxResults);
+
+            return blocks.Select(b => new BlockLookupDto
+            {
+                Id = b.Id,
+                Name = b.Name,
+                Code = b.Code,
+                SocietyName = b.Society?.Name
+            });
+        }
+
+        public async Task<IEnumerable<FloorLookupDto>> GetFloorLookupsAsync(LookupRequestDto request)
+        {
+            var floors = await _lookupRepository.GetFloorLookupsAsync(request.SearchTerm, request.MaxResults);
+
+            return floors.Select(f => new FloorLookupDto
+            {
+                Id = f.Id,
+                FloorName = f.FloorName,
+                BlockName = f.Block?.Name,
+                UnitCount = f.Units?.Count ?? 0
+            });
+        }
+
+        public async Task<IEnumerable<ResidentLookupDto>> GetResidentLookupsAsync(LookupRequestDto request)
+        {
+            var residents = await _lookupRepository.GetResidentLookupsAsync(request.SearchTerm, request.MaxResults);
+
+            return residents.Select(r => new ResidentLookupDto
+            {
+                Id = r.Id,
+                FullName = r.Individual?.FullName,
+                UnitNumber = r.Unit?.UnitNumber,
+                ResidentType = r.ResidentType,
+                Status = r.Status
+            });
+        }
+
+        public async Task<IEnumerable<UserLookupDto>> GetUserLookupsAsync(LookupRequestDto request)
+        {
+            var users = await _lookupRepository.GetUserLookupsAsync(request.SearchTerm, request.MaxResults);
+
+            return users.Select(u => new UserLookupDto
+            {
+                Id = u.Id,
+                FullName = u.FirstName + " " + u.LastName,
+                Email = u.Email,
+                PhoneNumber = u.MobileNumber,
+                RoleName = u.Role?.Name
+            });
+        }
     }
 }
