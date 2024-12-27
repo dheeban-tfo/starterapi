@@ -1,8 +1,9 @@
 using System.ComponentModel.DataAnnotations;
+using StarterApi.Application.Common.Models;
 
 namespace StarterApi.Application.Modules.Individuals.DTOs
 {
-    public class IndividualDto
+    public class IndividualDto : LookupDetailDto
     {
         public Guid Id { get; set; }
         public string FirstName { get; set; }
@@ -117,7 +118,7 @@ namespace StarterApi.Application.Modules.Individuals.DTOs
         public string PhoneNumber { get; set; }
 
         [StringLength(20)]
-        public string AlternatePhoneNumber { get; set; }
+        public string? AlternatePhoneNumber { get; set; }
 
         [StringLength(100)]
         public string AddressLine1 { get; set; }

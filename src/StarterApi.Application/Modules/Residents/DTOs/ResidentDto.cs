@@ -1,4 +1,6 @@
 using StarterApi.Application.Common.Models;
+using StarterApi.Application.Modules.Individuals.DTOs;
+using StarterApi.Application.Modules.Units.DTOs;
 using System;
 
 namespace StarterApi.Application.Modules.Residents.DTOs
@@ -20,7 +22,7 @@ namespace StarterApi.Application.Modules.Residents.DTOs
         public DateTime? UpdatedAt { get; set; }
         public Guid? UpdatedBy { get; set; }
 
-        public IndividualDetailDto SelectedIndividual { get; set; }
-        public UnitDetailDto SelectedUnit { get; set; }
+        public IndividualDto SelectedIndividual { get; set; }
+        public UnitDto SelectedUnit { get; set; }
     }
 } 

@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace StarterApi.Application.Modules.Units.DTOs
 {
-    public class UnitDto
+    public class UnitDto : LookupDetailDto
     {
         public Guid Id { get; set; }
         public string UnitNumber { get; set; }

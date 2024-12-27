@@ -60,6 +60,8 @@ public class MappingProfile : Profile
 
         // Unit mappings
         CreateMap<Unit, UnitDto>()
+            .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.UnitNumber))
+            .ForMember(dest => dest.DisplayName, opt => opt.MapFrom(src => src.UnitNumber))
             .ForMember(dest => dest.SelectedFloor, opt => opt.MapFrom(src => src.Floor))
             .ForMember(dest => dest.SelectedBlock, opt => opt.MapFrom(src => src.Floor.Block))
             .ForMember(dest => dest.SelectedSociety, opt => opt.MapFrom(src => src.Floor.Block.Society))
@@ -68,7 +70,10 @@ public class MappingProfile : Profile
         CreateMap<UpdateUnitDto, Unit>();
 
         // Individual mappings
-        CreateMap<Individual, IndividualDto>();
+        CreateMap<Individual, IndividualDto>()
+            .ForMember(dest => dest.Name, opt => opt.MapFrom(src => $"{src.FirstName} {src.LastName}"))
+            .ForMember(dest => dest.DisplayName, opt => opt.MapFrom(src => $"{src.FirstName} {src.LastName}"))
+            .ForMember(dest => dest.FullName, opt => opt.MapFrom(src => $"{src.FirstName} {src.LastName}"));
         CreateMap<CreateIndividualDto, Individual>();
         CreateMap<UpdateIndividualDto, Individual>();
 

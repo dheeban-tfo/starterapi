@@ -10,6 +10,8 @@ namespace StarterApi.Application.Modules.Units.Mappings
         public UnitMappingProfile()
         {
             CreateMap<Unit, UnitDto>()
+                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.UnitNumber))
+                .ForMember(dest => dest.DisplayName, opt => opt.MapFrom(src => src.UnitNumber))
                 .ForMember(dest => dest.SelectedFloor, opt => opt.MapFrom(src => src.Floor))
                 .ForMember(dest => dest.SelectedBlock, opt => opt.MapFrom(src => src.Floor.Block))
                 .ForMember(dest => dest.SelectedSociety, opt => opt.MapFrom(src => src.Floor.Block.Society))
