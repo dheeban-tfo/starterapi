@@ -62,8 +62,8 @@ namespace StarterApi.Application.Common.Services
             {
                 Id = f.Id,
                 FloorName = f.FloorName,
-                BlockName = f.Block?.Name,
-                UnitCount = f.Units?.Count ?? 0
+                FloorNumber = f.FloorNumber,
+                BlockName = f.Block?.Name
             });
         }
 

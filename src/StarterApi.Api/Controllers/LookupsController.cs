@@ -24,7 +24,7 @@ public class LookupsController : ControllerBase
     [HttpGet("individuals")]
     [RequirePermission(Permissions.Individuals.View)]
     public async Task<ActionResult<IEnumerable<IndividualLookupDto>>> GetIndividuals(
-        [FromQuery] string searchTerm,
+        [FromQuery] string searchTerm = "",
         [FromQuery] int maxResults = 10)
     {
         var request = new LookupRequestDto
@@ -40,7 +40,7 @@ public class LookupsController : ControllerBase
     [HttpGet("units")]
     [RequirePermission(Permissions.Units.View)]
     public async Task<ActionResult<IEnumerable<UnitLookupDto>>> GetUnits(
-        [FromQuery] string searchTerm,
+        [FromQuery] string searchTerm = "",
         [FromQuery] int maxResults = 10)
     {
         var request = new LookupRequestDto
@@ -56,7 +56,7 @@ public class LookupsController : ControllerBase
     [HttpGet("blocks")]
     [RequirePermission(Permissions.Blocks.View)]
     public async Task<ActionResult<IEnumerable<BlockLookupDto>>> GetBlocks(
-        [FromQuery] string searchTerm,
+        [FromQuery] string searchTerm = "",
         [FromQuery] int maxResults = 10)
     {
         var request = new LookupRequestDto
@@ -72,7 +72,7 @@ public class LookupsController : ControllerBase
     [HttpGet("floors")]
     [RequirePermission(Permissions.Floors.View)]
     public async Task<ActionResult<IEnumerable<FloorLookupDto>>> GetFloors(
-        [FromQuery] string searchTerm,
+        [FromQuery] string searchTerm = "",
         [FromQuery] int maxResults = 10)
     {
         var request = new LookupRequestDto
@@ -88,7 +88,7 @@ public class LookupsController : ControllerBase
     [HttpGet("residents")]
     [RequirePermission(Permissions.Residents.View)]
     public async Task<ActionResult<IEnumerable<ResidentLookupDto>>> GetResidents(
-        [FromQuery] string searchTerm,
+        [FromQuery] string searchTerm = "",
         [FromQuery] int maxResults = 10)
     {
         var request = new LookupRequestDto
@@ -104,7 +104,7 @@ public class LookupsController : ControllerBase
     [HttpGet("users")]
     [RequirePermission(Permissions.Users.View)]
     public async Task<ActionResult<IEnumerable<UserLookupDto>>> GetUsers(
-        [FromQuery] string searchTerm,
+        [FromQuery] string searchTerm = "",
         [FromQuery] int maxResults = 10)
     {
         var request = new LookupRequestDto

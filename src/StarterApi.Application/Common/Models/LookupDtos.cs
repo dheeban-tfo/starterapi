@@ -4,7 +4,7 @@ namespace StarterApi.Application.Common.Models;
 
 public class LookupRequestDto
 {
-    public string SearchTerm { get; set; }
+    public string SearchTerm { get; set; } = string.Empty;
     public int MaxResults { get; set; } = 10;
 }
 
@@ -36,8 +36,8 @@ public class FloorLookupDto
 {
     public Guid Id { get; set; }
     public string FloorName { get; set; }
+    public int FloorNumber { get; set; }
     public string BlockName { get; set; }
-    public int UnitCount { get; set; }
 }
 
 public class ResidentLookupDto

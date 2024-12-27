@@ -15,23 +15,23 @@ namespace StarterApi.Application.Common.Mappings
 
             CreateMap<Unit, LookupDetailDto>()
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.UnitNumber))
-                .ForMember(dest => dest.DisplayName, opt => opt.MapFrom(src => $"{src.UnitNumber} - {src.Floor.Block.Name}"));
+                .ForMember(dest => dest.DisplayName, opt => opt.MapFrom(src => src.UnitNumber));
 
             CreateMap<Block, LookupDetailDto>()
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
-                .ForMember(dest => dest.DisplayName, opt => opt.MapFrom(src => $"{src.Name} ({src.Code})"));
+                .ForMember(dest => dest.DisplayName, opt => opt.MapFrom(src => src.Name));
 
             CreateMap<Floor, LookupDetailDto>()
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.FloorName))
-                .ForMember(dest => dest.DisplayName, opt => opt.MapFrom(src => $"{src.FloorName} - {src.Block.Name}"));
+                .ForMember(dest => dest.DisplayName, opt => opt.MapFrom(src => src.FloorName));
 
             CreateMap<Society, LookupDetailDto>()
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
-                .ForMember(dest => dest.DisplayName, opt => opt.MapFrom(src => $"{src.Name} ({src.RegistrationNumber})"));
+                .ForMember(dest => dest.DisplayName, opt => opt.MapFrom(src => src.Name));
 
             CreateMap<Owner, LookupDetailDto>()
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Individual.FullName))
-                .ForMember(dest => dest.DisplayName, opt => opt.MapFrom(src => $"{src.Individual.FullName} ({src.OwnershipType})"));
+                .ForMember(dest => dest.DisplayName, opt => opt.MapFrom(src => src.Individual.FullName));
 
             CreateMap<Role, LookupDetailDto>()
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
@@ -41,6 +41,8 @@ namespace StarterApi.Application.Common.Mappings
             CreateMap<Individual, IndividualDetailDto>();
 
             CreateMap<Unit, UnitDetailDto>()
+                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.UnitNumber))
+                .ForMember(dest => dest.DisplayName, opt => opt.MapFrom(src => src.UnitNumber))
                 .ForMember(dest => dest.SelectedFloor, opt => opt.MapFrom(src => src.Floor))
                 .ForMember(dest => dest.SelectedBlock, opt => opt.MapFrom(src => src.Floor.Block))
                 .ForMember(dest => dest.SelectedSociety, opt => opt.MapFrom(src => src.Floor.Block.Society))
