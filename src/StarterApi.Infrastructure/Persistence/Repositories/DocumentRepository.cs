@@ -46,6 +46,7 @@ namespace StarterApi.Infrastructure.Repositories
         {
             return await _context.Documents
                 .Include(d => d.DocumentCategory)
+                .Include(d => d.Versions)
                 .Where(d => d.UnitId == unitId && d.IsActive)
                 .OrderByDescending(d => d.CreatedAt)
                 .ToListAsync();

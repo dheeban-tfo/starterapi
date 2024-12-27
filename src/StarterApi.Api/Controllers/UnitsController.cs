@@ -5,6 +5,10 @@ using StarterApi.Application.Common.Models;
 using StarterApi.Application.Modules.Units.DTOs;
 using StarterApi.Application.Modules.Units.Interfaces;
 using StarterApi.Domain.Constants;
+using StarterApi.Application.Common.Interfaces;
+using StarterApi.Domain.Entities;
+using StarterApi.Application.Modules.Residents.DTOs;
+using StarterApi.Application.Modules.Residents.Interfaces;
 
 namespace StarterApi.Api.Controllers
 {
@@ -15,13 +19,19 @@ namespace StarterApi.Api.Controllers
     {
         private readonly IUnitService _unitService;
         private readonly ILogger<UnitsController> _logger;
+        private readonly IResidentService _residentService;
+        private readonly IDocumentService _documentService;
 
         public UnitsController(
             IUnitService unitService,
-            ILogger<UnitsController> logger)
+            ILogger<UnitsController> logger,
+            IResidentService residentService,
+            IDocumentService documentService)
         {
             _unitService = unitService;
             _logger = logger;
+            _residentService = residentService;
+            _documentService = documentService;
         }
 
         [HttpPost]
@@ -113,6 +123,52 @@ namespace StarterApi.Api.Controllers
             {
                 _logger.LogError(ex, "Error deleting unit");
                 return StatusCode(500, "An error occurred while deleting the unit");
+            }
+        }
+
+        [HttpGet("{id}/residents")]
+        [RequirePermission(Permissions.Residents.View)]
+        public async Task<ActionResult<IEnumerable<ResidentDto>>> GetResidents(Guid id)
+        {
+            try
+            {
+                // First check if the unit exists
+                var unit = await _unitService.GetUnitByIdAsync(id);
+                if (unit == null)
+                {
+                    return Ok(Array.Empty<ResidentDto>());
+                }
+
+                var residents = await _residentService.GetByUnitIdAsync(id);
+                return Ok(residents);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error retrieving residents for unit {UnitId}", id);
+                return StatusCode(500, "An error occurred while retrieving residents");
+            }
+        }
+
+        [HttpGet("{id}/documents")]
+        [RequirePermission(Permissions.Documents.View)]
+        public async Task<ActionResult<IEnumerable<Document>>> GetDocuments(Guid id)
+        {
+            try
+            {
+                // First check if the unit exists
+                var unit = await _unitService.GetUnitByIdAsync(id);
+                if (unit == null)
+                {
+                    return Ok(Array.Empty<Document>());
+                }
+
+                var documents = await _documentService.GetDocumentsByUnitAsync(id);
+                return Ok(documents);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error retrieving documents for unit {UnitId}", id);
+                return StatusCode(500, "An error occurred while retrieving documents");
             }
         }
     }

@@ -43,8 +43,9 @@ namespace StarterApi.Infrastructure.Persistence.Repositories
         {
             return await _context.Residents
                 .Include(r => r.Individual)
-                .Include(r => r.Documents)
+                .Include(r => r.Unit)
                 .Where(r => r.UnitId == unitId && r.IsActive)
+                .OrderByDescending(r => r.CreatedAt)
                 .ToListAsync();
         }
 
