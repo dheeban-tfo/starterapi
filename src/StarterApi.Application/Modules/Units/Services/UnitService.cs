@@ -113,13 +113,13 @@ namespace StarterApi.Application.Modules.Units.Services
             return true;
         }
 
-        public async Task<PagedResult<UnitDto>> GetUnitsAsync(QueryParameters parameters)
+        public async Task<PagedResult<UnitListDto>> GetUnitsAsync(QueryParameters parameters)
         {
             var pagedUnits = await _unitRepository.GetPagedAsync(parameters);
             
-            var unitDtos = _mapper.Map<IEnumerable<UnitDto>>(pagedUnits.Items);
+            var unitDtos = _mapper.Map<IEnumerable<UnitListDto>>(pagedUnits.Items);
             
-            return new PagedResult<UnitDto>
+            return new PagedResult<UnitListDto>
             {
                 Items = unitDtos,
                 TotalItems = pagedUnits.TotalItems,

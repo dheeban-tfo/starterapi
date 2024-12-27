@@ -94,13 +94,13 @@ namespace StarterApi.Application.Modules.Societies.Services
             return true;
         }
 
-        public async Task<PagedResult<SocietyDto>> GetSocietiesAsync(QueryParameters parameters)
+        public async Task<PagedResult<SocietyListDto>> GetSocietiesAsync(QueryParameters parameters)
         {
             var pagedSocieties = await _societyRepository.GetPagedAsync(parameters);
             
-            var societyDtos = _mapper.Map<IEnumerable<SocietyDto>>(pagedSocieties.Items);
+            var societyDtos = _mapper.Map<IEnumerable<SocietyListDto>>(pagedSocieties.Items);
             
-            return new PagedResult<SocietyDto>
+            return new PagedResult<SocietyListDto>
             {
                 Items = societyDtos,
                 TotalItems = pagedSocieties.TotalItems,

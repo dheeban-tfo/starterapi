@@ -287,13 +287,13 @@ namespace StarterApi.Application.Modules.Residents.Services
             return await _residentRepository.IsUnitAvailableForResidentAsync(unitId);
         }
 
-        public async Task<PagedResult<ResidentDto>> GetResidentsAsync(QueryParameters parameters)
+        public async Task<PagedResult<ResidentListDto>> GetResidentsAsync(QueryParameters parameters)
         {
             var pagedResult = await _residentRepository.GetResidentsAsync(parameters);
             
-            return new PagedResult<ResidentDto>
+            return new PagedResult<ResidentListDto>
             {
-                Items = _mapper.Map<IEnumerable<ResidentDto>>(pagedResult.Items),
+                Items = _mapper.Map<IEnumerable<ResidentListDto>>(pagedResult.Items),
                 TotalItems = pagedResult.TotalItems,
                 PageNumber = pagedResult.PageNumber,
                 PageSize = pagedResult.PageSize,

@@ -42,7 +42,7 @@ namespace StarterApi.Api.Controllers
 
         [HttpGet]
         [RequirePermission(Permissions.Floors.View)]
-        public async Task<ActionResult<PagedResult<FloorDto>>> GetFloors([FromQuery] QueryParameters parameters)
+        public async Task<ActionResult<PagedResult<FloorListDto>>> GetFloors([FromQuery] QueryParameters parameters)
         {
             try
             {

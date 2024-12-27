@@ -79,13 +79,13 @@ namespace StarterApi.Application.Modules.Floors.Services
             return true;
         }
 
-        public async Task<PagedResult<FloorDto>> GetFloorsAsync(QueryParameters parameters)
+        public async Task<PagedResult<FloorListDto>> GetFloorsAsync(QueryParameters parameters)
         {
             var pagedFloors = await _floorRepository.GetPagedAsync(parameters);
             
-            var floorDtos = _mapper.Map<IEnumerable<FloorDto>>(pagedFloors.Items);
+            var floorDtos = _mapper.Map<IEnumerable<FloorListDto>>(pagedFloors.Items);
             
-            return new PagedResult<FloorDto>
+            return new PagedResult<FloorListDto>
             {
                 Items = floorDtos,
                 TotalItems = pagedFloors.TotalItems,

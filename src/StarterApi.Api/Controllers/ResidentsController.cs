@@ -32,7 +32,7 @@ namespace StarterApi.Api.Controllers
         /// </summary>
         [HttpGet]
         [RequirePermission(Permissions.Residents.View)]
-        public async Task<ActionResult<PagedResult<ResidentDto>>> GetResidents([FromQuery] QueryParameters parameters)
+        public async Task<ActionResult<PagedResult<ResidentListDto>>> GetResidents([FromQuery] QueryParameters parameters)
         {
             try
             {

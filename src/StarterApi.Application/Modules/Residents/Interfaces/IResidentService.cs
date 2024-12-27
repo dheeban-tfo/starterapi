@@ -10,7 +10,7 @@ namespace StarterApi.Application.Modules.Residents.Interfaces
     {
         Task<ResidentDto> GetByIdAsync(Guid id);
         Task<IEnumerable<ResidentDto>> GetAllAsync();
-        Task<PagedResult<ResidentDto>> GetResidentsAsync(QueryParameters parameters);
+        Task<PagedResult<ResidentListDto>> GetResidentsAsync(QueryParameters parameters);
         Task<IEnumerable<ResidentDto>> GetByUnitIdAsync(Guid unitId);
         Task<IEnumerable<ResidentDto>> GetByIndividualIdAsync(Guid individualId);
         Task<ResidentDto> GetByUserIdAsync(Guid userId);

@@ -9,7 +9,7 @@ namespace StarterApi.Application.Modules.Societies.Interfaces
         Task<SocietyDto> UpdateSocietyAsync(Guid id, UpdateSocietyDto dto);
         Task<bool> DeleteSocietyAsync(Guid id);
         Task<SocietyDto> GetSocietyByIdAsync(Guid id);
-        Task<PagedResult<SocietyDto>> GetSocietiesAsync(QueryParameters parameters);
+        Task<PagedResult<SocietyListDto>> GetSocietiesAsync(QueryParameters parameters);
         Task<bool> ExistsByRegistrationNumberAsync(string registrationNumber);
     }
 }

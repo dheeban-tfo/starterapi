@@ -9,7 +9,7 @@ namespace StarterApi.Application.Modules.Blocks.Interfaces
         Task<BlockDto> UpdateBlockAsync(Guid id, UpdateBlockDto dto);
         Task<bool> DeleteBlockAsync(Guid id);
         Task<BlockDto> GetBlockByIdAsync(Guid id);
-        Task<PagedResult<BlockDto>> GetBlocksAsync(QueryParameters parameters);
+        Task<PagedResult<BlockListDto>> GetBlocksAsync(QueryParameters parameters);
         Task<bool> ExistsByCodeAsync(string code, Guid societyId);
     }
 }

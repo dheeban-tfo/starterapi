@@ -9,7 +9,7 @@ namespace StarterApi.Application.Modules.Units.Interfaces
         Task<UnitDto> UpdateUnitAsync(Guid id, UpdateUnitDto dto);
         Task<bool> DeleteUnitAsync(Guid id);
         Task<UnitDto> GetUnitByIdAsync(Guid id);
-        Task<PagedResult<UnitDto>> GetUnitsAsync(QueryParameters parameters);
+        Task<PagedResult<UnitListDto>> GetUnitsAsync(QueryParameters parameters);
         Task<bool> ExistsByNumberAsync(string number, Guid floorId);
     }
 }

@@ -42,7 +42,7 @@ namespace StarterApi.Api.Controllers
 
         [HttpGet]
         [RequirePermission(Permissions.Units.View)]
-        public async Task<ActionResult<PagedResult<UnitDto>>> GetUnits([FromQuery] QueryParameters parameters)
+        public async Task<ActionResult<PagedResult<UnitListDto>>> GetUnits([FromQuery] QueryParameters parameters)
         {
             try
             {

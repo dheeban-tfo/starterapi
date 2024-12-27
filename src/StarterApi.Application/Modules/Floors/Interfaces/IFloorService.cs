@@ -9,7 +9,7 @@ namespace StarterApi.Application.Modules.Floors.Interfaces
         Task<FloorDto> UpdateFloorAsync(Guid id, UpdateFloorDto dto);
         Task<bool> DeleteFloorAsync(Guid id);
         Task<FloorDto> GetFloorByIdAsync(Guid id);
-        Task<PagedResult<FloorDto>> GetFloorsAsync(QueryParameters parameters);
+        Task<PagedResult<FloorListDto>> GetFloorsAsync(QueryParameters parameters);
         Task<bool> ExistsByNumberAsync(int number, Guid blockId);
     }
 }

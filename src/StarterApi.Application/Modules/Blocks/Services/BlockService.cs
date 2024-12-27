@@ -81,13 +81,13 @@ namespace StarterApi.Application.Modules.Blocks.Services
             return true;
         }
 
-        public async Task<PagedResult<BlockDto>> GetBlocksAsync(QueryParameters parameters)
+        public async Task<PagedResult<BlockListDto>> GetBlocksAsync(QueryParameters parameters)
         {
             var pagedBlocks = await _blockRepository.GetPagedAsync(parameters);
             
-            var blockDtos = _mapper.Map<IEnumerable<BlockDto>>(pagedBlocks.Items);
+            var blockDtos = _mapper.Map<IEnumerable<BlockListDto>>(pagedBlocks.Items);
             
-            return new PagedResult<BlockDto>
+            return new PagedResult<BlockListDto>
             {
                 Items = blockDtos,
                 TotalItems = pagedBlocks.TotalItems,

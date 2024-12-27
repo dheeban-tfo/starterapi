@@ -42,25 +42,10 @@ namespace StarterApi.Api.Controllers
 
         [HttpGet]
         [RequirePermission(Permissions.Blocks.View)]
-        public async Task<ActionResult<PagedResult<BlockDto>>> GetBlocks(
-            [FromQuery] QueryParameters parameters,
-            [FromQuery] Guid? societyId)
+        public async Task<ActionResult<PagedResult<BlockListDto>>> GetBlocks([FromQuery] QueryParameters parameters)
         {
             try
             {
-                if (societyId.HasValue)
-                {
-                    if (parameters.Filters == null)
-                        parameters.Filters = new List<FilterCriteria>();
-
-                    parameters.Filters.Add(new FilterCriteria
-                    {
-                        PropertyName = "SocietyId",
-                        Operation = "eq",
-                        Value = societyId.Value.ToString()
-                    });
-                }
-
                 var blocks = await _blockService.GetBlocksAsync(parameters);
                 return Ok(blocks);
             }

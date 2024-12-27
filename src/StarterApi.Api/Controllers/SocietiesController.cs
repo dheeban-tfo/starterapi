@@ -47,7 +47,7 @@ namespace StarterApi.Api.Controllers
 
         [HttpGet]
         [RequirePermission(Permissions.Societies.View)]
-        public async Task<ActionResult<PagedResult<SocietyDto>>> GetSocieties([FromQuery] QueryParameters parameters)
+        public async Task<ActionResult<PagedResult<SocietyListDto>>> GetSocieties([FromQuery] QueryParameters parameters)
         {
             try
             {
