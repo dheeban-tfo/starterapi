@@ -1,14 +1,17 @@
+using StarterApi.Application.Common.Models;
+using System;
+
 namespace StarterApi.Application.Modules.Blocks.DTOs
 {
     public class BlockDto
     {
         public Guid Id { get; set; }
-        public Guid SocietyId { get; set; }
         public string Name { get; set; }
         public string Code { get; set; }
-        public int TotalFloors { get; set; }
+        public SocietyDetailDto SelectedSociety { get; set; }
+        public int FloorCount { get; set; }
+        public int UnitCount { get; set; }
         public decimal MaintenanceChargePerSqft { get; set; }
-        public string SocietyName { get; set; }
     }
 
     public class CreateBlockDto

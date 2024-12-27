@@ -90,7 +90,7 @@ namespace StarterApi.Application.Modules.Units.Services
             unit.BuiltUpArea = dto.BuiltUpArea;
             unit.CarpetArea = dto.CarpetArea;
             unit.FurnishingStatus = dto.FurnishingStatus;
-            unit.Status = dto.Status;
+            //unit.Status = dto.Status;
             unit.CurrentOwnerId = dto.CurrentOwnerId;
             unit.MonthlyMaintenanceFee = dto.MonthlyMaintenanceFee;
 

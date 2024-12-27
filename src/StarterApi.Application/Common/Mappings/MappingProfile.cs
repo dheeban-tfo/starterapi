@@ -1,4 +1,5 @@
 using AutoMapper;
+using StarterApi.Application.Common.Models;
 using StarterApi.Application.Modules.Tenants;
 using StarterApi.Application.Modules.Users.DTOs;
 using StarterApi.Application.Modules.Societies.DTOs;
@@ -7,7 +8,6 @@ using StarterApi.Application.Modules.Floors.DTOs;
 using StarterApi.Application.Modules.Units.DTOs;
 using StarterApi.Domain.Entities;
 using StarterApi.Application.Modules.Individuals.DTOs;
-using StarterApi.Application.Common.Models;
 using StarterApi.Application.Modules.Residents.DTOs;
 
 public class MappingProfile : Profile
@@ -39,41 +39,43 @@ public class MappingProfile : Profile
             .ForMember(dest => dest.MobileNumber, opt => opt.MapFrom(src => src.MobileNumber));
 
         // Society mappings
-        CreateMap<Society, SocietyDto>()
-            .ForMember(dest => dest.TotalBlocks, opt => opt.MapFrom(src => src.Blocks.Count(b => b.IsActive)));
+        CreateMap<Society, SocietyDto>();
         CreateMap<CreateSocietyDto, Society>();
         CreateMap<UpdateSocietyDto, Society>();
 
         // Block mappings
         CreateMap<Block, BlockDto>()
-            .ForMember(dest => dest.SocietyName, opt => opt.MapFrom(src => src.Society.Name))
-            .ForMember(dest => dest.TotalFloors, opt => opt.MapFrom(src => src.Floors.Count(f => f.IsActive)));
+            .ForMember(dest => dest.SelectedSociety, opt => opt.MapFrom(src => src.Society))
+            .ForMember(dest => dest.FloorCount, opt => opt.MapFrom(src => src.Floors.Count(f => f.IsActive)))
+            .ForMember(dest => dest.UnitCount, opt => opt.MapFrom(src => src.Floors.Sum(f => f.Units.Count(u => u.IsActive))));
         CreateMap<CreateBlockDto, Block>();
         CreateMap<UpdateBlockDto, Block>();
 
         // Floor mappings
         CreateMap<Floor, FloorDto>()
-            .ForMember(dest => dest.BlockName, opt => opt.MapFrom(src => src.Block.Name))
-            .ForMember(dest => dest.BlockCode, opt => opt.MapFrom(src => src.Block.Code));
+            .ForMember(dest => dest.SelectedBlock, opt => opt.MapFrom(src => src.Block))
+            .ForMember(dest => dest.UnitCount, opt => opt.MapFrom(src => src.Units.Count(u => u.IsActive)));
         CreateMap<CreateFloorDto, Floor>();
         CreateMap<UpdateFloorDto, Floor>();
 
         // Unit mappings
-        CreateMap<Unit, UnitDto>();
+        CreateMap<Unit, UnitDto>()
+            .ForMember(dest => dest.SelectedFloor, opt => opt.MapFrom(src => src.Floor))
+            .ForMember(dest => dest.SelectedBlock, opt => opt.MapFrom(src => src.Floor.Block))
+            .ForMember(dest => dest.SelectedSociety, opt => opt.MapFrom(src => src.Floor.Block.Society))
+            .ForMember(dest => dest.SelectedCurrentOwner, opt => opt.MapFrom(src => src.CurrentOwner));
         CreateMap<CreateUnitDto, Unit>();
         CreateMap<UpdateUnitDto, Unit>();
-        CreateMap<Unit, UnitLookupDto>()
-            .ForMember(dest => dest.FloorName, opt => opt.MapFrom(src => src.Floor.FloorName))
-            .ForMember(dest => dest.BlockName, opt => opt.MapFrom(src => src.Floor.Block.Name));
 
         // Individual mappings
         CreateMap<Individual, IndividualDto>();
         CreateMap<CreateIndividualDto, Individual>();
         CreateMap<UpdateIndividualDto, Individual>();
-        CreateMap<Individual, IndividualLookupDto>();
 
         // Resident mappings
-        CreateMap<Resident, ResidentDto>();
+        CreateMap<Resident, ResidentDto>()
+            .ForMember(dest => dest.SelectedIndividual, opt => opt.MapFrom(src => src.Individual))
+            .ForMember(dest => dest.SelectedUnit, opt => opt.MapFrom(src => src.Unit));
         CreateMap<CreateResidentDto, Resident>();
         CreateMap<UpdateResidentDto, Resident>()
             .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));

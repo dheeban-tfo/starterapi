@@ -19,12 +19,21 @@ namespace StarterApi.Infrastructure.Persistence.Repositories
 
         public async Task<Floor> GetByIdAsync(Guid id)
         {
-            return await _context.Floors.FindAsync(id);
+            return await _context.Floors
+                .Include(f => f.Block)
+                    .ThenInclude(b => b.Society)
+                .Include(f => f.Units.Where(u => u.IsActive))
+                .FirstOrDefaultAsync(f => f.Id == id && f.IsActive);
         }
 
         public async Task<PagedResult<Floor>> GetPagedAsync(QueryParameters parameters)
         {
-            var query = _context.Floors.AsQueryable();
+            var query = _context.Floors
+                .Include(f => f.Block)
+                    .ThenInclude(b => b.Society)
+                .Include(f => f.Units.Where(u => u.IsActive))
+                .Where(f => f.IsActive)
+                .AsQueryable();
 
             // Apply Search
             query = query.ApplySearch(parameters.SearchTerm);
@@ -59,7 +68,10 @@ namespace StarterApi.Infrastructure.Persistence.Repositories
         public async Task<Floor> GetByNumberAsync(int number, Guid blockId)
         {
             return await _context.Floors
-                .FirstOrDefaultAsync(f => f.FloorNumber == number && f.BlockId == blockId);
+                .Include(f => f.Block)
+                    .ThenInclude(b => b.Society)
+                .Include(f => f.Units.Where(u => u.IsActive))
+                .FirstOrDefaultAsync(f => f.FloorNumber == number && f.BlockId == blockId && f.IsActive);
         }
 
         public async Task<bool> ExistsAsync(int number, Guid blockId)

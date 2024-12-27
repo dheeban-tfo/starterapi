@@ -20,6 +20,7 @@ namespace StarterApi.Infrastructure.Persistence.Repositories
         public async Task<Individual> GetByIdAsync(Guid id)
         {
             return await _context.Individuals
+                .Include(i => i.Owners)
                 .FirstOrDefaultAsync(i => i.Id == id && i.IsActive);
         }
 

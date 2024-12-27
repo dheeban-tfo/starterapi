@@ -22,7 +22,8 @@ namespace StarterApi.Infrastructure.Persistence.Repositories
             return await _context.Blocks
                 .Include(b => b.Society)
                 .Include(b => b.Floors.Where(f => f.IsActive))
-                .FirstOrDefaultAsync(b => b.Id == id);
+                    .ThenInclude(f => f.Units.Where(u => u.IsActive))
+                .FirstOrDefaultAsync(b => b.Id == id && b.IsActive);
         }
 
         public async Task<PagedResult<Block>> GetPagedAsync(QueryParameters parameters)

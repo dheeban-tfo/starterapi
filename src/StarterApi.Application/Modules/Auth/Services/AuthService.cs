@@ -11,6 +11,7 @@ using Microsoft.Extensions.Options;
 using StarterApi.Domain.Settings;
 using System.Security.Claims;
 using System.Collections.Generic;
+using StarterApi.Application.Modules.Users.Interfaces;
 
 namespace StarterApi.Application.Modules.Auth.Services
 {

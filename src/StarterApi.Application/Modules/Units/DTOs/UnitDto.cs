@@ -1,3 +1,5 @@
+using StarterApi.Application.Common.Models;
+using System;
 using System.ComponentModel.DataAnnotations;
 
 namespace StarterApi.Application.Modules.Units.DTOs
@@ -5,20 +7,19 @@ namespace StarterApi.Application.Modules.Units.DTOs
     public class UnitDto
     {
         public Guid Id { get; set; }
-        public Guid FloorId { get; set; }
         public string UnitNumber { get; set; }
         public string Type { get; set; }
         public decimal BuiltUpArea { get; set; }
         public decimal CarpetArea { get; set; }
         public string FurnishingStatus { get; set; }
         public string Status { get; set; }
-        public Guid? CurrentOwnerId { get; set; }
         public decimal MonthlyMaintenanceFee { get; set; }
-        public string FloorName { get; set; }
-        public int FloorNumber { get; set; }
-        public string BlockName { get; set; }
-        public string BlockCode { get; set; }
-        public string SocietyName { get; set; }
+
+        // Lookup fields with detailed information
+        public FloorDetailDto SelectedFloor { get; set; }
+        public BlockDetailDto SelectedBlock { get; set; }
+        public SocietyDetailDto SelectedSociety { get; set; }
+        public OwnerDetailDto SelectedCurrentOwner { get; set; }
     }
 
     public class CreateUnitDto
@@ -27,7 +28,7 @@ namespace StarterApi.Application.Modules.Units.DTOs
         public Guid FloorId { get; set; }
 
         [Required]
-        [StringLength(50)]
+        [StringLength(20)]
         public string UnitNumber { get; set; }
 
         [Required]
@@ -35,11 +36,9 @@ namespace StarterApi.Application.Modules.Units.DTOs
         public string Type { get; set; }
 
         [Required]
-        [Range(0, double.MaxValue)]
         public decimal BuiltUpArea { get; set; }
 
         [Required]
-        [Range(0, double.MaxValue)]
         public decimal CarpetArea { get; set; }
 
         [Required]
@@ -53,36 +52,32 @@ namespace StarterApi.Application.Modules.Units.DTOs
         public Guid? CurrentOwnerId { get; set; }
 
         [Required]
-        [Range(0, double.MaxValue)]
         public decimal MonthlyMaintenanceFee { get; set; }
     }
 
     public class UpdateUnitDto
     {
         [Required]
+        [StringLength(20)]
+        public string UnitNumber { get; set; }
+
+        [Required]
         [StringLength(50)]
         public string Type { get; set; }
 
         [Required]
-        [Range(0, double.MaxValue)]
         public decimal BuiltUpArea { get; set; }
 
         [Required]
-        [Range(0, double.MaxValue)]
         public decimal CarpetArea { get; set; }
 
         [Required]
         [StringLength(50)]
         public string FurnishingStatus { get; set; }
 
-        [Required]
-        [StringLength(50)]
-        public string Status { get; set; }
-
         public Guid? CurrentOwnerId { get; set; }
 
         [Required]
-        [Range(0, double.MaxValue)]
         public decimal MonthlyMaintenanceFee { get; set; }
     }
 }
