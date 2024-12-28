@@ -24,9 +24,12 @@ namespace StarterApi.Application.Common.Interfaces
         // Contracts and Bookings
         DbSet<RentalContract> RentalContracts { get; set; }
         DbSet<FacilityBooking> FacilityBookings { get; set; }
+        DbSet<FacilityBookingRule> FacilityBookingRules { get; set; }
+        DbSet<FacilityBlackoutDate> FacilityBlackoutDates { get; set; }
         
         // Facilities and Parking
         DbSet<Facility> Facilities { get; set; }
+        DbSet<FacilityImage> FacilityImages { get; set; }
         DbSet<ParkingSlot> ParkingSlots { get; set; }
         DbSet<ParkingAllocation> ParkingAllocations { get; set; }
         DbSet<Vehicle> Vehicles { get; set; }

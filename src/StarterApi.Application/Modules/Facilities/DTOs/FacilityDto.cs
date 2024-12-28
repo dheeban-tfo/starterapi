@@ -1,11 +1,11 @@
-using System;
-using System.Collections.Generic;
+using StarterApi.Application.Common.Models;
 using StarterApi.Domain.Enums;
 
-namespace StarterApi.Domain.Entities
+namespace StarterApi.Application.Modules.Facilities.DTOs
 {
-    public class Facility : BaseEntity
+    public class FacilityDto
     {
+        public Guid Id { get; set; }
         public string Name { get; set; }
         public string Description { get; set; }
         public string Location { get; set; }
@@ -22,22 +22,9 @@ namespace StarterApi.Domain.Entities
         public int? MinimumNoticeHours { get; set; }
         public int? MaximumBookingDays { get; set; }
         public bool AllowMultipleBookings { get; set; }
-        public Guid? SocietyId { get; set; }
-        public virtual Society Society { get; set; }
-
-
-
-        // Navigation properties
-        public virtual ICollection<FacilityBooking> Bookings { get; set; }
-        public virtual FacilityBookingRule BookingRule { get; set; }
-        public virtual ICollection<FacilityBlackoutDate> BlackoutDates { get; set; }
-        public virtual ICollection<FacilityImage> Images { get; set; }
-
-        public Facility()
-        {
-            Bookings = new HashSet<FacilityBooking>();
-            BlackoutDates = new HashSet<FacilityBlackoutDate>();
-            Images = new HashSet<FacilityImage>();
-        }
+        public LookupDetailDto SelectedSociety { get; set; }
+        public int ActiveBookingsCount { get; set; }
+        public DateTime CreatedAt { get; set; }
+        public DateTime? LastModifiedAt { get; set; }
     }
 } 

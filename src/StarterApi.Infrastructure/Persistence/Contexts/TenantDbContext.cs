@@ -28,9 +28,12 @@ namespace StarterApi.Infrastructure.Persistence.Contexts
         // Contracts and Bookings
         public DbSet<RentalContract> RentalContracts { get; set; }
         public DbSet<FacilityBooking> FacilityBookings { get; set; }
+        public DbSet<FacilityBookingRule> FacilityBookingRules { get; set; }
+        public DbSet<FacilityBlackoutDate> FacilityBlackoutDates { get; set; }
         
         // Facilities and Parking
         public DbSet<Facility> Facilities { get; set; }
+        public DbSet<FacilityImage> FacilityImages { get; set; }
         public DbSet<ParkingSlot> ParkingSlots { get; set; }
         public DbSet<ParkingAllocation> ParkingAllocations { get; set; }
         public DbSet<Vehicle> Vehicles { get; set; }
@@ -114,6 +117,7 @@ namespace StarterApi.Infrastructure.Persistence.Contexts
             modelBuilder.ApplyConfiguration(new RentalContractConfiguration());
             modelBuilder.ApplyConfiguration(new FacilityConfiguration());
             modelBuilder.ApplyConfiguration(new FacilityBookingConfiguration());
+            modelBuilder.ApplyConfiguration(new FacilityImageConfiguration());
             modelBuilder.ApplyConfiguration(new ParkingSlotConfiguration());
             modelBuilder.ApplyConfiguration(new ParkingAllocationConfiguration());
             modelBuilder.ApplyConfiguration(new VehicleConfiguration());
@@ -129,6 +133,27 @@ namespace StarterApi.Infrastructure.Persistence.Contexts
             modelBuilder.ApplyConfiguration(new DocumentCategoryConfiguration());
             modelBuilder.ApplyConfiguration(new DocumentAccessConfiguration());
 
+            // Configure FacilityBookingRule entity
+            modelBuilder.Entity<FacilityBookingRule>(entity =>
+            {
+                entity.ToTable("FacilityBookingRules");
+                entity.HasKey(e => e.Id);
+                entity.HasOne<Facility>()
+                    .WithOne()
+                    .HasForeignKey<FacilityBookingRule>(e => e.FacilityId)
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            // Configure FacilityBlackoutDate entity
+            modelBuilder.Entity<FacilityBlackoutDate>(entity =>
+            {
+                entity.ToTable("FacilityBlackoutDates");
+                entity.HasKey(e => e.Id);
+                entity.HasOne<Facility>()
+                    .WithMany()
+                    .HasForeignKey(e => e.FacilityId)
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
         }
     }
 }

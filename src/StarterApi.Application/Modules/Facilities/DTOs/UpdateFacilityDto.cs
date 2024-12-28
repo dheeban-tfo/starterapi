@@ -1,43 +1,57 @@
-using System;
-using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using StarterApi.Domain.Enums;
 
-namespace StarterApi.Domain.Entities
+namespace StarterApi.Application.Modules.Facilities.DTOs
 {
-    public class Facility : BaseEntity
+    public class UpdateFacilityDto
     {
+        [Required]
+        [StringLength(100)]
         public string Name { get; set; }
+
+        [StringLength(500)]
         public string Description { get; set; }
+
+        [Required]
+        [StringLength(200)]
         public string Location { get; set; }
+
+        [Required]
+        [Range(1, 1000)]
         public int Capacity { get; set; }
+
+        [Required]
         public FacilityType Type { get; set; }
+
+        [Required]
         public FacilityStatus Status { get; set; }
+
         public bool IsChargeable { get; set; }
+
+        [Range(0, 10000)]
         public decimal? ChargePerHour { get; set; }
+
+        [Required]
+        [StringLength(100)]
         public string OperatingHours { get; set; }
+
+        [StringLength(500)]
         public string MaintenanceSchedule { get; set; }
+
+        [StringLength(1000)]
         public string Rules { get; set; }
+
+        [StringLength(500)]
         public string ImageUrl { get; set; }
+
         public bool RequiresBooking { get; set; }
+
+        [Range(0, 168)]
         public int? MinimumNoticeHours { get; set; }
+
+        [Range(0, 365)]
         public int? MaximumBookingDays { get; set; }
+
         public bool AllowMultipleBookings { get; set; }
-        public Guid? SocietyId { get; set; }
-        public virtual Society Society { get; set; }
-
-
-
-        // Navigation properties
-        public virtual ICollection<FacilityBooking> Bookings { get; set; }
-        public virtual FacilityBookingRule BookingRule { get; set; }
-        public virtual ICollection<FacilityBlackoutDate> BlackoutDates { get; set; }
-        public virtual ICollection<FacilityImage> Images { get; set; }
-
-        public Facility()
-        {
-            Bookings = new HashSet<FacilityBooking>();
-            BlackoutDates = new HashSet<FacilityBlackoutDate>();
-            Images = new HashSet<FacilityImage>();
-        }
     }
 } 
