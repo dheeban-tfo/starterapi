@@ -35,6 +35,8 @@ using StarterApi.Application.Common.Services;
 using Microsoft.Extensions.DependencyInjection;
 using StarterApi.Application.Modules.Residents.Interfaces;
 using StarterApi.Application.Modules.Residents.Services;
+using StarterApi.Application.Modules.Facilities.Interfaces;
+using StarterApi.Application.Modules.Facilities.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -128,6 +130,8 @@ builder.Services.AddScoped<IBlockRepository, BlockRepository>();
 builder.Services.AddScoped<IFloorRepository, FloorRepository>();
 builder.Services.AddScoped<IUnitRepository, UnitRepository>();
 builder.Services.AddScoped<IDocumentRepository, DocumentRepository>();
+builder.Services.AddScoped<IFacilityRepository, FacilityRepository>();
+builder.Services.AddScoped<IFacilityImageRepository, FacilityImageRepository>();
 
 // Register services
 builder.Services.AddScoped<ITenantDbMigrationService, TenantDbMigrationService>();
@@ -138,6 +142,8 @@ builder.Services.AddScoped<IBlockService, BlockService>();
 builder.Services.AddScoped<IFloorService, FloorService>();
 builder.Services.AddScoped<IUnitService, UnitService>();
 builder.Services.AddScoped<IDocumentService, DocumentService>();
+builder.Services.AddScoped<IFacilityService, FacilityService>();
+builder.Services.AddScoped<IFacilityImageService, FacilityImageService>();
 
 // Register tenant-related services
 builder.Services.AddScoped<ITenantProvider, TenantProvider>();

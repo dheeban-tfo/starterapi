@@ -514,10 +514,14 @@ namespace StarterApi.Infrastructure.Persistence.Migrations.TenantDb
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<bool>("AllowMultipleBookings")
+                        .HasColumnType("bit");
+
                     b.Property<int>("Capacity")
                         .HasColumnType("int");
 
                     b.Property<decimal?>("ChargePerHour")
+                        .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<DateTime>("CreatedAt")
@@ -527,6 +531,10 @@ namespace StarterApi.Infrastructure.Persistence.Migrations.TenantDb
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ImageUrl")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
@@ -546,6 +554,12 @@ namespace StarterApi.Infrastructure.Persistence.Migrations.TenantDb
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int?>("MaximumBookingDays")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("MinimumNoticeHours")
+                        .HasColumnType("int");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -553,6 +567,22 @@ namespace StarterApi.Infrastructure.Persistence.Migrations.TenantDb
                     b.Property<string>("OperatingHours")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("RequiresBooking")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Rules")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid?>("SocietyId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("int");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
@@ -562,7 +592,57 @@ namespace StarterApi.Infrastructure.Persistence.Migrations.TenantDb
 
                     b.HasKey("Id");
 
-                    b.ToTable("Facilities");
+                    b.HasIndex("SocietyId");
+
+                    b.ToTable("Facilities", (string)null);
+                });
+
+            modelBuilder.Entity("StarterApi.Domain.Entities.FacilityBlackoutDate", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("CreatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("EndDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("FacilityId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsRecurring")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Reason")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("RecurrencePattern")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("StartDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("UpdatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("FacilityId");
+
+                    b.ToTable("FacilityBlackoutDates", (string)null);
                 });
 
             modelBuilder.Entity("StarterApi.Domain.Entities.FacilityBooking", b =>
@@ -629,6 +709,142 @@ namespace StarterApi.Infrastructure.Persistence.Migrations.TenantDb
                     b.HasIndex("ResidentId");
 
                     b.ToTable("FacilityBookings", (string)null);
+                });
+
+            modelBuilder.Entity("StarterApi.Domain.Entities.FacilityBookingRule", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("AllowMultipleBookings")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("CancellationPolicy")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("CreatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<TimeSpan>("EndTime")
+                        .HasColumnType("time");
+
+                    b.Property<Guid>("FacilityId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("MaxActiveBookings")
+                        .HasColumnType("int");
+
+                    b.Property<int>("MaxAdvanceBookingDays")
+                        .HasColumnType("int");
+
+                    b.Property<int>("MaxBookingsPerDay")
+                        .HasColumnType("int");
+
+                    b.Property<int>("MaxDurationMinutes")
+                        .HasColumnType("int");
+
+                    b.Property<int>("MinAdvanceBookingHours")
+                        .HasColumnType("int");
+
+                    b.Property<int>("MinDurationMinutes")
+                        .HasColumnType("int");
+
+                    b.Property<decimal?>("PricePerHour")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<bool>("RequireApproval")
+                        .HasColumnType("bit");
+
+                    b.Property<TimeSpan>("StartTime")
+                        .HasColumnType("time");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("UpdatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("FacilityId")
+                        .IsUnique();
+
+                    b.ToTable("FacilityBookingRules", (string)null);
+                });
+
+            modelBuilder.Entity("StarterApi.Domain.Entities.FacilityImage", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("ContentType")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("CreatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<int>("DisplayOrder")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasDefaultValue(0);
+
+                    b.Property<Guid>("FacilityId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("FileName")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
+
+                    b.Property<string>("FilePath")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<long>("FileSize")
+                        .HasColumnType("bigint");
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(true);
+
+                    b.Property<bool>("IsPrimary")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false);
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("UpdatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("FacilityId");
+
+                    b.ToTable("FacilityImages", (string)null);
                 });
 
             modelBuilder.Entity("StarterApi.Domain.Entities.Floor", b =>
@@ -1009,9 +1225,11 @@ namespace StarterApi.Infrastructure.Persistence.Migrations.TenantDb
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<decimal>("RentAmount")
+                        .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<decimal>("SecurityDeposit")
+                        .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<DateTime>("StartDate")
@@ -1039,7 +1257,7 @@ namespace StarterApi.Infrastructure.Persistence.Migrations.TenantDb
 
                     b.HasIndex("UnitId");
 
-                    b.ToTable("RentalContracts");
+                    b.ToTable("RentalContracts", (string)null);
                 });
 
             modelBuilder.Entity("StarterApi.Domain.Entities.Resident", b =>
@@ -1682,6 +1900,26 @@ namespace StarterApi.Infrastructure.Persistence.Migrations.TenantDb
                     b.Navigation("Document");
                 });
 
+            modelBuilder.Entity("StarterApi.Domain.Entities.Facility", b =>
+                {
+                    b.HasOne("StarterApi.Domain.Entities.Society", "Society")
+                        .WithMany()
+                        .HasForeignKey("SocietyId");
+
+                    b.Navigation("Society");
+                });
+
+            modelBuilder.Entity("StarterApi.Domain.Entities.FacilityBlackoutDate", b =>
+                {
+                    b.HasOne("StarterApi.Domain.Entities.Facility", "Facility")
+                        .WithMany("BlackoutDates")
+                        .HasForeignKey("FacilityId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Facility");
+                });
+
             modelBuilder.Entity("StarterApi.Domain.Entities.FacilityBooking", b =>
                 {
                     b.HasOne("StarterApi.Domain.Entities.Facility", "Facility")
@@ -1699,6 +1937,28 @@ namespace StarterApi.Infrastructure.Persistence.Migrations.TenantDb
                     b.Navigation("Facility");
 
                     b.Navigation("Resident");
+                });
+
+            modelBuilder.Entity("StarterApi.Domain.Entities.FacilityBookingRule", b =>
+                {
+                    b.HasOne("StarterApi.Domain.Entities.Facility", "Facility")
+                        .WithOne("BookingRule")
+                        .HasForeignKey("StarterApi.Domain.Entities.FacilityBookingRule", "FacilityId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Facility");
+                });
+
+            modelBuilder.Entity("StarterApi.Domain.Entities.FacilityImage", b =>
+                {
+                    b.HasOne("StarterApi.Domain.Entities.Facility", "Facility")
+                        .WithMany("Images")
+                        .HasForeignKey("FacilityId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Facility");
                 });
 
             modelBuilder.Entity("StarterApi.Domain.Entities.Floor", b =>
@@ -1920,7 +2180,14 @@ namespace StarterApi.Infrastructure.Persistence.Migrations.TenantDb
 
             modelBuilder.Entity("StarterApi.Domain.Entities.Facility", b =>
                 {
+                    b.Navigation("BlackoutDates");
+
+                    b.Navigation("BookingRule")
+                        .IsRequired();
+
                     b.Navigation("Bookings");
+
+                    b.Navigation("Images");
                 });
 
             modelBuilder.Entity("StarterApi.Domain.Entities.Floor", b =>

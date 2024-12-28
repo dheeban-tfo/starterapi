@@ -130,6 +130,17 @@ namespace StarterApi.Infrastructure.Persistence.Seeders
                     (Permissions.Documents.ManageVersions, "Manage Document Versions", "Can manage document versions")
                 });
 
+                // Facilities permissions
+                await AddOrUpdatePermissionGroup(permissions, existingPermissions, "Facilities", new[]
+                {
+                    (Permissions.Facilities.View, "View Facilities", "Can view facilities in the system"),
+                    (Permissions.Facilities.Create, "Create Facilities", "Can create new facilities"),
+                    (Permissions.Facilities.Edit, "Edit Facilities", "Can edit existing facilities"),
+                    (Permissions.Facilities.Delete, "Delete Facilities", "Can delete facilities"),
+                    (Permissions.Facilities.ManageBookings, "Manage Bookings", "Can manage facility bookings"),
+                    (Permissions.Facilities.ManageMaintenance, "Manage Maintenance", "Can manage facility maintenance")
+                });
+
                 if (permissions.Any())
                 {
                     await _context.Permissions.AddRangeAsync(permissions);

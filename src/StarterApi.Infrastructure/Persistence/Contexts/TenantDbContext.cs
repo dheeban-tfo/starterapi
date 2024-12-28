@@ -138,8 +138,10 @@ namespace StarterApi.Infrastructure.Persistence.Contexts
             {
                 entity.ToTable("FacilityBookingRules");
                 entity.HasKey(e => e.Id);
-                entity.HasOne<Facility>()
-                    .WithOne()
+                entity.Property(e => e.PricePerHour)
+                    .HasPrecision(18, 2);
+                entity.HasOne(e => e.Facility)
+                    .WithOne(f => f.BookingRule)
                     .HasForeignKey<FacilityBookingRule>(e => e.FacilityId)
                     .OnDelete(DeleteBehavior.Cascade);
             });
@@ -149,10 +151,30 @@ namespace StarterApi.Infrastructure.Persistence.Contexts
             {
                 entity.ToTable("FacilityBlackoutDates");
                 entity.HasKey(e => e.Id);
-                entity.HasOne<Facility>()
-                    .WithMany()
+                entity.HasOne(e => e.Facility)
+                    .WithMany(f => f.BlackoutDates)
                     .HasForeignKey(e => e.FacilityId)
                     .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            // Configure Facility entity
+            modelBuilder.Entity<Facility>(entity =>
+            {
+                entity.ToTable("Facilities");
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.ChargePerHour)
+                    .HasPrecision(18, 2);
+            });
+
+            // Configure RentalContract entity
+            modelBuilder.Entity<RentalContract>(entity =>
+            {
+                entity.ToTable("RentalContracts");
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.RentAmount)
+                    .HasPrecision(18, 2);
+                entity.Property(e => e.SecurityDeposit)
+                    .HasPrecision(18, 2);
             });
         }
     }

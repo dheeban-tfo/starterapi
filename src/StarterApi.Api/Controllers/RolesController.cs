@@ -107,7 +107,7 @@ namespace StarterApi.Api.Controllers
             if (rootPermissions.Any())
             {
                 _logger.LogInformation("Returning root admin permissions for user: {UserId}", userId);
-                return Ok(rootPermissions.Select(p => p.SystemName));
+                return Ok(rootPermissions.Select(p => p.SystemName).OrderBy(p => p));
             }
 
             // If not root admin, get tenant permissions
@@ -118,7 +118,7 @@ namespace StarterApi.Api.Controllers
             }
 
             var permissions = await _userTenantRepository.GetUserPermissionsAsync(userId.Value, tenantId.Value);
-            return Ok(permissions);
+            return Ok(permissions.OrderBy(p => p));
         }
     }
 }
