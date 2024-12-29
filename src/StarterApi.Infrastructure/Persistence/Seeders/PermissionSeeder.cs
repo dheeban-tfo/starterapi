@@ -141,6 +141,16 @@ namespace StarterApi.Infrastructure.Persistence.Seeders
                     (Permissions.Facilities.ManageMaintenance, "Manage Maintenance", "Can manage facility maintenance")
                 });
 
+                // Facility Bookings permissions
+                await AddOrUpdatePermissionGroup(permissions, existingPermissions, "FacilityBookings", new[]
+                {
+                    (Permissions.FacilityBookings.View, "View Facility Bookings", "Can view facility bookings in the system"),
+                    (Permissions.FacilityBookings.Create, "Create Facility Bookings", "Can create new facility bookings"),
+                    (Permissions.FacilityBookings.Edit, "Edit Facility Bookings", "Can edit existing facility bookings"),
+                    (Permissions.FacilityBookings.Cancel, "Cancel Facility Bookings", "Can cancel facility bookings"),
+                    (Permissions.FacilityBookings.ManageOthers, "Manage Others' Bookings", "Can manage facility bookings made by others")
+                });
+
                 if (permissions.Any())
                 {
                     await _context.Permissions.AddRangeAsync(permissions);

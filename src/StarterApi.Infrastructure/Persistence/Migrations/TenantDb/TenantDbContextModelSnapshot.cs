@@ -653,11 +653,10 @@ namespace StarterApi.Infrastructure.Persistence.Migrations.TenantDb
 
                     b.Property<string>("BookingStatus")
                         .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<decimal?>("ChargeAmount")
-                        .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<DateTime>("CreatedAt")
@@ -682,16 +681,14 @@ namespace StarterApi.Infrastructure.Persistence.Migrations.TenantDb
 
                     b.Property<string>("PaymentStatus")
                         .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<Guid>("ResidentId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("SpecialRequest")
                         .IsRequired()
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<TimeSpan>("StartTime")
                         .HasColumnType("time");
@@ -704,9 +701,10 @@ namespace StarterApi.Infrastructure.Persistence.Migrations.TenantDb
 
                     b.HasKey("Id");
 
-                    b.HasIndex("FacilityId");
-
                     b.HasIndex("ResidentId");
+
+                    b.HasIndex("FacilityId", "Date", "StartTime", "EndTime")
+                        .HasDatabaseName("IX_FacilityBooking_Availability");
 
                     b.ToTable("FacilityBookings", (string)null);
                 });

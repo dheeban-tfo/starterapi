@@ -243,6 +243,10 @@ builder.Services.AddScoped<ISocietyService, SocietyService>();
 builder.Services.AddScoped<IResidentRepository, ResidentRepository>();
 builder.Services.AddScoped<IResidentService, ResidentService>();
 
+// Register Facility Booking
+builder.Services.AddScoped<IFacilityBookingRepository, FacilityBookingRepository>();
+builder.Services.AddScoped<IFacilityBookingService, FacilityBookingService>();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline

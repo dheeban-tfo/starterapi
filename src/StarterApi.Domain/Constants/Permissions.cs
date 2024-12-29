@@ -105,6 +105,15 @@ namespace StarterApi.Domain.Constants
             public const string ManageMaintenance = "Facilities.ManageMaintenance";
         }
 
+        public static class FacilityBookings
+        {
+            public const string View = "FacilityBookings.View";
+            public const string Create = "FacilityBookings.Create";
+            public const string Edit = "FacilityBookings.Edit";
+            public const string Cancel = "FacilityBookings.Cancel";
+            public const string ManageOthers = "FacilityBookings.ManageOthers";
+        }
+
         public static IEnumerable<string> GetAllPermissions()
         {
             return typeof(Permissions)
