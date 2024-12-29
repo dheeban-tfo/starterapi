@@ -71,7 +71,7 @@ namespace StarterApi.Application.Modules.Facilities.Services
                 result.ContentType = document.ContentType;
                 result.FileSize = document.Size;
                 result.Description = document.Description;
-                result.DownloadUrl = document.BlobUrl;
+                result.DownloadUrl = $"/api/FacilityImages/{facilityImage.Id}/content"; // Update to use our proxy endpoint
 
                 return result;
             }
@@ -80,6 +80,25 @@ namespace StarterApi.Application.Modules.Facilities.Services
                 _logger.LogError(ex, "Error uploading facility image");
                 throw;
             }
+        }
+
+        public async Task<ImageContentDto> GetImageContentAsync(Guid id)
+        {
+            var facilityImage = await _facilityImageRepository.GetByIdAsync(id);
+            if (facilityImage == null)
+                throw new NotFoundException($"Facility image with ID {id} not found");
+
+            var document = await _documentService.GetDocumentByIdAsync(facilityImage.DocumentId);
+            if (document == null)
+                throw new NotFoundException($"Document not found for facility image {id}");
+
+            var content = await _documentService.GetDocumentContentAsync(document.Id);
+            
+            return new ImageContentDto
+            {
+                Content = content,
+                ContentType = document.ContentType
+            };
         }
 
         public async Task<FacilityImageDto> UpdateImageAsync(Guid id, UpdateFacilityImageDto dto)
@@ -121,7 +140,7 @@ namespace StarterApi.Application.Modules.Facilities.Services
             result.ContentType = document.ContentType;
             result.FileSize = document.Size;
             result.Description = document.Description;
-            result.DownloadUrl = document.BlobUrl;
+            result.DownloadUrl = $"/api/FacilityImages/{facilityImage.Id}/content"; // Update to use our proxy endpoint
 
             return result;
         }
@@ -155,7 +174,7 @@ namespace StarterApi.Application.Modules.Facilities.Services
                 dto.ContentType = document.ContentType;
                 dto.FileSize = document.Size;
                 dto.Description = document.Description;
-                dto.DownloadUrl = document.BlobUrl;
+                dto.DownloadUrl = $"/api/FacilityImages/{image.Id}/content"; // Update to use our proxy endpoint
                 result.Add(dto);
             }
 

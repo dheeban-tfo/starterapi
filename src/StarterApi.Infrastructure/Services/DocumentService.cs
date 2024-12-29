@@ -6,6 +6,7 @@ using System.Linq;
 using StarterApi.Application.Common.Interfaces;
 using StarterApi.Domain.Entities;
 using StarterApi.Application.Common.Models;
+using StarterApi.Application.Common.Exceptions;
 
 namespace StarterApi.Infrastructure.Services
 {
@@ -193,6 +194,18 @@ namespace StarterApi.Infrastructure.Services
         public async Task<PagedResult<Document>> GetDocumentsAsync(QueryParameters parameters)
         {
             return await _documentRepository.GetDocumentsAsync(parameters);
+        }
+
+        public async Task<byte[]> GetDocumentContentAsync(Guid id)
+        {
+            var document = await _documentRepository.GetByIdAsync(id);
+            if (document == null)
+                throw new NotFoundException($"Document with ID {id} not found");
+
+            using var stream = await _blobStorageService.DownloadAsync(ContainerName, document.BlobPath);
+            using var memoryStream = new MemoryStream();
+            await stream.CopyToAsync(memoryStream);
+            return memoryStream.ToArray();
         }
     }
 }

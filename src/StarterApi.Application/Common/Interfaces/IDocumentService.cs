@@ -24,5 +24,6 @@ namespace StarterApi.Application.Common.Interfaces
         Task<bool> HasAccessAsync(Guid documentId, Guid userId);
         Task<DocumentAccess> GrantAccessAsync(Guid documentId, Guid userId, string accessLevel);
         Task RevokeAccessAsync(Guid documentId, Guid userId);
+        Task<byte[]> GetDocumentContentAsync(Guid id);
     }
 }

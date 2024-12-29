@@ -44,6 +44,16 @@ namespace StarterApi.Api.Controllers
             }
         }
 
+        [HttpGet("{id}/content")]
+        public async Task<IActionResult> GetImageContent(Guid id)
+        {
+            var content = await _facilityImageService.GetImageContentAsync(id);
+            if (content == null)
+                return NotFound();
+
+            return File(content.Content, content.ContentType);
+        }
+
         [HttpPost]
         [RequirePermission(Permissions.Facilities.Edit)]
         public async Task<ActionResult<FacilityImageDto>> UploadImage([FromForm] CreateFacilityImageDto dto)
