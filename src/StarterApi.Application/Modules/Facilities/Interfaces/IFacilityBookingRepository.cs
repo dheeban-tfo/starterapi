@@ -1,5 +1,6 @@
 using System;
 using System.Threading.Tasks;
+using System.Collections.Generic;
 using StarterApi.Application.Common.Models;
 using StarterApi.Domain.Entities;
 
@@ -17,5 +18,7 @@ namespace StarterApi.Application.Modules.Facilities.Interfaces
         Task<FacilityBooking> UpdateAsync(FacilityBooking booking);
         Task<bool> DeleteAsync(FacilityBooking booking);
         Task SaveChangesAsync();
+        Task<Resident> GetResidentAsync(Guid residentId);
+        Task<IEnumerable<FacilityBooking>> GetBookingsByDateAsync(Guid facilityId, DateTime date);
     }
 } 

@@ -108,5 +108,19 @@ namespace StarterApi.Application.Common.Services
                 State = s.State
             });
         }
+
+        public async Task<IEnumerable<FacilityLookupDto>> GetFacilityLookupsAsync(LookupRequestDto request)
+        {
+            var facilities = await _lookupRepository.GetFacilityLookupsAsync(request.SearchTerm, request.MaxResults);
+
+            return facilities.Select(f => new FacilityLookupDto
+            {
+                Id = f.Id,
+                Name = f.Name,
+                Type = f.Type.ToString(),
+                Location = f.Location,
+                Status = f.Status.ToString()
+            });
+        }
     }
 }

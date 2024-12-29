@@ -188,5 +188,22 @@ namespace StarterApi.Infrastructure.Persistence.Repositories
         {
             await _context.SaveChangesAsync();
         }
+
+        public async Task<Resident> GetResidentAsync(Guid residentId)
+        {
+            return await _context.Residents
+                .Include(r => r.Individual)
+                .Include(r => r.Unit)
+                .FirstOrDefaultAsync(r => r.Id == residentId && r.IsActive);
+        }
+
+        public async Task<IEnumerable<FacilityBooking>> GetBookingsByDateAsync(Guid facilityId, DateTime date)
+        {
+            return await _context.FacilityBookings
+                .Where(b => b.FacilityId == facilityId &&
+                           b.Date.Date == date.Date &&
+                           b.IsActive)
+                .ToListAsync();
+        }
     }
 } 

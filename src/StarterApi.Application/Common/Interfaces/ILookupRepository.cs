@@ -13,4 +13,5 @@ public interface ILookupRepository
     Task<IEnumerable<Resident>> GetResidentLookupsAsync(string searchTerm, int maxResults);
     Task<IEnumerable<TenantUser>> GetUserLookupsAsync(string searchTerm, int maxResults);
     Task<IEnumerable<Society>> GetSocietyLookupsAsync(string searchTerm, int maxResults);
+    Task<IEnumerable<Facility>> GetFacilityLookupsAsync(string searchTerm, int maxResults);
 }

@@ -76,11 +76,11 @@ namespace StarterApi.Api.Controllers
         {
             try
             {
-                var isAvailable = await _bookingService.CheckAvailabilityAsync(
-                    dto.FacilityId, dto.Date, dto.StartTime, dto.EndTime);
+                // var isAvailable = await _bookingService.CheckAvailabilityAsync(
+                //     dto.FacilityId, dto.Date, dto.StartTime, dto.EndTime);
 
-                if (!isAvailable)
-                    return BadRequest("The facility is not available for the selected time slot");
+                // if (!isAvailable)
+                //     return BadRequest("The facility is not available for the selected time slot");
 
                 var booking = await _bookingService.CreateBookingAsync(dto);
                 return CreatedAtAction(nameof(GetBooking), new { id = booking.Id }, booking);

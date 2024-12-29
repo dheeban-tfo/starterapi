@@ -51,15 +51,20 @@ namespace StarterApi.Application.Modules.Facilities.Services
 
         public async Task<FacilityBookingDto> CreateBookingAsync(CreateFacilityBookingDto dto)
         {
-            // Check for overlapping bookings
-            var hasOverlap = await _repository.HasOverlappingBookingsAsync(
-                dto.FacilityId,
-                dto.Date,
-                dto.StartTime,
-                dto.EndTime);
+            // Check if resident exists
+            var resident = await _repository.GetResidentAsync(dto.ResidentId);
+            if (resident == null)
+                throw new ValidationException($"Resident with ID {dto.ResidentId} does not exist.");
 
-            if (hasOverlap)
-                throw new ValidationException("The selected time slot is not available.");
+            // Check for overlapping bookings
+            // var hasOverlap = await _repository.HasOverlappingBookingsAsync(
+            //     dto.FacilityId,
+            //     dto.Date,
+            //     dto.StartTime,
+            //     dto.EndTime);
+
+            // if (hasOverlap)
+            //     throw new ValidationException("The selected time slot is not available.");
 
             var booking = new FacilityBooking
             {
@@ -69,6 +74,8 @@ namespace StarterApi.Application.Modules.Facilities.Services
                 StartTime = dto.StartTime,
                 EndTime = dto.EndTime,
                 BookingStatus = "Confirmed",
+                PaymentStatus = "Pending",
+                SpecialRequest = dto.SpecialRequest,
                 IsActive = true
             };
 

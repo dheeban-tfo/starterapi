@@ -132,4 +132,20 @@ public class LookupsController : ControllerBase
         var results = await _lookupService.GetSocietyLookupsAsync(request);
         return Ok(results);
     }
+
+    [HttpGet("facilities")]
+    [RequirePermission(Permissions.Facilities.View)]
+    public async Task<ActionResult<IEnumerable<FacilityLookupDto>>> GetFacilities(
+        [FromQuery] string searchTerm = "",
+        [FromQuery] int maxResults = 10)
+    {
+        var request = new LookupRequestDto
+        {
+            SearchTerm = searchTerm,
+            MaxResults = Math.Min(maxResults, 100)
+        };
+
+        var results = await _lookupService.GetFacilityLookupsAsync(request);
+        return Ok(results);
+    }
 }

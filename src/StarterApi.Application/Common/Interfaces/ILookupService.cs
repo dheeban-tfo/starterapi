@@ -13,4 +13,5 @@ public interface ILookupService
     Task<IEnumerable<ResidentLookupDto>> GetResidentLookupsAsync(LookupRequestDto request);
     Task<IEnumerable<UserLookupDto>> GetUserLookupsAsync(LookupRequestDto request);
     Task<IEnumerable<SocietyLookupDto>> GetSocietyLookupsAsync(LookupRequestDto request);
+    Task<IEnumerable<FacilityLookupDto>> GetFacilityLookupsAsync(LookupRequestDto request);
 }

@@ -66,3 +66,12 @@ public class SocietyLookupDto
     public string City { get; set; }
     public string State { get; set; }
 }
+
+public class FacilityLookupDto
+{
+    public Guid Id { get; set; }
+    public string Name { get; set; }
+    public string Type { get; set; }
+    public string Location { get; set; }
+    public string Status { get; set; }
+}

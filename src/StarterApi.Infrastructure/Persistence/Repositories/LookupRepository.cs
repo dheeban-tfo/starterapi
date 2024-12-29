@@ -155,4 +155,22 @@ public class LookupRepository : ILookupRepository
             .Take(maxResults)
             .ToListAsync();
     }
+
+    public async Task<IEnumerable<Facility>> GetFacilityLookupsAsync(string searchTerm, int maxResults)
+    {
+        var query = _context.Facilities
+            .Where(f => f.IsActive)
+            .AsQueryable();
+
+        if (!string.IsNullOrEmpty(searchTerm))
+        {
+            query = query.Where(f =>
+                f.Name.Contains(searchTerm) ||
+                f.Location.Contains(searchTerm));
+        }
+
+        return await query
+            .Take(maxResults)
+            .ToListAsync();
+    }
 }

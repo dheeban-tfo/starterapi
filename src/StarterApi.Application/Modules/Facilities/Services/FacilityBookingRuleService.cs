@@ -12,17 +12,20 @@ namespace StarterApi.Application.Modules.Facilities.Services
         private readonly IFacilityRepository _facilityRepository;
         private readonly IFacilityBlackoutDateRepository _blackoutDateRepository;
         private readonly IMapper _mapper;
+        private readonly IFacilityBookingRepository _bookingRepository;
 
         public FacilityBookingRuleService(
             IFacilityBookingRuleRepository repository,
             IFacilityRepository facilityRepository,
             IFacilityBlackoutDateRepository blackoutDateRepository,
-            IMapper mapper)
+            IMapper mapper,
+            IFacilityBookingRepository bookingRepository)
         {
             _repository = repository;
             _facilityRepository = facilityRepository;
             _blackoutDateRepository = blackoutDateRepository;
             _mapper = mapper;
+            _bookingRepository = bookingRepository;
         }
 
         public async Task<FacilityBookingRuleDto> GetByFacilityIdAsync(Guid facilityId)
@@ -87,6 +90,9 @@ namespace StarterApi.Application.Modules.Facilities.Services
                 };
             }
 
+            // Get all existing bookings for this date
+            var existingBookings = await _bookingRepository.GetBookingsByDateAsync(facilityId, date);
+
             // Generate time slots based on rules
             var slots = new List<TimeSlotDto>();
             var currentTime = rule.StartTime;
@@ -94,11 +100,32 @@ namespace StarterApi.Application.Modules.Facilities.Services
 
             while (currentTime.Add(slotDuration) <= rule.EndTime)
             {
+                var slotEndTime = currentTime.Add(slotDuration);
+                var isSlotAvailable = true;
+                var unavailabilityReason = "";
+
+                // Check if this slot overlaps with any existing booking
+                foreach (var booking in existingBookings)
+                {
+                    if (booking.BookingStatus == "Cancelled")
+                        continue;
+
+                    if ((currentTime >= booking.StartTime && currentTime < booking.EndTime) ||
+                        (slotEndTime > booking.StartTime && slotEndTime <= booking.EndTime) ||
+                        (currentTime <= booking.StartTime && slotEndTime >= booking.EndTime))
+                    {
+                        isSlotAvailable = false;
+                        unavailabilityReason = "Time slot is already booked";
+                        break;
+                    }
+                }
+
                 slots.Add(new TimeSlotDto
                 {
                     StartTime = currentTime.ToString(@"hh\:mm"),
-                    EndTime = currentTime.Add(slotDuration).ToString(@"hh\:mm"),
-                    IsAvailable = true
+                    EndTime = slotEndTime.ToString(@"hh\:mm"),
+                    IsAvailable = isSlotAvailable,
+                    UnavailabilityReason = unavailabilityReason
                 });
 
                 currentTime = currentTime.Add(slotDuration);
