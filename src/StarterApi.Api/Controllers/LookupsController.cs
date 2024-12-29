@@ -116,4 +116,20 @@ public class LookupsController : ControllerBase
         var results = await _lookupService.GetUserLookupsAsync(request);
         return Ok(results);
     }
+
+    [HttpGet("societies")]
+    [RequirePermission(Permissions.Societies.View)]
+    public async Task<ActionResult<IEnumerable<SocietyLookupDto>>> GetSocieties(
+        [FromQuery] string searchTerm = "",
+        [FromQuery] int maxResults = 10)
+    {
+        var request = new LookupRequestDto
+        {
+            SearchTerm = searchTerm,
+            MaxResults = Math.Min(maxResults, 100)
+        };
+
+        var results = await _lookupService.GetSocietyLookupsAsync(request);
+        return Ok(results);
+    }
 }

@@ -129,12 +129,31 @@
 - [ ] Create/Update Service Implementation
   - [ ] Implement all interface methods
   - [ ] Add proper validation
+    - [ ] Validate required fields
+    - [ ] Validate foreign key constraints before save
+    - [ ] Check entity existence (e.g., GetByIdAsync)
+    - [ ] Validate business rules
+    - [ ] Add custom validation methods if needed
+    - [ ] Handle validation for related entities
+    - [ ] Validate unique constraints
   - [ ] Add proper error handling
+    - [ ] Use custom exceptions (NotFoundException, ValidationException)
+    - [ ] Handle database exceptions
+    - [ ] Handle foreign key violations
+    - [ ] Handle unique constraint violations
+    - [ ] Handle concurrency conflicts
   - [ ] Use AutoMapper for mapping
   - [ ] Handle related entities properly
+    - [ ] Verify related entities exist
+    - [ ] Load required navigation properties
+    - [ ] Handle cascade operations
   - [ ] Register in DI container
   - [ ] Implement business rules
   - [ ] Add logging
+    - [ ] Log validation failures
+    - [ ] Log business rule violations
+    - [ ] Log database operations
+    - [ ] Log exceptions with proper context
   - [ ] Handle concurrent operations
   - [ ] Implement caching if needed
 
@@ -231,3 +250,36 @@
   - [ ] Check for proper error message handling
   - [ ] Verify proper CORS configuration
   - [ ] Check for proper rate limiting
+
+## 8. Testing
+- [ ] Manual Testing
+  - [ ] Test all CRUD operations
+    - [ ] Test create with valid data
+    - [ ] Test create with invalid data
+    - [ ] Test create with missing required fields
+    - [ ] Test create with invalid foreign keys
+    - [ ] Test create with duplicate unique fields
+    - [ ] Test update with valid data
+    - [ ] Test update with invalid data
+    - [ ] Test delete with valid data
+    - [ ] Test delete with related records
+  - [ ] Test validation rules
+    - [ ] Test all required fields
+    - [ ] Test field length limits
+    - [ ] Test data type validations
+    - [ ] Test business rule validations
+    - [ ] Test unique constraint validations
+  - [ ] Test error scenarios
+    - [ ] Test foreign key violations
+    - [ ] Test unique constraint violations
+    - [ ] Test concurrency conflicts
+    - [ ] Test invalid data formats
+    - [ ] Test missing related entities
+  - [ ] Test permissions
+    - [ ] Test with proper permissions
+    - [ ] Test without required permissions
+    - [ ] Test with different user roles
+  - [ ] Test with related entities
+    - [ ] Test cascade operations
+    - [ ] Test referential integrity
+    - [ ] Test loading of related data

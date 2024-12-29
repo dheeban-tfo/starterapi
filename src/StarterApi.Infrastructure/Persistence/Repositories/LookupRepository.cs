@@ -135,4 +135,24 @@ public class LookupRepository : ILookupRepository
             .Take(maxResults)
             .ToListAsync();
     }
+
+    public async Task<IEnumerable<Society>> GetSocietyLookupsAsync(string searchTerm, int maxResults)
+    {
+        var query = _context.Societies
+            .Where(s => s.IsActive)
+            .AsQueryable();
+
+        if (!string.IsNullOrEmpty(searchTerm))
+        {
+            query = query.Where(s =>
+                s.Name.Contains(searchTerm) ||
+                s.RegistrationNumber.Contains(searchTerm) ||
+                s.City.Contains(searchTerm) ||
+                s.State.Contains(searchTerm));
+        }
+
+        return await query
+            .Take(maxResults)
+            .ToListAsync();
+    }
 }

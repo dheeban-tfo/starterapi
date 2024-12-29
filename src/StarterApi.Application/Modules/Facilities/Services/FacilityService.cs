@@ -12,27 +12,37 @@ namespace StarterApi.Application.Modules.Facilities.Services
     public class FacilityService : IFacilityService
     {
         private readonly IFacilityRepository _repository;
+        private readonly IFacilityBookingRuleRepository _bookingRuleRepository;
         private readonly IMapper _mapper;
 
-        public FacilityService(IFacilityRepository repository, IMapper mapper)
+        public FacilityService(
+            IFacilityRepository repository,
+            IFacilityBookingRuleRepository bookingRuleRepository,
+            IMapper mapper)
         {
             _repository = repository;
+            _bookingRuleRepository = bookingRuleRepository;
             _mapper = mapper;
         }
 
         public async Task<PagedResult<FacilityListDto>> GetFacilitiesAsync(QueryParameters parameters)
         {
             var facilities = await _repository.GetPagedAsync(parameters);
-            var dtos = facilities.Items.Select(async f =>
+            
+            // Get all active bookings counts in a single query
+            var activeBookingsCounts = await _repository.GetActiveBookingsCountForFacilitiesAsync(
+                facilities.Items.Select(f => f.Id).ToList());
+
+            var dtos = facilities.Items.Select(f =>
             {
                 var dto = _mapper.Map<FacilityListDto>(f);
-                dto.ActiveBookingsCount = await _repository.GetActiveBookingsCountAsync(f.Id);
+                dto.ActiveBookingsCount = activeBookingsCounts.GetValueOrDefault(f.Id, 0);
                 return dto;
             });
 
             return new PagedResult<FacilityListDto>
             {
-                Items = await Task.WhenAll(dtos),
+                Items = dtos.ToList(),
                 TotalItems = facilities.TotalItems,
                 PageNumber = facilities.PageNumber,
                 PageSize = facilities.PageSize,
@@ -63,10 +73,31 @@ namespace StarterApi.Application.Modules.Facilities.Services
             }
 
             var facility = _mapper.Map<Facility>(dto);
-            facility.Status = FacilityStatus.Active;
+            facility = await _repository.AddAsync(facility);
 
-            await _repository.AddAsync(facility);
-            return _mapper.Map<FacilityDto>(facility);
+            // Create default booking rules
+            var defaultRule = new FacilityBookingRule
+            {
+                FacilityId = facility.Id,
+                StartTime = new TimeSpan(9, 0, 0), // 9:00 AM
+                EndTime = new TimeSpan(21, 0, 0),  // 9:00 PM
+                MaxDurationMinutes = 120,          // 2 hours
+                MinDurationMinutes = 30,           // 30 minutes
+                MinAdvanceBookingHours = 1,        // 1 hour
+                MaxAdvanceBookingDays = 30,        // 30 days
+                AllowMultipleBookings = false,
+                MaxBookingsPerDay = 1,
+                MaxActiveBookings = 1,
+                RequireApproval = true,
+                CancellationPolicy = "Cancellations must be made at least 24 hours in advance.",
+                IsActive = true
+            };
+
+            await _bookingRuleRepository.AddAsync(defaultRule);
+
+            var result = _mapper.Map<FacilityDto>(facility);
+            result.ActiveBookingsCount = 0;
+            return result;
         }
 
         public async Task<FacilityDto> UpdateAsync(Guid id, UpdateFacilityDto dto)

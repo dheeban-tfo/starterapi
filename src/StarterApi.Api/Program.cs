@@ -132,6 +132,8 @@ builder.Services.AddScoped<IUnitRepository, UnitRepository>();
 builder.Services.AddScoped<IDocumentRepository, DocumentRepository>();
 builder.Services.AddScoped<IFacilityRepository, FacilityRepository>();
 builder.Services.AddScoped<IFacilityImageRepository, FacilityImageRepository>();
+builder.Services.AddScoped<IFacilityBookingRuleRepository, FacilityBookingRuleRepository>();
+builder.Services.AddScoped<IFacilityBlackoutDateRepository, FacilityBlackoutDateRepository>();
 
 // Register services
 builder.Services.AddScoped<ITenantDbMigrationService, TenantDbMigrationService>();
@@ -144,6 +146,8 @@ builder.Services.AddScoped<IUnitService, UnitService>();
 builder.Services.AddScoped<IDocumentService, DocumentService>();
 builder.Services.AddScoped<IFacilityService, FacilityService>();
 builder.Services.AddScoped<IFacilityImageService, FacilityImageService>();
+builder.Services.AddScoped<IFacilityBookingRuleService, FacilityBookingRuleService>();
+builder.Services.AddScoped<IFacilityBlackoutDateService, FacilityBlackoutDateService>();
 
 // Register tenant-related services
 builder.Services.AddScoped<ITenantProvider, TenantProvider>();

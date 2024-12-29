@@ -1,167 +1,178 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using System.IO;
+using Microsoft.Extensions.Logging;
 using AutoMapper;
-using Microsoft.AspNetCore.Http;
 using StarterApi.Application.Common.Exceptions;
 using StarterApi.Application.Common.Interfaces;
 using StarterApi.Application.Modules.Facilities.DTOs;
 using StarterApi.Application.Modules.Facilities.Interfaces;
 using StarterApi.Domain.Entities;
+using StarterApi.Domain.Constants;
 
 namespace StarterApi.Application.Modules.Facilities.Services
 {
     public class FacilityImageService : IFacilityImageService
     {
-        private readonly IFacilityImageRepository _repository;
-        private readonly IFacilityRepository _facilityRepository;
-        private readonly IBlobStorageService _blobStorageService;
+        private readonly IFacilityImageRepository _facilityImageRepository;
+        private readonly IDocumentService _documentService;
         private readonly IMapper _mapper;
+        private readonly ILogger<FacilityImageService> _logger;
 
         public FacilityImageService(
-            IFacilityImageRepository repository,
-            IFacilityRepository facilityRepository,
-            IBlobStorageService blobStorageService,
-            IMapper mapper)
+            IFacilityImageRepository facilityImageRepository,
+            IDocumentService documentService,
+            IMapper mapper,
+            ILogger<FacilityImageService> logger)
         {
-            _repository = repository;
-            _facilityRepository = facilityRepository;
-            _blobStorageService = blobStorageService;
+            _facilityImageRepository = facilityImageRepository;
+            _documentService = documentService;
             _mapper = mapper;
+            _logger = logger;
+        }
+
+        public async Task<FacilityImageDto> UploadImageAsync(CreateFacilityImageDto dto)
+        {
+            try
+            {
+                // Create document first
+                using var stream = dto.File.OpenReadStream();
+                var document = await _documentService.UploadDocumentAsync(
+                    dto.File.FileName,
+                    stream,
+                    dto.File.ContentType,
+                    null, // categoryId
+                    null, // unitId
+                    null  // blockId
+                );
+
+                // Create facility image
+                var facilityImage = new FacilityImage
+                {
+                    FacilityId = dto.FacilityId,
+                    DocumentId = document.Id,
+                    IsPrimary = dto.IsPrimary,
+                    DisplayOrder = dto.DisplayOrder
+                };
+
+                await _facilityImageRepository.AddAsync(facilityImage);
+                await _facilityImageRepository.SaveChangesAsync();
+
+                // If this is primary, update other images
+                if (dto.IsPrimary)
+                {
+                    await UpdatePrimaryImageAsync(facilityImage.Id, dto.FacilityId);
+                }
+
+                // Map to DTO with document properties
+                var result = _mapper.Map<FacilityImageDto>(facilityImage);
+                result.FileName = document.Name;
+                result.ContentType = document.ContentType;
+                result.FileSize = document.Size;
+                result.Description = document.Description;
+                result.DownloadUrl = document.BlobUrl;
+
+                return result;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error uploading facility image");
+                throw;
+            }
+        }
+
+        public async Task<FacilityImageDto> UpdateImageAsync(Guid id, UpdateFacilityImageDto dto)
+        {
+            var facilityImage = await _facilityImageRepository.GetByIdAsync(id);
+            if (facilityImage == null)
+                throw new NotFoundException($"Facility image with ID {id} not found");
+
+            // Update document if new file is provided
+            if (dto.File != null)
+            {
+                using var stream = dto.File.OpenReadStream();
+                await _documentService.UpdateDocumentAsync(
+                    facilityImage.DocumentId,
+                    dto.File.FileName,
+                    stream,
+                    dto.File.ContentType
+                );
+            }
+
+            // Update facility image properties
+            facilityImage.IsPrimary = dto.IsPrimary;
+            facilityImage.DisplayOrder = dto.DisplayOrder;
+
+            await _facilityImageRepository.SaveChangesAsync();
+
+            // If this is primary, update other images
+            if (dto.IsPrimary)
+            {
+                await UpdatePrimaryImageAsync(id, facilityImage.FacilityId);
+            }
+
+            // Get updated document
+            var document = await _documentService.GetDocumentByIdAsync(facilityImage.DocumentId);
+
+            // Map to DTO with document properties
+            var result = _mapper.Map<FacilityImageDto>(facilityImage);
+            result.FileName = document.Name;
+            result.ContentType = document.ContentType;
+            result.FileSize = document.Size;
+            result.Description = document.Description;
+            result.DownloadUrl = document.BlobUrl;
+
+            return result;
+        }
+
+        public async Task<bool> DeleteImageAsync(Guid id)
+        {
+            var facilityImage = await _facilityImageRepository.GetByIdAsync(id);
+            if (facilityImage == null)
+                return false;
+
+            // Delete document first
+            await _documentService.DeleteDocumentAsync(facilityImage.DocumentId);
+
+            // Delete facility image
+            await _facilityImageRepository.DeleteAsync(facilityImage);
+            await _facilityImageRepository.SaveChangesAsync();
+
+            return true;
         }
 
         public async Task<IEnumerable<FacilityImageDto>> GetByFacilityIdAsync(Guid facilityId)
         {
-            var images = await _repository.GetByFacilityIdAsync(facilityId);
-            return _mapper.Map<IEnumerable<FacilityImageDto>>(images);
-        }
-
-        public async Task<FacilityImageDto> GetByIdAsync(Guid id)
-        {
-            var image = await _repository.GetByIdAsync(id);
-            if (image == null)
-            {
-                throw new NotFoundException(nameof(FacilityImage), id);
-            }
-
-            return _mapper.Map<FacilityImageDto>(image);
-        }
-
-        public async Task<FacilityImageDto> UploadAsync(Guid facilityId, IFormFile file, CreateFacilityImageDto dto)
-        {
-            var facility = await _facilityRepository.GetByIdAsync(facilityId);
-            if (facility == null)
-            {
-                throw new NotFoundException(nameof(Facility), facilityId);
-            }
-
-            // Upload file to blob storage
-            var blobName = $"facilities/{facilityId}/{Guid.NewGuid()}-{file.FileName}";
-            var filePath = await _blobStorageService.UploadAsync(blobName, file.ContentType, file.OpenReadStream(), file.FileName);
-
-            var image = new FacilityImage
-            {
-                FacilityId = facilityId,
-                FileName = file.FileName,
-                ContentType = file.ContentType,
-                FilePath = filePath.blobUrl,
-                FileSize = file.Length,
-                Description = dto.Description,
-                IsPrimary = dto.IsPrimary,
-                DisplayOrder = dto.DisplayOrder
-            };
-
-            // If this is set as primary, update other images
-            if (dto.IsPrimary)
-            {
-                var existingImages = await _repository.GetByFacilityIdAsync(facilityId);
-                foreach (var existingImage in existingImages)
-                {
-                    existingImage.IsPrimary = false;
-                }
-                await _repository.UpdateRangeAsync(existingImages);
-            }
-
-            await _repository.AddAsync(image);
-            return _mapper.Map<FacilityImageDto>(image);
-        }
-
-        public async Task<FacilityImageDto> UpdateAsync(Guid id, UpdateFacilityImageDto dto)
-        {
-            var image = await _repository.GetByIdAsync(id);
-            if (image == null)
-            {
-                throw new NotFoundException(nameof(FacilityImage), id);
-            }
-
-            // If this is set as primary, update other images
-            if (dto.IsPrimary && !image.IsPrimary)
-            {
-                var existingImages = await _repository.GetByFacilityIdAsync(image.FacilityId);
-                foreach (var existingImage in existingImages)
-                {
-                    existingImage.IsPrimary = false;
-                }
-                await _repository.UpdateRangeAsync(existingImages);
-            }
-
-            image.Description = dto.Description;
-            image.IsPrimary = dto.IsPrimary;
-            image.DisplayOrder = dto.DisplayOrder;
-
-            await _repository.UpdateAsync(image);
-            return _mapper.Map<FacilityImageDto>(image);
-        }
-
-        public async Task<bool> DeleteAsync(Guid id)
-        {
-            var image = await _repository.GetByIdAsync(id);
-            if (image == null)
-            {
-                throw new NotFoundException(nameof(FacilityImage), id);
-            }
-
-            // Delete from blob storage
-            await _blobStorageService.DeleteAsync("facilities", image.FilePath);
-
-            return await _repository.DeleteAsync(image);
-        }
-
-        public async Task<FacilityImageDto> SetPrimaryImageAsync(Guid facilityId, Guid imageId)
-        {
-            var images = await _repository.GetByFacilityIdAsync(facilityId);
-            var selectedImage = images.FirstOrDefault(i => i.Id == imageId);
-
-            if (selectedImage == null)
-            {
-                throw new NotFoundException(nameof(FacilityImage), imageId);
-            }
+            var images = await _facilityImageRepository.GetByFacilityIdAsync(facilityId);
+            var result = new List<FacilityImageDto>();
 
             foreach (var image in images)
             {
-                image.IsPrimary = image.Id == imageId;
+                var document = await _documentService.GetDocumentByIdAsync(image.DocumentId);
+                var dto = _mapper.Map<FacilityImageDto>(image);
+                dto.FileName = document.Name;
+                dto.ContentType = document.ContentType;
+                dto.FileSize = document.Size;
+                dto.Description = document.Description;
+                dto.DownloadUrl = document.BlobUrl;
+                result.Add(dto);
             }
 
-            await _repository.UpdateRangeAsync(images);
-            return _mapper.Map<FacilityImageDto>(selectedImage);
+            return result;
         }
 
-        public async Task<bool> ReorderImagesAsync(Guid facilityId, IEnumerable<Guid> imageIds)
+        private async Task UpdatePrimaryImageAsync(Guid currentImageId, Guid facilityId)
         {
-            var images = await _repository.GetByFacilityIdAsync(facilityId);
-            var imagesList = images.ToList();
-            var displayOrder = 0;
-
-            foreach (var id in imageIds)
+            var images = await _facilityImageRepository.GetByFacilityIdAsync(facilityId);
+            foreach (var image in images)
             {
-                var image = imagesList.FirstOrDefault(i => i.Id == id);
-                if (image != null)
+                if (image.Id != currentImageId && image.IsPrimary)
                 {
-                    image.DisplayOrder = displayOrder++;
+                    image.IsPrimary = false;
+                    await _facilityImageRepository.SaveChangesAsync();
                 }
             }
-
-            return await _repository.UpdateRangeAsync(imagesList);
         }
     }
 } 

@@ -1,5 +1,11 @@
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
+using StarterApi.Application.Common.Exceptions;
 using StarterApi.Application.Modules.Facilities.DTOs;
 using StarterApi.Application.Modules.Facilities.Interfaces;
 using StarterApi.Domain.Constants;
@@ -7,138 +13,92 @@ using StarterApi.Domain.Constants;
 namespace StarterApi.Api.Controllers
 {
     [ApiController]
-    [Route("api/facilities/{facilityId}/images")]
+    [Route("api/[controller]")]
     [Authorize]
     public class FacilityImagesController : ControllerBase
     {
-        private readonly IFacilityImageService _imageService;
+        private readonly IFacilityImageService _facilityImageService;
         private readonly ILogger<FacilityImagesController> _logger;
 
         public FacilityImagesController(
-            IFacilityImageService imageService,
+            IFacilityImageService facilityImageService,
             ILogger<FacilityImagesController> logger)
         {
-            _imageService = imageService;
+            _facilityImageService = facilityImageService;
             _logger = logger;
         }
 
-        /// <summary>
-        /// Get facility images
-        /// </summary>
-        [HttpGet]
+        [HttpGet("facility/{facilityId}")]
         [RequirePermission(Permissions.Facilities.View)]
         public async Task<ActionResult<IEnumerable<FacilityImageDto>>> GetImages(Guid facilityId)
         {
             try
             {
-                var images = await _imageService.GetByFacilityIdAsync(facilityId);
+                var images = await _facilityImageService.GetByFacilityIdAsync(facilityId);
                 return Ok(images);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error retrieving images for facility {FacilityId}", facilityId);
+                _logger.LogError(ex, "Error retrieving facility images");
                 return StatusCode(500, "An error occurred while retrieving facility images");
             }
         }
 
-        /// <summary>
-        /// Upload facility image
-        /// </summary>
         [HttpPost]
         [RequirePermission(Permissions.Facilities.Edit)]
-        public async Task<ActionResult<FacilityImageDto>> UploadImage(
-            Guid facilityId,
-            [FromForm] IFormFile file,
-            [FromForm] CreateFacilityImageDto dto)
+        public async Task<ActionResult<FacilityImageDto>> UploadImage([FromForm] CreateFacilityImageDto dto)
         {
+            if (dto.File == null || dto.File.Length == 0)
+                return BadRequest("No file uploaded");
+
             try
             {
-                var image = await _imageService.UploadAsync(facilityId, file, dto);
-                return Ok(image);
+                var image = await _facilityImageService.UploadImageAsync(dto);
+                return CreatedAtAction(nameof(GetImages), new { facilityId = image.FacilityId }, image);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error uploading image for facility {FacilityId}", facilityId);
-                return StatusCode(500, "An error occurred while uploading facility image");
+                _logger.LogError(ex, "Error uploading facility image");
+                return StatusCode(500, "An error occurred while uploading the facility image");
             }
         }
 
-        /// <summary>
-        /// Update facility image
-        /// </summary>
         [HttpPut("{id}")]
         [RequirePermission(Permissions.Facilities.Edit)]
-        public async Task<ActionResult<FacilityImageDto>> UpdateImage(
-            Guid facilityId,
-            Guid id,
-            UpdateFacilityImageDto dto)
+        public async Task<ActionResult<FacilityImageDto>> UpdateImage(Guid id, [FromForm] UpdateFacilityImageDto dto)
         {
             try
             {
-                var image = await _imageService.UpdateAsync(id, dto);
+                var image = await _facilityImageService.UpdateImageAsync(id, dto);
                 return Ok(image);
+            }
+            catch (NotFoundException ex)
+            {
+                return NotFound(ex.Message);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error updating image {Id} for facility {FacilityId}", id, facilityId);
-                return StatusCode(500, "An error occurred while updating facility image");
+                _logger.LogError(ex, "Error updating facility image");
+                return StatusCode(500, "An error occurred while updating the facility image");
             }
         }
 
-        /// <summary>
-        /// Delete facility image
-        /// </summary>
         [HttpDelete("{id}")]
-        [RequirePermission(Permissions.Facilities.Edit)]
-        public async Task<ActionResult> DeleteImage(Guid facilityId, Guid id)
+        [RequirePermission(Permissions.Facilities.Delete)]
+        public async Task<IActionResult> DeleteImage(Guid id)
         {
             try
             {
-                await _imageService.DeleteAsync(id);
+                var result = await _facilityImageService.DeleteImageAsync(id);
+                if (!result)
+                    return NotFound();
+
                 return NoContent();
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error deleting image {Id} for facility {FacilityId}", id, facilityId);
-                return StatusCode(500, "An error occurred while deleting facility image");
-            }
-        }
-
-        /// <summary>
-        /// Set primary image
-        /// </summary>
-        [HttpPost("{id}/set-primary")]
-        [RequirePermission(Permissions.Facilities.Edit)]
-        public async Task<ActionResult<FacilityImageDto>> SetPrimaryImage(Guid facilityId, Guid id)
-        {
-            try
-            {
-                var image = await _imageService.SetPrimaryImageAsync(facilityId, id);
-                return Ok(image);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error setting primary image {Id} for facility {FacilityId}", id, facilityId);
-                return StatusCode(500, "An error occurred while setting primary image");
-            }
-        }
-
-        /// <summary>
-        /// Reorder images
-        /// </summary>
-        [HttpPost("reorder")]
-        [RequirePermission(Permissions.Facilities.Edit)]
-        public async Task<ActionResult> ReorderImages(Guid facilityId, [FromBody] IEnumerable<Guid> imageIds)
-        {
-            try
-            {
-                await _imageService.ReorderImagesAsync(facilityId, imageIds);
-                return NoContent();
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error reordering images for facility {FacilityId}", facilityId);
-                return StatusCode(500, "An error occurred while reordering facility images");
+                _logger.LogError(ex, "Error deleting facility image");
+                return StatusCode(500, "An error occurred while deleting the facility image");
             }
         }
     }

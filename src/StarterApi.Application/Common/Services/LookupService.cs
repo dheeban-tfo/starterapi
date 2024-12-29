@@ -94,5 +94,19 @@ namespace StarterApi.Application.Common.Services
                 RoleName = u.Role?.Name
             });
         }
+
+        public async Task<IEnumerable<SocietyLookupDto>> GetSocietyLookupsAsync(LookupRequestDto request)
+        {
+            var societies = await _lookupRepository.GetSocietyLookupsAsync(request.SearchTerm, request.MaxResults);
+
+            return societies.Select(s => new SocietyLookupDto
+            {
+                Id = s.Id,
+                Name = s.Name,
+                RegistrationNumber = s.RegistrationNumber,
+                City = s.City,
+                State = s.State
+            });
+        }
     }
 }

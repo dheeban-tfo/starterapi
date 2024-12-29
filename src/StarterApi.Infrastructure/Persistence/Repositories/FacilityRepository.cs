@@ -81,6 +81,18 @@ namespace StarterApi.Infrastructure.Persistence.Repositories
                                 b.StartTime > DateTime.UtcNow.TimeOfDay);
         }
 
+        public async Task<Dictionary<Guid, int>> GetActiveBookingsCountForFacilitiesAsync(List<Guid> facilityIds)
+        {
+            return await _context.FacilityBookings
+                .Where(b => facilityIds.Contains(b.FacilityId) && 
+                            b.IsActive && 
+                            b.StartTime > DateTime.UtcNow.TimeOfDay)
+                .GroupBy(b => b.FacilityId)
+                .ToDictionaryAsync(
+                    g => g.Key,
+                    g => g.Count());
+        }
+
         public async Task<Facility> AddAsync(Facility entity)
         {
             await _context.Facilities.AddAsync(entity);

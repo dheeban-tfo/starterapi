@@ -57,3 +57,12 @@ public class UserLookupDto
     public string PhoneNumber { get; set; }
     public string RoleName { get; set; }
 }
+
+public class SocietyLookupDto
+{
+    public Guid Id { get; set; }
+    public string Name { get; set; }
+    public string RegistrationNumber { get; set; }
+    public string City { get; set; }
+    public string State { get; set; }
+}

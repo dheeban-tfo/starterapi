@@ -10,47 +10,32 @@ namespace StarterApi.Infrastructure.Persistence.Configurations
         {
             builder.ToTable("FacilityImages");
 
-            builder.HasKey(e => e.Id);
+            builder.HasKey(x => x.Id);
 
-            builder.Property(e => e.FileName)
-                .IsRequired()
-                .HasMaxLength(255);
-
-            builder.Property(e => e.ContentType)
-                .IsRequired()
-                .HasMaxLength(100);
-
-            builder.Property(e => e.FilePath)
-                .IsRequired()
-                .HasMaxLength(1000);
-
-            builder.Property(e => e.FileSize)
+            builder.Property(x => x.FacilityId)
                 .IsRequired();
 
-            builder.Property(e => e.Description)
-                .HasMaxLength(500);
+            builder.Property(x => x.DocumentId)
+                .IsRequired();
 
-            builder.Property(e => e.DisplayOrder)
-                .HasDefaultValue(0);
-
-            builder.Property(e => e.IsPrimary)
+            builder.Property(x => x.IsPrimary)
+                .IsRequired()
                 .HasDefaultValue(false);
 
-            builder.HasOne(e => e.Facility)
+            builder.Property(x => x.DisplayOrder)
+                .IsRequired()
+                .HasDefaultValue(0);
+
+            // Relationships
+            builder.HasOne(x => x.Facility)
                 .WithMany(f => f.Images)
-                .HasForeignKey(e => e.FacilityId)
+                .HasForeignKey(x => x.FacilityId)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            // Add common properties from BaseEntity
-            builder.Property(e => e.CreatedAt)
-                .IsRequired();
-
-            builder.Property(e => e.CreatedBy)
-                .IsRequired();
-
-            builder.Property(e => e.IsActive)
-                .IsRequired()
-                .HasDefaultValue(true);
+            builder.HasOne(x => x.Document)
+                .WithMany()
+                .HasForeignKey(x => x.DocumentId)
+                .OnDelete(DeleteBehavior.Restrict);
         }
     }
 } 
