@@ -35,6 +35,9 @@ namespace StarterApi.Application.Modules.Facilities.Mappings
             // Blackout date mappings
             CreateMap<FacilityBlackoutDate, FacilityBlackoutDateDto>();
             CreateMap<UpdateFacilityBlackoutDateDto, FacilityBlackoutDate>();
+
+            // Facility image mappings
+            CreateMap<FacilityImage, FacilityImageDto>();
         }
     }
 } 

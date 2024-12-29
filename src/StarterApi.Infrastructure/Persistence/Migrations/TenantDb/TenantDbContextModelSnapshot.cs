@@ -787,47 +787,25 @@ namespace StarterApi.Infrastructure.Persistence.Migrations.TenantDb
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("ContentType")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
                     b.Property<Guid>("CreatedBy")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
-
                     b.Property<int>("DisplayOrder")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
                         .HasDefaultValue(0);
 
+                    b.Property<Guid>("DocumentId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<Guid>("FacilityId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("FileName")
-                        .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)");
-
-                    b.Property<string>("FilePath")
-                        .IsRequired()
-                        .HasMaxLength(1000)
-                        .HasColumnType("nvarchar(1000)");
-
-                    b.Property<long>("FileSize")
-                        .HasColumnType("bigint");
-
                     b.Property<bool>("IsActive")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bit")
-                        .HasDefaultValue(true);
+                        .HasColumnType("bit");
 
                     b.Property<bool>("IsPrimary")
                         .ValueGeneratedOnAdd()
@@ -841,6 +819,8 @@ namespace StarterApi.Infrastructure.Persistence.Migrations.TenantDb
                         .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("DocumentId");
 
                     b.HasIndex("FacilityId");
 
@@ -1952,11 +1932,19 @@ namespace StarterApi.Infrastructure.Persistence.Migrations.TenantDb
 
             modelBuilder.Entity("StarterApi.Domain.Entities.FacilityImage", b =>
                 {
+                    b.HasOne("StarterApi.Domain.Entities.Document", "Document")
+                        .WithMany()
+                        .HasForeignKey("DocumentId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
                     b.HasOne("StarterApi.Domain.Entities.Facility", "Facility")
                         .WithMany("Images")
                         .HasForeignKey("FacilityId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Document");
 
                     b.Navigation("Facility");
                 });
