@@ -22,6 +22,51 @@ namespace StarterApi.Infrastructure.Persistence.Migrations.TenantDb
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
+            modelBuilder.Entity("DocumentOwner", b =>
+                {
+                    b.Property<Guid>("DocumentsId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("OwnerId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("DocumentsId", "OwnerId");
+
+                    b.HasIndex("OwnerId");
+
+                    b.ToTable("OwnerDocuments", (string)null);
+                });
+
+            modelBuilder.Entity("DocumentOwnershipHistory", b =>
+                {
+                    b.Property<Guid>("DocumentsId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("OwnershipHistoryId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("DocumentsId", "OwnershipHistoryId");
+
+                    b.HasIndex("OwnershipHistoryId");
+
+                    b.ToTable("OwnershipHistoryDocuments", (string)null);
+                });
+
+            modelBuilder.Entity("DocumentOwnershipTransferRequest", b =>
+                {
+                    b.Property<Guid>("OwnershipTransferRequestId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("SupportingDocumentsId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("OwnershipTransferRequestId", "SupportingDocumentsId");
+
+                    b.HasIndex("SupportingDocumentsId");
+
+                    b.ToTable("OwnershipTransferDocuments", (string)null);
+                });
+
             modelBuilder.Entity("StarterApi.Domain.Entities.Announcement", b =>
                 {
                     b.Property<Guid>("Id")
@@ -30,7 +75,8 @@ namespace StarterApi.Infrastructure.Persistence.Migrations.TenantDb
 
                     b.Property<string>("Audience")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<Guid?>("BlockId")
                         .HasColumnType("uniqueidentifier");
@@ -51,7 +97,8 @@ namespace StarterApi.Infrastructure.Persistence.Migrations.TenantDb
 
                     b.Property<string>("Message")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
 
                     b.Property<DateTime>("PostedAt")
                         .HasColumnType("datetime2");
@@ -61,11 +108,13 @@ namespace StarterApi.Infrastructure.Persistence.Migrations.TenantDb
 
                     b.Property<string>("Priority")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
 
                     b.Property<string>("Title")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
 
                     b.Property<Guid?>("UnitId")
                         .HasColumnType("uniqueidentifier");
@@ -532,7 +581,8 @@ namespace StarterApi.Infrastructure.Persistence.Migrations.TenantDb
 
                     b.Property<string>("Description")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
 
                     b.Property<string>("ImageUrl")
                         .IsRequired()
@@ -548,7 +598,8 @@ namespace StarterApi.Infrastructure.Persistence.Migrations.TenantDb
 
                     b.Property<string>("Location")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
 
                     b.Property<string>("MaintenanceSchedule")
                         .IsRequired()
@@ -562,7 +613,8 @@ namespace StarterApi.Infrastructure.Persistence.Migrations.TenantDb
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<string>("OperatingHours")
                         .IsRequired()
@@ -579,9 +631,11 @@ namespace StarterApi.Infrastructure.Persistence.Migrations.TenantDb
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<int>("Status")
+                        .HasMaxLength(20)
                         .HasColumnType("int");
 
                     b.Property<int>("Type")
+                        .HasMaxLength(50)
                         .HasColumnType("int");
 
                     b.Property<DateTime?>("UpdatedAt")
@@ -1051,17 +1105,30 @@ namespace StarterApi.Infrastructure.Persistence.Migrations.TenantDb
                         .HasColumnType("bit")
                         .HasDefaultValue(true);
 
+                    b.Property<string>("OwnershipDocumentNumber")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
                     b.Property<DateTime?>("OwnershipEndDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<DateTime?>("OwnershipStartDate")
-                        .IsRequired()
+                    b.Property<decimal>("OwnershipPercentage")
+                        .HasPrecision(5, 2)
+                        .HasColumnType("decimal(5,2)");
+
+                    b.Property<DateTime>("OwnershipStartDate")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("OwnershipType")
                         .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
@@ -1073,7 +1140,147 @@ namespace StarterApi.Infrastructure.Persistence.Migrations.TenantDb
 
                     b.HasIndex("IndividualId");
 
-                    b.ToTable("Owners", (string)null);
+                    b.ToTable("Owners");
+                });
+
+            modelBuilder.Entity("StarterApi.Domain.Entities.OwnershipHistory", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("CreatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(true);
+
+                    b.Property<Guid>("OwnerId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("PreviousOwnerName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<DateTime>("TransferDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("TransferDocumentNumber")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("TransferReason")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("TransferType")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<Guid>("UnitId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("UpdatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OwnerId");
+
+                    b.HasIndex("UnitId");
+
+                    b.ToTable("OwnershipHistories");
+                });
+
+            modelBuilder.Entity("StarterApi.Domain.Entities.OwnershipTransferRequest", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("ApprovalDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("ApprovedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Comments")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("CreatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("CurrentOwnerId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(true);
+
+                    b.Property<Guid>("NewOwnerId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("RejectionReason")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<DateTime>("RequestDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<string>("TransferType")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<Guid>("UnitId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("UpdatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ApprovedBy");
+
+                    b.HasIndex("CurrentOwnerId");
+
+                    b.HasIndex("NewOwnerId");
+
+                    b.HasIndex("UnitId");
+
+                    b.ToTable("OwnershipTransferRequests");
                 });
 
             modelBuilder.Entity("StarterApi.Domain.Entities.ParkingAllocation", b =>
@@ -1144,22 +1351,26 @@ namespace StarterApi.Infrastructure.Persistence.Migrations.TenantDb
 
                     b.Property<string>("Location")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
 
                     b.Property<string>("SlotNumber")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
 
                     b.Property<Guid>("SocietyId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Status")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
 
                     b.Property<string>("Type")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
@@ -1196,11 +1407,13 @@ namespace StarterApi.Infrastructure.Persistence.Migrations.TenantDb
 
                     b.Property<string>("PaymentFrequency")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
 
                     b.Property<string>("PaymentMode")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
 
                     b.Property<decimal>("RentAmount")
                         .HasPrecision(18, 2)
@@ -1218,7 +1431,8 @@ namespace StarterApi.Infrastructure.Persistence.Migrations.TenantDb
 
                     b.Property<string>("Terms")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(4000)
+                        .HasColumnType("nvarchar(4000)");
 
                     b.Property<Guid>("UnitId")
                         .HasColumnType("uniqueidentifier");
@@ -1431,9 +1645,6 @@ namespace StarterApi.Infrastructure.Persistence.Migrations.TenantDb
                         .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<Guid?>("OwnerId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<string>("Status")
                         .IsRequired()
                         .HasMaxLength(20)
@@ -1460,8 +1671,6 @@ namespace StarterApi.Infrastructure.Persistence.Migrations.TenantDb
                     b.HasIndex("CurrentOwnerId");
 
                     b.HasIndex("FloorId");
-
-                    b.HasIndex("OwnerId");
 
                     b.ToTable("Units", (string)null);
                 });
@@ -1765,15 +1974,62 @@ namespace StarterApi.Infrastructure.Persistence.Migrations.TenantDb
                     b.ToTable("Users", (string)null);
                 });
 
+            modelBuilder.Entity("DocumentOwner", b =>
+                {
+                    b.HasOne("StarterApi.Domain.Entities.Document", null)
+                        .WithMany()
+                        .HasForeignKey("DocumentsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("StarterApi.Domain.Entities.Owner", null)
+                        .WithMany()
+                        .HasForeignKey("OwnerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("DocumentOwnershipHistory", b =>
+                {
+                    b.HasOne("StarterApi.Domain.Entities.Document", null)
+                        .WithMany()
+                        .HasForeignKey("DocumentsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("StarterApi.Domain.Entities.OwnershipHistory", null)
+                        .WithMany()
+                        .HasForeignKey("OwnershipHistoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("DocumentOwnershipTransferRequest", b =>
+                {
+                    b.HasOne("StarterApi.Domain.Entities.OwnershipTransferRequest", null)
+                        .WithMany()
+                        .HasForeignKey("OwnershipTransferRequestId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("StarterApi.Domain.Entities.Document", null)
+                        .WithMany()
+                        .HasForeignKey("SupportingDocumentsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("StarterApi.Domain.Entities.Announcement", b =>
                 {
                     b.HasOne("StarterApi.Domain.Entities.Block", "Block")
                         .WithMany()
-                        .HasForeignKey("BlockId");
+                        .HasForeignKey("BlockId")
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("StarterApi.Domain.Entities.Unit", "Unit")
                         .WithMany()
-                        .HasForeignKey("UnitId");
+                        .HasForeignKey("UnitId")
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.Navigation("Block");
 
@@ -1882,7 +2138,8 @@ namespace StarterApi.Infrastructure.Persistence.Migrations.TenantDb
                 {
                     b.HasOne("StarterApi.Domain.Entities.Society", "Society")
                         .WithMany()
-                        .HasForeignKey("SocietyId");
+                        .HasForeignKey("SocietyId")
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.Navigation("Society");
                 });
@@ -1980,6 +2237,59 @@ namespace StarterApi.Infrastructure.Persistence.Migrations.TenantDb
                     b.Navigation("Individual");
                 });
 
+            modelBuilder.Entity("StarterApi.Domain.Entities.OwnershipHistory", b =>
+                {
+                    b.HasOne("StarterApi.Domain.Entities.Owner", "Owner")
+                        .WithMany("OwnershipHistory")
+                        .HasForeignKey("OwnerId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("StarterApi.Domain.Entities.Unit", "Unit")
+                        .WithMany()
+                        .HasForeignKey("UnitId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Owner");
+
+                    b.Navigation("Unit");
+                });
+
+            modelBuilder.Entity("StarterApi.Domain.Entities.OwnershipTransferRequest", b =>
+                {
+                    b.HasOne("TenantUser", "ApprovedByUser")
+                        .WithMany()
+                        .HasForeignKey("ApprovedBy")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("StarterApi.Domain.Entities.Owner", "CurrentOwner")
+                        .WithMany()
+                        .HasForeignKey("CurrentOwnerId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("StarterApi.Domain.Entities.Owner", "NewOwner")
+                        .WithMany()
+                        .HasForeignKey("NewOwnerId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("StarterApi.Domain.Entities.Unit", "Unit")
+                        .WithMany()
+                        .HasForeignKey("UnitId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("ApprovedByUser");
+
+                    b.Navigation("CurrentOwner");
+
+                    b.Navigation("NewOwner");
+
+                    b.Navigation("Unit");
+                });
+
             modelBuilder.Entity("StarterApi.Domain.Entities.ParkingAllocation", b =>
                 {
                     b.HasOne("StarterApi.Domain.Entities.ParkingSlot", "ParkingSlot")
@@ -2012,7 +2322,7 @@ namespace StarterApi.Infrastructure.Persistence.Migrations.TenantDb
                     b.HasOne("StarterApi.Domain.Entities.Society", "Society")
                         .WithMany()
                         .HasForeignKey("SocietyId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Society");
@@ -2023,13 +2333,13 @@ namespace StarterApi.Infrastructure.Persistence.Migrations.TenantDb
                     b.HasOne("StarterApi.Domain.Entities.Resident", "Tenant")
                         .WithMany()
                         .HasForeignKey("TenantId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("StarterApi.Domain.Entities.Unit", "Unit")
                         .WithMany()
                         .HasForeignKey("UnitId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Tenant");
@@ -2066,19 +2376,15 @@ namespace StarterApi.Infrastructure.Persistence.Migrations.TenantDb
             modelBuilder.Entity("StarterApi.Domain.Entities.Unit", b =>
                 {
                     b.HasOne("StarterApi.Domain.Entities.Owner", "CurrentOwner")
-                        .WithMany()
+                        .WithMany("Units")
                         .HasForeignKey("CurrentOwnerId")
-                        .OnDelete(DeleteBehavior.NoAction);
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("StarterApi.Domain.Entities.Floor", "Floor")
                         .WithMany("Units")
                         .HasForeignKey("FloorId")
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
-
-                    b.HasOne("StarterApi.Domain.Entities.Owner", null)
-                        .WithMany("Units")
-                        .HasForeignKey("OwnerId");
 
                     b.Navigation("CurrentOwner");
 
@@ -2188,6 +2494,8 @@ namespace StarterApi.Infrastructure.Persistence.Migrations.TenantDb
 
             modelBuilder.Entity("StarterApi.Domain.Entities.Owner", b =>
                 {
+                    b.Navigation("OwnershipHistory");
+
                     b.Navigation("Units");
                 });
 

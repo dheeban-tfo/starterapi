@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-
+using StarterApi.Domain.Common;
 
 namespace StarterApi.Infrastructure.Persistence.Configurations
 {

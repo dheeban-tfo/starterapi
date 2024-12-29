@@ -1,4 +1,5 @@
 using StarterApi.Application.Common.Models;
+using StarterApi.Application.Modules.Owners.DTOs;
 using StarterApi.Application.Modules.Units.DTOs;
 
 namespace StarterApi.Application.Modules.Units.Interfaces
@@ -11,5 +12,6 @@ namespace StarterApi.Application.Modules.Units.Interfaces
         Task<UnitDto> GetUnitByIdAsync(Guid id);
         Task<PagedResult<UnitListDto>> GetUnitsAsync(QueryParameters parameters);
         Task<bool> ExistsByNumberAsync(string number, Guid floorId);
+        Task<PagedResult<OwnershipHistoryListDto>> GetUnitOwnershipHistoryAsync(Guid unitId, QueryParameters parameters);
     }
 }

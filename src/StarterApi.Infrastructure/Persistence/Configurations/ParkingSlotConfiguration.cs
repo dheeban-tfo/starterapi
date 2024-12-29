@@ -1,42 +1,41 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using StarterApi.Domain.Common;
 using StarterApi.Domain.Entities;
 
 namespace StarterApi.Infrastructure.Persistence.Configurations
 {
     public class ParkingSlotConfiguration : BaseConfiguration<ParkingSlot>
     {
-        public void Configure(EntityTypeBuilder<ParkingSlot> builder)
+        public override void Configure(EntityTypeBuilder<ParkingSlot> builder)
         {
-            builder.ToTable("ParkingSlots");
-            
-            builder.HasKey(ps => ps.Id);
-            
-            builder.Property(ps => ps.SlotNumber)
+            base.Configure(builder);
+
+            builder.Property(e => e.SlotNumber)
                 .IsRequired()
                 .HasMaxLength(20);
-                
-            builder.Property(ps => ps.Type)
-                .IsRequired()
-                .HasMaxLength(20);
-                
-            builder.Property(ps => ps.Location)
+
+            builder.Property(e => e.Type)
                 .IsRequired()
                 .HasMaxLength(50);
-                
-            builder.Property(ps => ps.Status)
+
+            builder.Property(e => e.Status)
                 .IsRequired()
                 .HasMaxLength(20);
 
-            builder.HasOne(ps => ps.Society)
+            builder.Property(e => e.Location)
+                .HasMaxLength(200);
+
+            // Relationships
+            builder.HasOne(e => e.Society)
                 .WithMany()
-                .HasForeignKey(ps => ps.SocietyId)
+                .HasForeignKey(e => e.SocietyId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            builder.HasMany(ps => ps.Allocations)
-                .WithOne(pa => pa.ParkingSlot)
-                .HasForeignKey(pa => pa.ParkingSlotId)
-                .OnDelete(DeleteBehavior.Restrict);
+            builder.HasMany(e => e.Allocations)
+                .WithOne(a => a.ParkingSlot)
+                .HasForeignKey(a => a.ParkingSlotId)
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 } 

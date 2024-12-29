@@ -20,6 +20,8 @@ namespace StarterApi.Application.Common.Interfaces
         // People
         DbSet<Owner> Owners { get; set; }
         DbSet<Resident> Residents { get; set; }
+        DbSet<OwnershipHistory> OwnershipHistories { get; set; }
+        DbSet<OwnershipTransferRequest> OwnershipTransferRequests { get; set; }
         
         // Contracts and Bookings
         DbSet<RentalContract> RentalContracts { get; set; }

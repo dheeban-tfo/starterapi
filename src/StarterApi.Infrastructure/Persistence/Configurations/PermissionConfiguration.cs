@@ -1,33 +1,36 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using StarterApi.Domain.Common;
 using StarterApi.Domain.Entities;
 
 namespace StarterApi.Infrastructure.Persistence.Configurations
 {
     public class PermissionConfiguration : BaseConfiguration<Permission>
     {
-        public void Configure(EntityTypeBuilder<Permission> builder)
+        public override void Configure(EntityTypeBuilder<Permission> builder)
         {
-            builder.HasKey(p => p.Id);
+            base.Configure(builder);
 
-            builder.Property(p => p.SystemName)
+            builder.Property(e => e.Name)
                 .IsRequired()
                 .HasMaxLength(100);
 
-            builder.Property(p => p.Name)
+            builder.Property(e => e.SystemName)
                 .IsRequired()
                 .HasMaxLength(100);
 
-            builder.Property(p => p.Description)
-                .HasMaxLength(500);
-
-            builder.Property(p => p.Group)
+            builder.Property(e => e.Group)
                 .IsRequired()
                 .HasMaxLength(50);
 
-            // Ensure SystemName is unique
-            builder.HasIndex(p => p.SystemName)
-                .IsUnique();
+            builder.Property(e => e.Description)
+                .HasMaxLength(500);
+
+            // Relationships
+            builder.HasMany(e => e.RolePermissions)
+                .WithOne(rp => rp.Permission)
+                .HasForeignKey(rp => rp.PermissionId)
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 } 

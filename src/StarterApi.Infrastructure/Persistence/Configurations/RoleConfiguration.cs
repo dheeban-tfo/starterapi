@@ -1,33 +1,28 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using StarterApi.Domain.Common;
 using StarterApi.Domain.Entities;
 
 namespace StarterApi.Infrastructure.Persistence.Configurations
 {
     public class RoleConfiguration : BaseConfiguration<Role>
     {
-        public void Configure(EntityTypeBuilder<Role> builder)
+        public override void Configure(EntityTypeBuilder<Role> builder)
         {
-            builder.HasKey(r => r.Id);
+            base.Configure(builder);
 
-            builder.Property(r => r.Name)
+            builder.Property(e => e.Name)
                 .IsRequired()
                 .HasMaxLength(100);
 
-            builder.Property(r => r.Description)
+            builder.Property(e => e.Description)
                 .HasMaxLength(500);
 
-        
-
-            // Ensure Role names are unique per tenant
-            builder.HasIndex(r => new { r.TenantId, r.Name })
-                .IsUnique();
-
-            // Configure relationship with Tenant
-            builder.HasOne(r => r.Tenant)
-                .WithMany()
-                .HasForeignKey(r => r.TenantId)
-                .OnDelete(DeleteBehavior.Restrict);
+            // Relationships
+            builder.HasMany(e => e.RolePermissions)
+                .WithOne(rp => rp.Role)
+                .HasForeignKey(rp => rp.RoleId)
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 } 

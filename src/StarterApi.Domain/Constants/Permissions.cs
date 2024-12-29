@@ -114,6 +114,18 @@ namespace StarterApi.Domain.Constants
             public const string ManageOthers = "FacilityBookings.ManageOthers";
         }
 
+        public static class Owners
+        {
+            public const string View = "Permissions.Owners.View";
+            public const string Create = "Permissions.Owners.Create";
+            public const string Edit = "Permissions.Owners.Edit";
+            public const string Delete = "Permissions.Owners.Delete";
+            public const string ViewHistory = "Permissions.Owners.ViewHistory";
+            public const string ManageDocuments = "Permissions.Owners.ManageDocuments";
+            public const string InitiateTransfer = "Permissions.Owners.InitiateTransfer";
+            public const string ApproveTransfer = "Permissions.Owners.ApproveTransfer";
+        }
+
         public static IEnumerable<string> GetAllPermissions()
         {
             return typeof(Permissions)

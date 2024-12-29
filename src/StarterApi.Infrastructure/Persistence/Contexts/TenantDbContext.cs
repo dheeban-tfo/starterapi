@@ -24,6 +24,8 @@ namespace StarterApi.Infrastructure.Persistence.Contexts
         // People
         public DbSet<Owner> Owners { get; set; }
         public DbSet<Resident> Residents { get; set; }
+        public DbSet<OwnershipHistory> OwnershipHistories { get; set; }
+        public DbSet<OwnershipTransferRequest> OwnershipTransferRequests { get; set; }
         
         // Contracts and Bookings
         public DbSet<RentalContract> RentalContracts { get; set; }
@@ -126,8 +128,10 @@ namespace StarterApi.Infrastructure.Persistence.Contexts
             modelBuilder.ApplyConfiguration(new ComplaintConfiguration());
             modelBuilder.ApplyConfiguration(new NotificationConfiguration());
             modelBuilder.ApplyConfiguration(new AuditHistoryConfiguration());
+            modelBuilder.ApplyConfiguration(new OwnershipHistoryConfiguration());
+            modelBuilder.ApplyConfiguration(new OwnershipTransferRequestConfiguration());
 
-              // Apply Document Management configurations
+            // Apply Document Management configurations
             modelBuilder.ApplyConfiguration(new DocumentConfiguration());
             modelBuilder.ApplyConfiguration(new DocumentVersionConfiguration());
             modelBuilder.ApplyConfiguration(new DocumentCategoryConfiguration());

@@ -9,25 +9,39 @@ namespace StarterApi.Infrastructure.Persistence.Configurations
         public override void Configure(EntityTypeBuilder<Owner> builder)
         {
             base.Configure(builder);
-            
-            builder.ToTable("Owners");
-            
-            builder.HasKey(o => o.Id);
-            
-            builder.Property(o => o.IndividualId)
-                .IsRequired();
-                
-            builder.Property(o => o.OwnershipType)
+
+            builder.Property(e => e.OwnershipType)
                 .IsRequired()
                 .HasMaxLength(50);
-                
-            builder.Property(o => o.OwnershipStartDate)
+
+            builder.Property(e => e.OwnershipPercentage)
+                .IsRequired()
+                .HasPrecision(5, 2);
+
+            builder.Property(e => e.OwnershipStartDate)
                 .IsRequired();
-                
-            builder.HasOne(o => o.Individual)
+
+            builder.Property(e => e.Status)
+                .IsRequired()
+                .HasMaxLength(20);
+
+            builder.Property(e => e.OwnershipDocumentNumber)
+                .HasMaxLength(50);
+
+            // Relationships
+            builder.HasOne(e => e.Individual)
                 .WithMany(i => i.Owners)
-                .HasForeignKey(o => o.IndividualId)
+                .HasForeignKey(e => e.IndividualId)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            builder.HasMany(e => e.Units)
+                .WithOne(u => u.CurrentOwner)
+                .HasForeignKey(u => u.CurrentOwnerId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            builder.HasMany(e => e.Documents)
+                .WithMany()
+                .UsingEntity(j => j.ToTable("OwnerDocuments"));
         }
     }
 } 
