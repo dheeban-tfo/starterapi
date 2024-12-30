@@ -178,5 +178,21 @@ namespace StarterApi.Api.Controllers
                 return StatusCode(500, "An error occurred while removing the document");
             }
         }
+
+        [HttpGet("units/{unitId}/ownership-history")]
+        [RequirePermission(Permissions.Owners.ViewHistory)]
+        public async Task<ActionResult<PagedResult<OwnershipHistoryListDto>>> GetUnitOwnershipHistory(Guid unitId, [FromQuery] QueryParameters parameters)
+        {
+            try
+            {
+                var history = await _ownerService.GetUnitOwnershipHistoryAsync(unitId, parameters);
+                return Ok(history);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error retrieving ownership history for unit {UnitId}", unitId);
+                return StatusCode(500, "An error occurred while retrieving unit ownership history");
+            }
+        }
     }
 } 

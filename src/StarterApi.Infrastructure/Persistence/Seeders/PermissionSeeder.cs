@@ -151,6 +151,19 @@ namespace StarterApi.Infrastructure.Persistence.Seeders
                     (Permissions.FacilityBookings.ManageOthers, "Manage Others' Bookings", "Can manage facility bookings made by others")
                 });
 
+                // Owners permissions
+                await AddOrUpdatePermissionGroup(permissions, existingPermissions, "Owners", new[]
+                {
+                    (Permissions.Owners.View, "View Owners", "Can view owners in the system"),
+                    (Permissions.Owners.Create, "Create Owners", "Can create new owners"),
+                    (Permissions.Owners.Edit, "Edit Owners", "Can edit existing owners"),
+                    (Permissions.Owners.Delete, "Delete Owners", "Can delete owners"),
+                    (Permissions.Owners.ViewHistory, "View Owner History", "Can view owner history"),
+                    (Permissions.Owners.ManageDocuments, "Manage Owner Documents", "Can manage owner documents"),
+                    (Permissions.Owners.InitiateTransfer, "Initiate Ownership Transfer", "Can initiate ownership transfer"),
+                    (Permissions.Owners.ApproveTransfer, "Approve Ownership Transfer", "Can approve ownership transfer")
+                });
+
                 if (permissions.Any())
                 {
                     await _context.Permissions.AddRangeAsync(permissions);
