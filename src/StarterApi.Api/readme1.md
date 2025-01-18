@@ -34,7 +34,7 @@
    ```json
    {
      "ConnectionStrings": {
-       "RootDatabase": "Server=localhost;Database=StarterApi_Root;User Id=sa;Password=MyPass@word;TrustServerCertificate=True;"
+       "RootDatabase": "Server=localhost;Database=StarterApi_Root;User Id=sa;Password=YourStrong@Passw0rd;TrustServerCertificate=True;"
      }
    }
    ```

@@ -37,43 +37,13 @@ namespace StarterApi.Infrastructure.Persistence.Migrations.TenantDb
                 });
 
             migrationBuilder.CreateTable(
-                name: "Facilities",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Location = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Capacity = table.Column<int>(type: "int", nullable: false),
-                    IsChargeable = table.Column<bool>(type: "bit", nullable: false),
-                    ChargePerHour = table.Column<decimal>(type: "decimal(18,2)", nullable: true),
-                    OperatingHours = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    MaintenanceSchedule = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    CreatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    UpdatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    IsActive = table.Column<bool>(type: "bit", nullable: false, defaultValue: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Facilities", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Owners",
+                name: "DocumentCategories",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    ContactNumber = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
-                    Email = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    AlternateContactNumber = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Address = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    IDProofType = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
-                    IDProofNumber = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
-                    EmergencyContactName = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    EmergencyContactNumber = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
+                    ParentCategoryId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     CreatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     UpdatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
@@ -82,7 +52,51 @@ namespace StarterApi.Infrastructure.Persistence.Migrations.TenantDb
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Owners", x => x.Id);
+                    table.PrimaryKey("PK_DocumentCategories", x => x.Id);
+                    table.CheckConstraint("CK_DocumentCategory_NoSelfReference", "ParentCategoryId != Id OR ParentCategoryId IS NULL");
+                    table.ForeignKey(
+                        name: "FK_DocumentCategories_DocumentCategories_ParentCategoryId",
+                        column: x => x.ParentCategoryId,
+                        principalTable: "DocumentCategories",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Individuals",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    FirstName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    LastName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    FullName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    DateOfBirth = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    Gender = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Email = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    PhoneNumber = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    AlternatePhoneNumber = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    IdProofType = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    IdProofNumber = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    AddressLine1 = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    AddressLine2 = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    City = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    State = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Country = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Pincode = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    EmergencyContactName = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    EmergencyContactNumber = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    LastVerifiedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    IsVerified = table.Column<bool>(type: "bit", nullable: false),
+                    VerifiedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    CreatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    UpdatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    IsActive = table.Column<bool>(type: "bit", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Individuals", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -153,6 +167,35 @@ namespace StarterApi.Infrastructure.Persistence.Migrations.TenantDb
                 });
 
             migrationBuilder.CreateTable(
+                name: "Owners",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    IndividualId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    OwnershipType = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    OwnershipPercentage = table.Column<decimal>(type: "decimal(5,2)", precision: 5, scale: 2, nullable: false),
+                    OwnershipStartDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    OwnershipEndDate = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    Status = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
+                    OwnershipDocumentNumber = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    CreatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    UpdatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    IsActive = table.Column<bool>(type: "bit", nullable: false, defaultValue: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Owners", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Owners_Individuals_IndividualId",
+                        column: x => x.IndividualId,
+                        principalTable: "Individuals",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "RolePermissions",
                 columns: table => new
                 {
@@ -172,14 +215,12 @@ namespace StarterApi.Infrastructure.Persistence.Migrations.TenantDb
                         name: "FK_RolePermissions_Permissions_PermissionId",
                         column: x => x.PermissionId,
                         principalTable: "Permissions",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
+                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_RolePermissions_Roles_RoleId",
                         column: x => x.RoleId,
                         principalTable: "Roles",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -238,15 +279,54 @@ namespace StarterApi.Infrastructure.Persistence.Migrations.TenantDb
                 });
 
             migrationBuilder.CreateTable(
+                name: "Facilities",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
+                    Location = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
+                    Capacity = table.Column<int>(type: "int", nullable: false),
+                    Type = table.Column<int>(type: "int", maxLength: 50, nullable: false),
+                    Status = table.Column<int>(type: "int", maxLength: 20, nullable: false),
+                    IsChargeable = table.Column<bool>(type: "bit", nullable: false),
+                    ChargePerHour = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: true),
+                    OperatingHours = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    MaintenanceSchedule = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Rules = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    ImageUrl = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    RequiresBooking = table.Column<bool>(type: "bit", nullable: false),
+                    MinimumNoticeHours = table.Column<int>(type: "int", nullable: true),
+                    MaximumBookingDays = table.Column<int>(type: "int", nullable: true),
+                    AllowMultipleBookings = table.Column<bool>(type: "bit", nullable: false),
+                    SocietyId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    CreatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    UpdatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    IsActive = table.Column<bool>(type: "bit", nullable: false, defaultValue: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Facilities", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Facilities_Societies_SocietyId",
+                        column: x => x.SocietyId,
+                        principalTable: "Societies",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "ParkingSlots",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     SocietyId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    SlotNumber = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Type = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Location = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Status = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    SlotNumber = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
+                    Type = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    Location = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
+                    Status = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
                     CreatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     UpdatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
@@ -261,7 +341,7 @@ namespace StarterApi.Infrastructure.Persistence.Migrations.TenantDb
                         column: x => x.SocietyId,
                         principalTable: "Societies",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -291,6 +371,69 @@ namespace StarterApi.Infrastructure.Persistence.Migrations.TenantDb
                 });
 
             migrationBuilder.CreateTable(
+                name: "FacilityBlackoutDates",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    FacilityId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    StartDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    EndDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    Reason = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    IsRecurring = table.Column<bool>(type: "bit", nullable: false),
+                    RecurrencePattern = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    CreatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    UpdatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    IsActive = table.Column<bool>(type: "bit", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_FacilityBlackoutDates", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_FacilityBlackoutDates_Facilities_FacilityId",
+                        column: x => x.FacilityId,
+                        principalTable: "Facilities",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "FacilityBookingRules",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    FacilityId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    StartTime = table.Column<TimeSpan>(type: "time", nullable: false),
+                    EndTime = table.Column<TimeSpan>(type: "time", nullable: false),
+                    MaxDurationMinutes = table.Column<int>(type: "int", nullable: false),
+                    MinDurationMinutes = table.Column<int>(type: "int", nullable: false),
+                    MinAdvanceBookingHours = table.Column<int>(type: "int", nullable: false),
+                    MaxAdvanceBookingDays = table.Column<int>(type: "int", nullable: false),
+                    AllowMultipleBookings = table.Column<bool>(type: "bit", nullable: false),
+                    MaxBookingsPerDay = table.Column<int>(type: "int", nullable: false),
+                    MaxActiveBookings = table.Column<int>(type: "int", nullable: false),
+                    PricePerHour = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: true),
+                    RequireApproval = table.Column<bool>(type: "bit", nullable: false),
+                    CancellationPolicy = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    CreatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    UpdatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    IsActive = table.Column<bool>(type: "bit", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_FacilityBookingRules", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_FacilityBookingRules_Facilities_FacilityId",
+                        column: x => x.FacilityId,
+                        principalTable: "Facilities",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Units",
                 columns: table => new
                 {
@@ -317,8 +460,7 @@ namespace StarterApi.Infrastructure.Persistence.Migrations.TenantDb
                         name: "FK_Units_Floors_FloorId",
                         column: x => x.FloorId,
                         principalTable: "Floors",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
+                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_Units_Owners_CurrentOwnerId",
                         column: x => x.CurrentOwnerId,
@@ -332,10 +474,10 @@ namespace StarterApi.Infrastructure.Persistence.Migrations.TenantDb
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Title = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Message = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Audience = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Priority = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Title = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
+                    Message = table.Column<string>(type: "nvarchar(2000)", maxLength: 2000, nullable: false),
+                    Audience = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    Priority = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
                     PostedById = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     PostedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     ExpirationDate = table.Column<DateTime>(type: "datetime2", nullable: true),
@@ -354,12 +496,100 @@ namespace StarterApi.Infrastructure.Persistence.Migrations.TenantDb
                         name: "FK_Announcements_Blocks_BlockId",
                         column: x => x.BlockId,
                         principalTable: "Blocks",
-                        principalColumn: "Id");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_Announcements_Units_UnitId",
                         column: x => x.UnitId,
                         principalTable: "Units",
-                        principalColumn: "Id");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "OwnershipHistories",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    UnitId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    OwnerId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    TransferType = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    TransferDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    TransferReason = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
+                    PreviousOwnerName = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    TransferDocumentNumber = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    Status = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
+                    CreatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    UpdatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    IsActive = table.Column<bool>(type: "bit", nullable: false, defaultValue: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_OwnershipHistories", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_OwnershipHistories_Owners_OwnerId",
+                        column: x => x.OwnerId,
+                        principalTable: "Owners",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_OwnershipHistories_Units_UnitId",
+                        column: x => x.UnitId,
+                        principalTable: "Units",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "OwnershipTransferRequests",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    UnitId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    CurrentOwnerId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    NewOwnerId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    TransferType = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    RequestDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    Status = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
+                    Comments = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
+                    ApprovedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    ApprovalDate = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    RejectionReason = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
+                    CreatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    UpdatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    IsActive = table.Column<bool>(type: "bit", nullable: false, defaultValue: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_OwnershipTransferRequests", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_OwnershipTransferRequests_Owners_CurrentOwnerId",
+                        column: x => x.CurrentOwnerId,
+                        principalTable: "Owners",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_OwnershipTransferRequests_Owners_NewOwnerId",
+                        column: x => x.NewOwnerId,
+                        principalTable: "Owners",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_OwnershipTransferRequests_Units_UnitId",
+                        column: x => x.UnitId,
+                        principalTable: "Units",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_OwnershipTransferRequests_Users_ApprovedBy",
+                        column: x => x.ApprovedBy,
+                        principalTable: "Users",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -368,18 +598,17 @@ namespace StarterApi.Infrastructure.Persistence.Migrations.TenantDb
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     UnitId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    ContactNumber = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
-                    Email = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    Gender = table.Column<string>(type: "nvarchar(10)", maxLength: 10, nullable: false),
-                    DateOfBirth = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    IndividualId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    ResidentType = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
                     RelationToOwner = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
                     PrimaryResident = table.Column<bool>(type: "bit", nullable: false),
-                    ProfilePhoto = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    IDProofType = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
-                    IDProofNumber = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    Status = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false, defaultValue: "Pending"),
                     CheckInDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     CheckOutDate = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    IsVerified = table.Column<bool>(type: "bit", nullable: false),
+                    VerifiedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    VerifiedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     CreatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     UpdatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
@@ -390,11 +619,20 @@ namespace StarterApi.Infrastructure.Persistence.Migrations.TenantDb
                 {
                     table.PrimaryKey("PK_Residents", x => x.Id);
                     table.ForeignKey(
+                        name: "FK_Residents_Individuals_IndividualId",
+                        column: x => x.IndividualId,
+                        principalTable: "Individuals",
+                        principalColumn: "Id");
+                    table.ForeignKey(
                         name: "FK_Residents_Units_UnitId",
                         column: x => x.UnitId,
                         principalTable: "Units",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_Residents_Users_UserId",
+                        column: x => x.UserId,
+                        principalTable: "Users",
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -434,6 +672,58 @@ namespace StarterApi.Infrastructure.Persistence.Migrations.TenantDb
                 });
 
             migrationBuilder.CreateTable(
+                name: "Documents",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
+                    BlobUrl = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: false),
+                    BlobPath = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: false),
+                    FileType = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    Size = table.Column<long>(type: "bigint", nullable: false),
+                    Category = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    CategoryId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    CurrentVersion = table.Column<int>(type: "int", nullable: false, defaultValue: 1),
+                    ContentType = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    BlockId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    UnitId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    ResidentId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    CreatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    UpdatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    IsActive = table.Column<bool>(type: "bit", nullable: false, defaultValue: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Documents", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Documents_Blocks_BlockId",
+                        column: x => x.BlockId,
+                        principalTable: "Blocks",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Documents_DocumentCategories_CategoryId",
+                        column: x => x.CategoryId,
+                        principalTable: "DocumentCategories",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Documents_Residents_ResidentId",
+                        column: x => x.ResidentId,
+                        principalTable: "Residents",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_Documents_Units_UnitId",
+                        column: x => x.UnitId,
+                        principalTable: "Units",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "FacilityBookings",
                 columns: table => new
                 {
@@ -443,10 +733,10 @@ namespace StarterApi.Infrastructure.Persistence.Migrations.TenantDb
                     Date = table.Column<DateTime>(type: "datetime2", nullable: false),
                     StartTime = table.Column<TimeSpan>(type: "time", nullable: false),
                     EndTime = table.Column<TimeSpan>(type: "time", nullable: false),
-                    BookingStatus = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
-                    SpecialRequest = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
-                    ChargeAmount = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: true),
-                    PaymentStatus = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
+                    BookingStatus = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    SpecialRequest = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    ChargeAmount = table.Column<decimal>(type: "decimal(18,2)", nullable: true),
+                    PaymentStatus = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     CreatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     UpdatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
@@ -510,11 +800,11 @@ namespace StarterApi.Infrastructure.Persistence.Migrations.TenantDb
                     TenantId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     StartDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     EndDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    RentAmount = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    SecurityDeposit = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    PaymentFrequency = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    PaymentMode = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Terms = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    RentAmount = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
+                    SecurityDeposit = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
+                    PaymentFrequency = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
+                    PaymentMode = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
+                    Terms = table.Column<string>(type: "nvarchar(4000)", maxLength: 4000, nullable: false),
                     CreatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     UpdatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
@@ -529,13 +819,13 @@ namespace StarterApi.Infrastructure.Persistence.Migrations.TenantDb
                         column: x => x.TenantId,
                         principalTable: "Residents",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_RentalContracts_Units_UnitId",
                         column: x => x.UnitId,
                         principalTable: "Units",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -606,6 +896,170 @@ namespace StarterApi.Infrastructure.Persistence.Migrations.TenantDb
                 });
 
             migrationBuilder.CreateTable(
+                name: "DocumentAccesses",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    DocumentId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    AccessLevel = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
+                    CreatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    UpdatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    IsActive = table.Column<bool>(type: "bit", nullable: false, defaultValue: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_DocumentAccesses", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_DocumentAccesses_Documents_DocumentId",
+                        column: x => x.DocumentId,
+                        principalTable: "Documents",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_DocumentAccesses_Users_UserId",
+                        column: x => x.UserId,
+                        principalTable: "Users",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "DocumentVersions",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    DocumentId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Version = table.Column<int>(type: "int", nullable: false),
+                    BlobUrl = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: false),
+                    BlobPath = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: false),
+                    ChangeDescription = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
+                    ContentType = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    Size = table.Column<long>(type: "bigint", nullable: false),
+                    CreatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    UpdatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    IsActive = table.Column<bool>(type: "bit", nullable: false, defaultValue: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_DocumentVersions", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_DocumentVersions_Documents_DocumentId",
+                        column: x => x.DocumentId,
+                        principalTable: "Documents",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "FacilityImages",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    FacilityId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    DocumentId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    IsPrimary = table.Column<bool>(type: "bit", nullable: false, defaultValue: false),
+                    DisplayOrder = table.Column<int>(type: "int", nullable: false, defaultValue: 0),
+                    CreatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    UpdatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    IsActive = table.Column<bool>(type: "bit", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_FacilityImages", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_FacilityImages_Documents_DocumentId",
+                        column: x => x.DocumentId,
+                        principalTable: "Documents",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_FacilityImages_Facilities_FacilityId",
+                        column: x => x.FacilityId,
+                        principalTable: "Facilities",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "OwnerDocuments",
+                columns: table => new
+                {
+                    DocumentsId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    OwnerId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_OwnerDocuments", x => new { x.DocumentsId, x.OwnerId });
+                    table.ForeignKey(
+                        name: "FK_OwnerDocuments_Documents_DocumentsId",
+                        column: x => x.DocumentsId,
+                        principalTable: "Documents",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_OwnerDocuments_Owners_OwnerId",
+                        column: x => x.OwnerId,
+                        principalTable: "Owners",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "OwnershipHistoryDocuments",
+                columns: table => new
+                {
+                    DocumentsId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    OwnershipHistoryId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_OwnershipHistoryDocuments", x => new { x.DocumentsId, x.OwnershipHistoryId });
+                    table.ForeignKey(
+                        name: "FK_OwnershipHistoryDocuments_Documents_DocumentsId",
+                        column: x => x.DocumentsId,
+                        principalTable: "Documents",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_OwnershipHistoryDocuments_OwnershipHistories_OwnershipHistoryId",
+                        column: x => x.OwnershipHistoryId,
+                        principalTable: "OwnershipHistories",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "OwnershipTransferDocuments",
+                columns: table => new
+                {
+                    OwnershipTransferRequestId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    SupportingDocumentsId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_OwnershipTransferDocuments", x => new { x.OwnershipTransferRequestId, x.SupportingDocumentsId });
+                    table.ForeignKey(
+                        name: "FK_OwnershipTransferDocuments_Documents_SupportingDocumentsId",
+                        column: x => x.SupportingDocumentsId,
+                        principalTable: "Documents",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_OwnershipTransferDocuments_OwnershipTransferRequests_OwnershipTransferRequestId",
+                        column: x => x.OwnershipTransferRequestId,
+                        principalTable: "OwnershipTransferRequests",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "ParkingAllocations",
                 columns: table => new
                 {
@@ -670,14 +1124,82 @@ namespace StarterApi.Infrastructure.Persistence.Migrations.TenantDb
                 column: "ResidentId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_FacilityBookings_FacilityId",
-                table: "FacilityBookings",
+                name: "IX_DocumentAccesses_DocumentId_UserId",
+                table: "DocumentAccesses",
+                columns: new[] { "DocumentId", "UserId" },
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_DocumentAccesses_UserId",
+                table: "DocumentAccesses",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_DocumentCategories_ParentCategoryId",
+                table: "DocumentCategories",
+                column: "ParentCategoryId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Documents_BlockId",
+                table: "Documents",
+                column: "BlockId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Documents_CategoryId",
+                table: "Documents",
+                column: "CategoryId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Documents_ResidentId",
+                table: "Documents",
+                column: "ResidentId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Documents_UnitId",
+                table: "Documents",
+                column: "UnitId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_DocumentVersions_DocumentId_Version",
+                table: "DocumentVersions",
+                columns: new[] { "DocumentId", "Version" },
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Facilities_SocietyId",
+                table: "Facilities",
+                column: "SocietyId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_FacilityBlackoutDates_FacilityId",
+                table: "FacilityBlackoutDates",
                 column: "FacilityId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_FacilityBookingRules_FacilityId",
+                table: "FacilityBookingRules",
+                column: "FacilityId",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_FacilityBooking_Availability",
+                table: "FacilityBookings",
+                columns: new[] { "FacilityId", "Date", "StartTime", "EndTime" });
 
             migrationBuilder.CreateIndex(
                 name: "IX_FacilityBookings_ResidentId",
                 table: "FacilityBookings",
                 column: "ResidentId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_FacilityImages_DocumentId",
+                table: "FacilityImages",
+                column: "DocumentId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_FacilityImages_FacilityId",
+                table: "FacilityImages",
+                column: "FacilityId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Floors_BlockId",
@@ -688,6 +1210,56 @@ namespace StarterApi.Infrastructure.Persistence.Migrations.TenantDb
                 name: "IX_Notifications_RecipientId",
                 table: "Notifications",
                 column: "RecipientId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_OwnerDocuments_OwnerId",
+                table: "OwnerDocuments",
+                column: "OwnerId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Owners_IndividualId",
+                table: "Owners",
+                column: "IndividualId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_OwnershipHistories_OwnerId",
+                table: "OwnershipHistories",
+                column: "OwnerId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_OwnershipHistories_UnitId",
+                table: "OwnershipHistories",
+                column: "UnitId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_OwnershipHistoryDocuments_OwnershipHistoryId",
+                table: "OwnershipHistoryDocuments",
+                column: "OwnershipHistoryId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_OwnershipTransferDocuments_SupportingDocumentsId",
+                table: "OwnershipTransferDocuments",
+                column: "SupportingDocumentsId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_OwnershipTransferRequests_ApprovedBy",
+                table: "OwnershipTransferRequests",
+                column: "ApprovedBy");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_OwnershipTransferRequests_CurrentOwnerId",
+                table: "OwnershipTransferRequests",
+                column: "CurrentOwnerId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_OwnershipTransferRequests_NewOwnerId",
+                table: "OwnershipTransferRequests",
+                column: "NewOwnerId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_OwnershipTransferRequests_UnitId",
+                table: "OwnershipTransferRequests",
+                column: "UnitId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_ParkingAllocations_ParkingSlotId",
@@ -720,9 +1292,19 @@ namespace StarterApi.Infrastructure.Persistence.Migrations.TenantDb
                 column: "UnitId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Residents_IndividualId",
+                table: "Residents",
+                column: "IndividualId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Residents_UnitId",
                 table: "Residents",
                 column: "UnitId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Residents_UserId",
+                table: "Residents",
+                column: "UserId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_RolePermissions_PermissionId",
@@ -773,10 +1355,34 @@ namespace StarterApi.Infrastructure.Persistence.Migrations.TenantDb
                 name: "Complaints");
 
             migrationBuilder.DropTable(
+                name: "DocumentAccesses");
+
+            migrationBuilder.DropTable(
+                name: "DocumentVersions");
+
+            migrationBuilder.DropTable(
+                name: "FacilityBlackoutDates");
+
+            migrationBuilder.DropTable(
+                name: "FacilityBookingRules");
+
+            migrationBuilder.DropTable(
                 name: "FacilityBookings");
 
             migrationBuilder.DropTable(
+                name: "FacilityImages");
+
+            migrationBuilder.DropTable(
                 name: "Notifications");
+
+            migrationBuilder.DropTable(
+                name: "OwnerDocuments");
+
+            migrationBuilder.DropTable(
+                name: "OwnershipHistoryDocuments");
+
+            migrationBuilder.DropTable(
+                name: "OwnershipTransferDocuments");
 
             migrationBuilder.DropTable(
                 name: "ParkingAllocations");
@@ -788,13 +1394,19 @@ namespace StarterApi.Infrastructure.Persistence.Migrations.TenantDb
                 name: "RolePermissions");
 
             migrationBuilder.DropTable(
-                name: "Users");
-
-            migrationBuilder.DropTable(
                 name: "Visitors");
 
             migrationBuilder.DropTable(
                 name: "Facilities");
+
+            migrationBuilder.DropTable(
+                name: "OwnershipHistories");
+
+            migrationBuilder.DropTable(
+                name: "Documents");
+
+            migrationBuilder.DropTable(
+                name: "OwnershipTransferRequests");
 
             migrationBuilder.DropTable(
                 name: "ParkingSlots");
@@ -806,7 +1418,7 @@ namespace StarterApi.Infrastructure.Persistence.Migrations.TenantDb
                 name: "Permissions");
 
             migrationBuilder.DropTable(
-                name: "Roles");
+                name: "DocumentCategories");
 
             migrationBuilder.DropTable(
                 name: "Residents");
@@ -815,13 +1427,22 @@ namespace StarterApi.Infrastructure.Persistence.Migrations.TenantDb
                 name: "Units");
 
             migrationBuilder.DropTable(
+                name: "Users");
+
+            migrationBuilder.DropTable(
                 name: "Floors");
 
             migrationBuilder.DropTable(
                 name: "Owners");
 
             migrationBuilder.DropTable(
+                name: "Roles");
+
+            migrationBuilder.DropTable(
                 name: "Blocks");
+
+            migrationBuilder.DropTable(
+                name: "Individuals");
 
             migrationBuilder.DropTable(
                 name: "Societies");

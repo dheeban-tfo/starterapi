@@ -8,7 +8,7 @@ namespace StarterApi.Infrastructure.Persistence.Factories
     {
         public TenantDbContext CreateDbContext(string[] args)
         {
-            return new TenantDbContext("Server=localhost;Database=Tenant_Template;User Id=sa;Password=MyPass@word;TrustServerCertificate=True;MultipleActiveResultSets=true;");
+            return new TenantDbContext("Server=localhost;Database=Tenant_Template;User Id=sa;Password=YourStrong@Passw0rd;TrustServerCertificate=True;MultipleActiveResultSets=true;");
         }
     }
 } 

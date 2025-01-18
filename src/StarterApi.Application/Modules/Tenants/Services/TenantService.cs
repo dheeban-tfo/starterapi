@@ -36,7 +36,7 @@ namespace StarterApi.Application.Modules.Tenants.Services
                 Name = dto.Name,
                 DatabaseName = dto.DatabaseName,
                 Status = TenantStatus.Active,
-                ConnectionString = $"Server=localhost;Database={dto.DatabaseName};User Id=sa;Password=MyPass@word;TrustServerCertificate=True;MultipleActiveResultSets=true;"
+                ConnectionString = $"Server=localhost;Database={dto.DatabaseName};User Id=sa;Password=YourStrong@Passw0rd;TrustServerCertificate=True;MultipleActiveResultSets=true;"
             };
             
             try

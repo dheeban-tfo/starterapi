@@ -76,7 +76,7 @@ public class RootDataSeeder
                         Name = t.Name,
                         DatabaseName = t.DbName,
                         Status = TenantStatus.Active,
-                        ConnectionString = $"Server=localhost;Database={t.DbName};User Id=sa;Password=MyPass@word;TrustServerCertificate=True;MultipleActiveResultSets=true;",
+                        ConnectionString = $"Server=localhost;Database={t.DbName};User Id=sa;Password=YourStrong@Passw0rd;TrustServerCertificate=True;MultipleActiveResultSets=true;",
                         CreatedAt = DateTime.UtcNow,
                         CreatedBy = rootAdmin.Id
                     };
