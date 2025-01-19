@@ -39,7 +39,19 @@ namespace StarterApi.Infrastructure.Persistence.Repositories
             query = query.ApplySearch(parameters.SearchTerm);
 
             // Apply Filters
-            query = query.ApplyFiltering(parameters.Filters);
+            if (parameters.Filters != null && parameters.Filters.Any())
+            {
+                foreach (var filter in parameters.Filters)
+                {
+                    if (filter.PropertyName.ToLower() == "blockid" && filter.Operation.ToLower() == "eq")
+                    {
+                        if (Guid.TryParse(filter.Value, out Guid blockId))
+                        {
+                            query = query.Where(f => f.BlockId == blockId);
+                        }
+                    }
+                }
+            }
 
             // Apply Sorting
             query = query.ApplySort(parameters.SortBy, parameters.IsDescending);

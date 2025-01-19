@@ -42,10 +42,21 @@ namespace StarterApi.Api.Controllers
 
         [HttpGet]
         [RequirePermission(Permissions.Floors.View)]
-        public async Task<ActionResult<PagedResult<FloorListDto>>> GetFloors([FromQuery] QueryParameters parameters)
+        public async Task<ActionResult<PagedResult<FloorListDto>>> GetFloors([FromQuery] QueryParameters parameters, [FromQuery] Guid? blockId)
         {
             try
             {
+                if (blockId.HasValue)
+                {
+                    parameters.Filters ??= new List<FilterCriteria>();
+                    parameters.Filters.Add(new FilterCriteria
+                    {
+                        PropertyName = "blockId",
+                        Operation = "eq",
+                        Value = blockId.ToString()
+                    });
+                }
+
                 var floors = await _floorService.GetFloorsAsync(parameters);
                 return Ok(floors);
             }
