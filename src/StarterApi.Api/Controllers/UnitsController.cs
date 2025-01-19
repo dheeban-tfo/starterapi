@@ -9,6 +9,10 @@ using StarterApi.Application.Common.Interfaces;
 using StarterApi.Domain.Entities;
 using StarterApi.Application.Modules.Residents.DTOs;
 using StarterApi.Application.Modules.Residents.Interfaces;
+using System.Text;
+using CsvHelper;
+using CsvHelper.Configuration;
+using System.Globalization;
 
 namespace StarterApi.Api.Controllers
 {
@@ -169,6 +173,56 @@ namespace StarterApi.Api.Controllers
             {
                 _logger.LogError(ex, "Error retrieving documents for unit {UnitId}", id);
                 return StatusCode(500, "An error occurred while retrieving documents");
+            }
+        }
+
+        [HttpPost("bulk-import")]
+        [RequirePermission(Permissions.Units.BulkImport)]
+        public async Task<ActionResult<UnitBulkImportResultDto>> BulkImport(IFormFile file)
+        {
+            try
+            {
+                if (file == null || file.Length == 0)
+                    return BadRequest("No file uploaded");
+
+                if (!file.FileName.EndsWith(".csv", StringComparison.OrdinalIgnoreCase))
+                    return BadRequest("Only CSV files are supported");
+
+                var units = new List<UnitBulkImportDto>();
+
+                using (var reader = new StreamReader(file.OpenReadStream()))
+                {
+                    var config = new CsvConfiguration(CultureInfo.InvariantCulture)
+                    {
+                        HasHeaderRecord = true,
+                        Delimiter = ",",
+                        TrimOptions = TrimOptions.Trim,
+                        MissingFieldFound = null
+                    };
+
+                    using (var csv = new CsvReader(reader, config))
+                    {
+                        units = csv.GetRecords<UnitBulkImportDto>().ToList();
+                    }
+                }
+
+                if (!units.Any())
+                    return BadRequest("No records found in the CSV file");
+
+                var result = await _unitService.BulkImportAsync(units);
+
+                if (result.FailureCount > 0)
+                {
+                    // Return 207 Multi-Status when there are partial failures
+                    return StatusCode(207, result);
+                }
+
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error during bulk import of units");
+                return StatusCode(500, new { message = "An error occurred while processing the bulk import" });
             }
         }
     }

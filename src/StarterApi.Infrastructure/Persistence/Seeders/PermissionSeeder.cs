@@ -94,7 +94,8 @@ namespace StarterApi.Infrastructure.Persistence.Seeders
                     (Permissions.Units.View, "View Units", "Can view units in the system"),
                     (Permissions.Units.Create, "Create Units", "Can create new units"),
                     (Permissions.Units.Edit, "Edit Units", "Can edit existing units"),
-                    (Permissions.Units.Delete, "Delete Units", "Can delete units")
+                    (Permissions.Units.Delete, "Delete Units", "Can delete units"),
+                    (Permissions.Units.BulkImport, "Bulk Import Units", "Can bulk import units")
                 });
 
                 // Individuals permissions

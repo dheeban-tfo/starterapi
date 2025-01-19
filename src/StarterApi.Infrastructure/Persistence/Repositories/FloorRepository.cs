@@ -85,5 +85,11 @@ namespace StarterApi.Infrastructure.Persistence.Repositories
             return await _context.Floors
                 .CountAsync(f => f.BlockId == blockId);
         }
+
+        public async Task<Floor> GetByNumberAndBlockAsync(int floorNumber, Guid blockId)
+        {
+            return await _context.Floors
+                .FirstOrDefaultAsync(f => f.FloorNumber == floorNumber && f.BlockId == blockId && f.IsActive);
+        }
     }
 } 

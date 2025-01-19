@@ -64,10 +64,10 @@ namespace StarterApi.Infrastructure.Persistence.Repositories
             await _context.SaveChangesAsync();
         }
 
-        public async Task<Block> GetByCodeAsync(string code, Guid societyId)
+        public async Task<Block> GetByCodeAsync(string code)
         {
             return await _context.Blocks
-                .FirstOrDefaultAsync(b => b.Code == code && b.SocietyId == societyId);
+                .FirstOrDefaultAsync(b => b.Code == code && b.IsActive);
         }
 
         public async Task<bool> ExistsAsync(string code, Guid societyId)

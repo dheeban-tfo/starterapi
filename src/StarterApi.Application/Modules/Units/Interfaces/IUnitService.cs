@@ -13,5 +13,6 @@ namespace StarterApi.Application.Modules.Units.Interfaces
         Task<PagedResult<UnitListDto>> GetUnitsAsync(QueryParameters parameters);
         Task<bool> ExistsByNumberAsync(string number, Guid floorId);
         Task<PagedResult<OwnershipHistoryListDto>> GetUnitOwnershipHistoryAsync(Guid unitId, QueryParameters parameters);
+        Task<UnitBulkImportResultDto> BulkImportAsync(IEnumerable<UnitBulkImportDto> units);
     }
 }

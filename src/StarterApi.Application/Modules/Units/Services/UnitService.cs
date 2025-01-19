@@ -8,9 +8,12 @@ using StarterApi.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using StarterApi.Application.Common.Interfaces;
 using StarterApi.Application.Modules.Owners.DTOs;
+using StarterApi.Application.Modules.Blocks.Interfaces;
+using StarterApi.Application.Modules.Floors.Interfaces;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Collections.Generic;
 
 namespace StarterApi.Application.Modules.Units.Services
 {
@@ -20,17 +23,23 @@ namespace StarterApi.Application.Modules.Units.Services
         private readonly ITenantDbContext _context;
         private readonly IMapper _mapper;
         private readonly ILogger<UnitService> _logger;
+        private readonly IBlockRepository _blockRepository;
+        private readonly IFloorRepository _floorRepository;
 
         public UnitService(
             IUnitRepository unitRepository,
             ITenantDbContext context,
             IMapper mapper,
-            ILogger<UnitService> logger)
+            ILogger<UnitService> logger,
+            IBlockRepository blockRepository,
+            IFloorRepository floorRepository)
         {
             _unitRepository = unitRepository;
             _context = context;
             _mapper = mapper;
             _logger = logger;
+            _blockRepository = blockRepository;
+            _floorRepository = floorRepository;
         }
 
         public async Task<UnitDto> CreateUnitAsync(CreateUnitDto dto)
@@ -180,6 +189,95 @@ namespace StarterApi.Application.Modules.Units.Services
                 HasNextPage = parameters.PageNumber < (int)Math.Ceiling(totalCount / (double)parameters.PageSize),
                 HasPreviousPage = parameters.PageNumber > 1
             };
+        }
+
+        public async Task<UnitBulkImportResultDto> BulkImportAsync(IEnumerable<UnitBulkImportDto> units)
+        {
+            var result = new UnitBulkImportResultDto();
+            var processedUnits = new List<Unit>();
+
+            foreach (var importUnit in units)
+            {
+                try
+                {
+                    result.TotalProcessed++;
+
+                    // Get or create block
+                    var block = await _blockRepository.GetByCodeAsync(importUnit.BlockCode);
+                    if (block == null)
+                    {
+                        result.Warnings.Add($"Block with code {importUnit.BlockCode} not found. Creating new block.");
+                        block = new Block
+                        {
+                            Code = importUnit.BlockCode,
+                            Name = importUnit.BlockName,
+                            TotalFloors = 0,
+                            MaintenanceChargePerSqft = 0
+                        };
+                        await _blockRepository.AddAsync(block);
+                    }
+
+                    // Get or create floor
+                    var floor = await _floorRepository.GetByNumberAndBlockAsync(importUnit.FloorNumber, block.Id);
+                    if (floor == null)
+                    {
+                        result.Warnings.Add($"Floor number {importUnit.FloorNumber} in block {importUnit.BlockCode} not found. Creating new floor.");
+                        floor = new Floor
+                        {
+                            BlockId = block.Id,
+                            FloorNumber = importUnit.FloorNumber,
+                            FloorName = importUnit.FloorName,
+                            TotalUnits = 0
+                        };
+                        await _floorRepository.AddAsync(floor);
+                    }
+
+                    // Check if unit already exists
+                    var existingUnit = await _unitRepository.GetByNumberAndFloorAsync(importUnit.UnitNumber, floor.Id);
+                    if (existingUnit != null)
+                    {
+                        result.Warnings.Add($"Unit {importUnit.UnitNumber} already exists. Skipping.");
+                        continue;
+                    }
+
+                    // Create new unit
+                    var unit = new Unit
+                    {
+                        FloorId = floor.Id,
+                        UnitNumber = importUnit.UnitNumber,
+                        Type = importUnit.Type,
+                        BuiltUpArea = importUnit.BuiltUpArea,
+                        CarpetArea = importUnit.CarpetArea,
+                        FurnishingStatus = importUnit.FurnishingStatus,
+                        Status = importUnit.Status,
+                        MonthlyMaintenanceFee = importUnit.MonthlyMaintenanceFee
+                    };
+
+                    await _unitRepository.AddAsync(unit);
+                    processedUnits.Add(unit);
+                    result.SuccessCount++;
+                }
+                catch (Exception ex)
+                {
+                    result.FailureCount++;
+                    result.Errors.Add($"Failed to process unit {importUnit.UnitNumber}: {ex.Message}");
+                    _logger.LogError(ex, "Error processing unit {UnitNumber} during bulk import", importUnit.UnitNumber);
+                }
+            }
+
+            // Update total units count for floors and blocks
+            var affectedFloors = processedUnits.Select(u => u.FloorId).Distinct();
+            foreach (var floorId in affectedFloors)
+            {
+                var floor = await _floorRepository.GetByIdAsync(floorId);
+                if (floor != null)
+                {
+                    floor.TotalUnits = await _unitRepository.GetCountByFloorAsync(floorId);
+                    await _floorRepository.UpdateAsync(floor);
+                }
+            }
+
+            return result;
         }
     }
 }

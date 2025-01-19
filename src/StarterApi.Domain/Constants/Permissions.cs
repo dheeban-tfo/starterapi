@@ -63,6 +63,7 @@ namespace StarterApi.Domain.Constants
             public const string Create = "Units.Create";
             public const string Edit = "Units.Edit";
             public const string Delete = "Units.Delete";
+            public const string BulkImport = "Units.BulkImport";
         }
 
         public static class Individuals

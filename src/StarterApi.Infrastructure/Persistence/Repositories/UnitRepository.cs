@@ -130,5 +130,23 @@ namespace StarterApi.Infrastructure.Persistence.Repositories
             await _context.Owners.AddAsync(owner);
             return owner;
         }
+
+        public async Task<Unit> GetByNumberAndFloorAsync(string number, Guid floorId)
+        {
+            return await _context.Units
+                .FirstOrDefaultAsync(u => u.UnitNumber == number && u.FloorId == floorId && u.IsActive);
+        }
+
+        public async Task<int> GetCountByFloorAsync(Guid floorId)
+        {
+            return await _context.Units
+                .CountAsync(u => u.FloorId == floorId && u.IsActive);
+        }
+
+        public async Task<bool> ExistsByNumberAsync(string number, Guid floorId)
+        {
+            return await _context.Units
+                .AnyAsync(u => u.UnitNumber == number && u.FloorId == floorId && u.IsActive);
+        }
     }
 } 

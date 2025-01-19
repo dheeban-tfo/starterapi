@@ -13,5 +13,6 @@ namespace StarterApi.Application.Modules.Floors.Interfaces
         Task<Floor> GetByNumberAsync(int number, Guid blockId);
         Task<bool> ExistsAsync(int number, Guid blockId);
         Task<int> GetFloorCountByBlockAsync(Guid blockId);
+        Task<Floor> GetByNumberAndBlockAsync(int floorNumber, Guid blockId);
     }
 }

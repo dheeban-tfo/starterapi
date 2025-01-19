@@ -10,7 +10,7 @@ namespace StarterApi.Application.Modules.Blocks.Interfaces
         Task<Block> AddAsync(Block block);
         Task<Block> UpdateAsync(Block block);
         Task SaveChangesAsync();
-        Task<Block> GetByCodeAsync(string code, Guid societyId);
+        Task<Block> GetByCodeAsync(string code);
         Task<bool> ExistsAsync(string code, Guid societyId);
         Task<int> GetBlockCountBySocietyAsync(Guid societyId);
     }
