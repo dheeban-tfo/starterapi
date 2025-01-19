@@ -13,6 +13,7 @@ using System.Text;
 using CsvHelper;
 using CsvHelper.Configuration;
 using System.Globalization;
+using StarterApi.Application.Modules.Units.Mappings;
 
 namespace StarterApi.Api.Controllers
 {
@@ -190,18 +191,33 @@ namespace StarterApi.Api.Controllers
 
                 var units = new List<UnitBulkImportDto>();
 
-                using (var reader = new StreamReader(file.OpenReadStream()))
+                using (var reader = new StreamReader(file.OpenReadStream(), Encoding.UTF8))
                 {
                     var config = new CsvConfiguration(CultureInfo.InvariantCulture)
                     {
                         HasHeaderRecord = true,
                         Delimiter = ",",
                         TrimOptions = TrimOptions.Trim,
-                        MissingFieldFound = null
+                        MissingFieldFound = null,
+                        Mode = CsvMode.RFC4180,
+                        BadDataFound = null,
+                        HeaderValidated = null,
+                        IgnoreBlankLines = true,
+                        DetectColumnCountChanges = true,
+                        //LeaveOpen = false,
+                        AllowComments = false
                     };
 
                     using (var csv = new CsvReader(reader, config))
                     {
+                        csv.Context.RegisterClassMap<UnitBulkImportMap>();
+                        
+                        // Read and validate headers first
+                        csv.Read();
+                        csv.ReadHeader();
+                        csv.ValidateHeader<UnitBulkImportDto>();
+                        
+                        // Then read records
                         units = csv.GetRecords<UnitBulkImportDto>().ToList();
                     }
                 }
@@ -221,8 +237,8 @@ namespace StarterApi.Api.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error during bulk import of units");
-                return StatusCode(500, new { message = "An error occurred while processing the bulk import" });
+                _logger.LogError(ex, "Error during bulk import of units: {Message}", ex.Message);
+                return StatusCode(500, new { message = "An error occurred while processing the bulk import", details = ex.Message });
             }
         }
     }
