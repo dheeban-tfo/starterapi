@@ -12,8 +12,11 @@ namespace StarterApi.Application.Modules.Societies.Mappings
             CreateMap<Society, SocietyDto>();
 
             CreateMap<Society, SocietyListDto>()
-                .ForMember(dest => dest.BlockCount, opt => opt.MapFrom(src => src.Blocks.Count(b => b.IsActive)))
-                .ForMember(dest => dest.UnitCount, opt => opt.MapFrom(src => src.Blocks.Sum(b => b.Floors.Sum(f => f.Units.Count(u => u.IsActive)))));
+                .ForMember(dest => dest.BlockCount, opt => 
+                    opt.MapFrom(src => src.Blocks.Count(b => b.IsActive)))
+                .ForMember(dest => dest.UnitCount, opt => 
+                    opt.MapFrom(src => src.Blocks.Sum(b => 
+                        b.Floors.Sum(f => f.Units.Count(u => u.IsActive)))));
 
             CreateMap<CreateSocietyDto, Society>();
             CreateMap<UpdateSocietyDto, Society>();
