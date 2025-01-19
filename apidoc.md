@@ -297,7 +297,7 @@ public class Vehicle : BaseEntity
 2. **Repository Interface**
 ```csharp
 // src/StarterApi.Application/Modules/Vehicles/Interfaces/IVehicleRepository.cs
-public interface IVehicleRepository : IBaseRepository<Vehicle>
+public interface IVehicleRepository 
 {
     Task<PagedResult<Vehicle>> GetPagedAsync(QueryParameters parameters);
     Task<bool> ExistsAsync(string registrationNumber);
@@ -308,7 +308,7 @@ public interface IVehicleRepository : IBaseRepository<Vehicle>
 3. **Repository Implementation**
 ```csharp
 // src/StarterApi.Infrastructure/Persistence/Repositories/VehicleRepository.cs
-public class VehicleRepository : BaseRepository<Vehicle>, IVehicleRepository
+public class VehicleRepository : IVehicleRepository
 {
     public VehicleRepository(ITenantDbContext context) : base(context)
     {

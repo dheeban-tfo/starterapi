@@ -37,6 +37,8 @@ using StarterApi.Application.Modules.Residents.Interfaces;
 using StarterApi.Application.Modules.Residents.Services;
 using StarterApi.Application.Modules.Facilities.Interfaces;
 using StarterApi.Application.Modules.Facilities.Services;
+using StarterApi.Application.Modules.Owners.Interfaces;
+using StarterApi.Application.Modules.Owners.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -134,6 +136,7 @@ builder.Services.AddScoped<IFacilityRepository, FacilityRepository>();
 builder.Services.AddScoped<IFacilityImageRepository, FacilityImageRepository>();
 builder.Services.AddScoped<IFacilityBookingRuleRepository, FacilityBookingRuleRepository>();
 builder.Services.AddScoped<IFacilityBlackoutDateRepository, FacilityBlackoutDateRepository>();
+builder.Services.AddScoped<IOwnerRepository, OwnerRepository>();
 
 // Register services
 builder.Services.AddScoped<ITenantDbMigrationService, TenantDbMigrationService>();
@@ -148,6 +151,7 @@ builder.Services.AddScoped<IFacilityService, FacilityService>();
 builder.Services.AddScoped<IFacilityImageService, FacilityImageService>();
 builder.Services.AddScoped<IFacilityBookingRuleService, FacilityBookingRuleService>();
 builder.Services.AddScoped<IFacilityBlackoutDateService, FacilityBlackoutDateService>();
+builder.Services.AddScoped<IOwnerService, OwnerService>();
 
 // Register tenant-related services
 builder.Services.AddScoped<ITenantProvider, TenantProvider>();
