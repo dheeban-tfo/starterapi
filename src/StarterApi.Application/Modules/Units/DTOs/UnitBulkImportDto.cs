@@ -4,6 +4,7 @@ namespace StarterApi.Application.Modules.Units.DTOs
 {
     public class UnitBulkImportDto
     {
+        public Guid SocietyId { get; set; }
         [Required]
         public string BlockCode { get; set; }
         

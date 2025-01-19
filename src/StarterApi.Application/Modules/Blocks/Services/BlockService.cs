@@ -99,6 +99,15 @@ namespace StarterApi.Application.Modules.Blocks.Services
             };
         }
 
+        public async Task<BlockDto> GetBlockByCodeAsync(string code)
+        {
+            var block = await _blockRepository.GetByCodeAsync(code);
+            if (block == null)
+                throw new NotFoundException($"Block with code {code} not found");
+
+            return _mapper.Map<BlockDto>(block);
+        }
+
         public async Task<bool> ExistsByCodeAsync(string code, Guid societyId)
         {
             return await _blockRepository.ExistsAsync(code, societyId);

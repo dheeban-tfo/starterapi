@@ -7,6 +7,7 @@ namespace StarterApi.Application.Modules.Units.Mappings
     {
         public UnitBulkImportMap()
         {
+            Map(m => m.SocietyId).Name("SocietyId");
             Map(m => m.BlockCode).Name("BlockCode");
             Map(m => m.BlockName).Name("BlockName");
             Map(m => m.FloorNumber).Name("FloorNumber");

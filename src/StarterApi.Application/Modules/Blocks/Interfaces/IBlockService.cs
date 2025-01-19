@@ -11,5 +11,6 @@ namespace StarterApi.Application.Modules.Blocks.Interfaces
         Task<BlockDto> GetBlockByIdAsync(Guid id);
         Task<PagedResult<BlockListDto>> GetBlocksAsync(QueryParameters parameters);
         Task<bool> ExistsByCodeAsync(string code, Guid societyId);
+        Task<BlockDto> GetBlockByCodeAsync(string code);
     }
 }

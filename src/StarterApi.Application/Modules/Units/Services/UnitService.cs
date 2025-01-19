@@ -201,44 +201,41 @@ namespace StarterApi.Application.Modules.Units.Services
                 try
                 {
                     result.TotalProcessed++;
+                    _logger.LogInformation("UnitService: Processing unit {UnitNumber} in block {BlockCode}, floor {FloorNumber}", 
+                        importUnit.UnitNumber, importUnit.BlockCode, importUnit.FloorNumber);
 
-                    // Get or create block
+                    // Get block and floor
                     var block = await _blockRepository.GetByCodeAsync(importUnit.BlockCode);
                     if (block == null)
                     {
-                        result.Warnings.Add($"Block with code {importUnit.BlockCode} not found. Creating new block.");
-                        block = new Block
-                        {
-                            Code = importUnit.BlockCode,
-                            Name = importUnit.BlockName,
-                            TotalFloors = 0,
-                            MaintenanceChargePerSqft = 0
-                        };
-                        await _blockRepository.AddAsync(block);
+                        _logger.LogError("UnitService: Block {BlockCode} not found", importUnit.BlockCode);
+                        result.Errors.Add($"Block with code {importUnit.BlockCode} not found.");
+                        result.FailureCount++;
+                        continue;
                     }
 
-                    // Get or create floor
                     var floor = await _floorRepository.GetByNumberAndBlockAsync(importUnit.FloorNumber, block.Id);
                     if (floor == null)
                     {
-                        result.Warnings.Add($"Floor number {importUnit.FloorNumber} in block {importUnit.BlockCode} not found. Creating new floor.");
-                        floor = new Floor
-                        {
-                            BlockId = block.Id,
-                            FloorNumber = importUnit.FloorNumber,
-                            FloorName = importUnit.FloorName,
-                            TotalUnits = 0
-                        };
-                        await _floorRepository.AddAsync(floor);
+                        _logger.LogError("UnitService: Floor {FloorNumber} in block {BlockCode} not found", 
+                            importUnit.FloorNumber, importUnit.BlockCode);
+                        result.Errors.Add($"Floor number {importUnit.FloorNumber} in block {importUnit.BlockCode} not found.");
+                        result.FailureCount++;
+                        continue;
                     }
 
                     // Check if unit already exists
                     var existingUnit = await _unitRepository.GetByNumberAndFloorAsync(importUnit.UnitNumber, floor.Id);
                     if (existingUnit != null)
                     {
+                        _logger.LogWarning("UnitService: Unit {UnitNumber} already exists in floor {FloorNumber}, block {BlockCode}", 
+                            importUnit.UnitNumber, importUnit.FloorNumber, importUnit.BlockCode);
                         result.Warnings.Add($"Unit {importUnit.UnitNumber} already exists. Skipping.");
                         continue;
                     }
+
+                    _logger.LogInformation("UnitService: Creating new unit {UnitNumber} in floor {FloorNumber}, block {BlockCode}", 
+                        importUnit.UnitNumber, importUnit.FloorNumber, importUnit.BlockCode);
 
                     // Create new unit
                     var unit = new Unit
@@ -256,26 +253,36 @@ namespace StarterApi.Application.Modules.Units.Services
                     await _unitRepository.AddAsync(unit);
                     processedUnits.Add(unit);
                     result.SuccessCount++;
+                    _logger.LogInformation("UnitService: Successfully created unit {UnitNumber}", importUnit.UnitNumber);
                 }
                 catch (Exception ex)
                 {
                     result.FailureCount++;
                     result.Errors.Add($"Failed to process unit {importUnit.UnitNumber}: {ex.Message}");
-                    _logger.LogError(ex, "Error processing unit {UnitNumber} during bulk import", importUnit.UnitNumber);
+                    _logger.LogError(ex, "UnitService: Error processing unit {UnitNumber} during bulk import", importUnit.UnitNumber);
                 }
             }
 
-            // Update total units count for floors and blocks
+            // Save all changes at once
+            await _unitRepository.SaveChangesAsync();
+            _logger.LogInformation("UnitService: Saved {Count} new units", processedUnits.Count);
+
+            // Update total units count for floors
             var affectedFloors = processedUnits.Select(u => u.FloorId).Distinct();
             foreach (var floorId in affectedFloors)
             {
                 var floor = await _floorRepository.GetByIdAsync(floorId);
                 if (floor != null)
                 {
-                    floor.TotalUnits = await _unitRepository.GetCountByFloorAsync(floorId);
+                    var totalUnits = await _unitRepository.GetCountByFloorAsync(floorId);
+                    _logger.LogInformation("UnitService: Updating floor {FloorId} total units to {TotalUnits}", floorId, totalUnits);
+                    floor.TotalUnits = totalUnits;
                     await _floorRepository.UpdateAsync(floor);
                 }
             }
+
+            await _floorRepository.SaveChangesAsync();
+            _logger.LogInformation("UnitService: Updated unit counts for {Count} floors", affectedFloors.Count());
 
             return result;
         }
