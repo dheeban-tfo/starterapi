@@ -127,6 +127,15 @@ namespace StarterApi.Domain.Constants
             public const string ApproveTransfer = "Owners.ApproveTransfer";
         }
 
+        public static class Visitors
+        {
+            public const string View = "Visitors.View";
+            public const string Create = "Visitors.Create";
+            public const string Edit = "Visitors.Edit";
+            public const string Delete = "Visitors.Delete";
+            public const string Approve = "Visitors.Approve";
+        }
+
         public static IEnumerable<string> GetAllPermissions()
         {
             return typeof(Permissions)

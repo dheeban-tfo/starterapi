@@ -1,18 +1,20 @@
- namespace StarterApi.Domain.Entities
+using System;
+using StarterApi.Domain.Common;
+
+namespace StarterApi.Domain.Entities
 {
     public class Visitor : BaseEntity
     {
-        public string Name { get; set; }
-        public string ContactNumber { get; set; }
-        public string VehicleRegistrationNumber { get; set; }
-        public string Purpose { get; set; }
-        public DateTime CheckInTime { get; set; }
-        public DateTime? CheckOutTime { get; set; }
-        public Guid VisitedUnitId { get; set; }
-        public Guid RegisteredById { get; set; }
-        public string Remarks { get; set; }
-
-        public virtual Unit VisitedUnit { get; set; }
-        public virtual Resident RegisteredBy { get; set; }
+        public string VisitorName { get; set; }
+        public DateTime ExpectedVisitDate { get; set; }
+        public TimeSpan ExpectedVisitStartTime { get; set; }
+        public TimeSpan ExpectedVisitEndTime { get; set; }
+        public string PurposeOfVisit { get; set; }
+        public string Status { get; set; } // Pending, Approved, Rejected, etc.
+        public bool IsParking { get; set; } // Indicates if parking is required
+        
+        // Navigation properties
+        public Guid? ResidentId { get; set; }
+        public virtual Individual Resident { get; set; }
     }
 } 

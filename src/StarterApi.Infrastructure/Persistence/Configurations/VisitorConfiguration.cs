@@ -13,33 +13,35 @@ namespace StarterApi.Infrastructure.Persistence.Configurations
             builder.ToTable("Visitors");
             
             builder.HasKey(v => v.Id);
-            
-            builder.Property(v => v.Name)
+
+            builder.Property(e => e.VisitorName)
                 .IsRequired()
                 .HasMaxLength(100);
-                
-            builder.Property(v => v.ContactNumber)
+
+            builder.Property(e => e.ExpectedVisitDate)
+                .IsRequired();
+
+            builder.Property(e => e.ExpectedVisitStartTime)
+                .IsRequired();
+
+            builder.Property(e => e.ExpectedVisitEndTime)
+                .IsRequired();
+
+            builder.Property(e => e.PurposeOfVisit)
                 .IsRequired()
-                .HasMaxLength(20);
-                
-            builder.Property(v => v.VehicleRegistrationNumber)
-                .HasMaxLength(20);
-                
-            builder.Property(v => v.Purpose)
-                .IsRequired()
-                .HasMaxLength(100);
-                
-            builder.Property(v => v.Remarks)
                 .HasMaxLength(500);
 
-            builder.HasOne(v => v.RegisteredBy)
-                .WithMany()
-                .HasForeignKey(v => v.RegisteredById)
-                .OnDelete(DeleteBehavior.Restrict);
+            builder.Property(e => e.Status)
+                .IsRequired()
+                .HasMaxLength(20);
 
-            builder.HasOne(v => v.VisitedUnit)
+            builder.Property(e => e.IsParking)
+                .IsRequired()
+                .HasDefaultValue(false);
+
+            builder.HasOne(e => e.Resident)
                 .WithMany()
-                .HasForeignKey(v => v.VisitedUnitId)
+                .HasForeignKey(e => e.ResidentId)
                 .OnDelete(DeleteBehavior.Restrict);
         }
     }

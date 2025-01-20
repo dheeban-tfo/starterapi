@@ -227,10 +227,10 @@ public static class Permissions
 {
     public static class YourModule
     {
-        public const string View = "Permissions.YourModule.View";
-        public const string Create = "Permissions.YourModule.Create";
-        public const string Edit = "Permissions.YourModule.Edit";
-        public const string Delete = "Permissions.YourModule.Delete";
+        public const string View = "YourModule.View";
+        public const string Create = "YourModule.Create";
+        public const string Edit = "YourModule.Edit";
+        public const string Delete = "YourModule.Delete";
     }
 }
 ```
@@ -250,14 +250,14 @@ public partial class AddYourModulePermissions : Migration
                 {
                     Guid.NewGuid(),
                     "View YourModule",
-                    Permissions.YourModule.View,
+                    YourModule.View,
                     "YourModule",
                     "Permission to view YourModule"
                 },
                 {
                     Guid.NewGuid(),
                     "Create YourModule",
-                    Permissions.YourModule.Create,
+                    YourModule.Create,
                     "YourModule",
                     "Permission to create YourModule"
                 },

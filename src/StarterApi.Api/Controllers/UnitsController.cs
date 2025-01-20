@@ -237,7 +237,7 @@ namespace StarterApi.Api.Controllers
                 if (!units.Any())
                     return BadRequest("No records found in the CSV file");
 
-                var defaultSocietyId = Guid.Parse("8050505b-3f56-47ae-a8dc-763a0e4266c1");
+                var defaultSocietyId = Guid.Parse("f8505183-d352-407d-b651-3d5dbf7efe66");
                 var validUnits = new List<UnitBulkImportDto>();
                 var result = new UnitBulkImportResultDto();
 

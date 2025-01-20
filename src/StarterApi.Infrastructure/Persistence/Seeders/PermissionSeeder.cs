@@ -165,6 +165,16 @@ namespace StarterApi.Infrastructure.Persistence.Seeders
                     (Permissions.Owners.ApproveTransfer, "Approve Ownership Transfer", "Can approve ownership transfer")
                 });
 
+                // Visitors permissions
+                await AddOrUpdatePermissionGroup(permissions, existingPermissions, "Visitors", new[]
+                {
+                    (Permissions.Visitors.View, "View Visitors", "Can view visitors in the system"),
+                    (Permissions.Visitors.Create, "Create Visitors", "Can create new visitors"),
+                    (Permissions.Visitors.Edit, "Edit Visitors", "Can edit existing visitors"),
+                    (Permissions.Visitors.Delete, "Delete Visitors", "Can delete visitors"),
+                    (Permissions.Visitors.Approve, "Approve Visitors", "Can approve or reject visitors")
+                });
+
                 if (permissions.Any())
                 {
                     await _context.Permissions.AddRangeAsync(permissions);

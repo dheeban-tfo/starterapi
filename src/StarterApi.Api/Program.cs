@@ -11,6 +11,8 @@ using StarterApi.Domain.Interfaces;
 using Microsoft.OpenApi.Models;
 using StarterApi.Infrastructure.Services;
 using StarterApi.Application.Modules.Auth.Services;
+using StarterApi.Application.Modules.Visitors.Interfaces;
+using StarterApi.Application.Modules.Visitors.Services;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using System.Text;
@@ -137,6 +139,7 @@ builder.Services.AddScoped<IFacilityImageRepository, FacilityImageRepository>();
 builder.Services.AddScoped<IFacilityBookingRuleRepository, FacilityBookingRuleRepository>();
 builder.Services.AddScoped<IFacilityBlackoutDateRepository, FacilityBlackoutDateRepository>();
 builder.Services.AddScoped<IOwnerRepository, OwnerRepository>();
+builder.Services.AddScoped<IVisitorRepository, VisitorRepository>();
 
 // Register services
 builder.Services.AddScoped<ITenantDbMigrationService, TenantDbMigrationService>();
@@ -152,6 +155,7 @@ builder.Services.AddScoped<IFacilityImageService, FacilityImageService>();
 builder.Services.AddScoped<IFacilityBookingRuleService, FacilityBookingRuleService>();
 builder.Services.AddScoped<IFacilityBlackoutDateService, FacilityBlackoutDateService>();
 builder.Services.AddScoped<IOwnerService, OwnerService>();
+builder.Services.AddScoped<IVisitorService, VisitorService>();
 
 // Register tenant-related services
 builder.Services.AddScoped<ITenantProvider, TenantProvider>();

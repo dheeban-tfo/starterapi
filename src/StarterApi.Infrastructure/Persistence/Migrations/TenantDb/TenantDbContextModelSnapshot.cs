@@ -22,21 +22,6 @@ namespace StarterApi.Infrastructure.Persistence.Migrations.TenantDb
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("DocumentOwner", b =>
-                {
-                    b.Property<Guid>("DocumentsId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("OwnerId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("DocumentsId", "OwnerId");
-
-                    b.HasIndex("OwnerId");
-
-                    b.ToTable("OwnerDocuments", (string)null);
-                });
-
             modelBuilder.Entity("DocumentOwnershipHistory", b =>
                 {
                     b.Property<Guid>("DocumentsId")
@@ -1743,45 +1728,43 @@ namespace StarterApi.Infrastructure.Persistence.Migrations.TenantDb
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<DateTime>("CheckInTime")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime?>("CheckOutTime")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("ContactNumber")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
-
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
                     b.Property<Guid>("CreatedBy")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<DateTime>("ExpectedVisitDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<TimeSpan>("ExpectedVisitEndTime")
+                        .HasColumnType("time");
+
+                    b.Property<TimeSpan>("ExpectedVisitStartTime")
+                        .HasColumnType("time");
+
                     b.Property<bool>("IsActive")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bit")
                         .HasDefaultValue(true);
 
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                    b.Property<bool>("IsParking")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false);
 
-                    b.Property<string>("Purpose")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<Guid>("RegisteredById")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Remarks")
+                    b.Property<string>("PurposeOfVisit")
                         .IsRequired()
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
+
+                    b.Property<Guid?>("ResidentId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
@@ -1789,19 +1772,14 @@ namespace StarterApi.Infrastructure.Persistence.Migrations.TenantDb
                     b.Property<Guid?>("UpdatedBy")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("VehicleRegistrationNumber")
+                    b.Property<string>("VisitorName")
                         .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
-
-                    b.Property<Guid>("VisitedUnitId")
-                        .HasColumnType("uniqueidentifier");
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("RegisteredById");
-
-                    b.HasIndex("VisitedUnitId");
+                    b.HasIndex("ResidentId");
 
                     b.ToTable("Visitors", (string)null);
                 });
@@ -1972,21 +1950,6 @@ namespace StarterApi.Infrastructure.Persistence.Migrations.TenantDb
                     b.HasIndex("RoleId");
 
                     b.ToTable("Users", (string)null);
-                });
-
-            modelBuilder.Entity("DocumentOwner", b =>
-                {
-                    b.HasOne("StarterApi.Domain.Entities.Document", null)
-                        .WithMany()
-                        .HasForeignKey("DocumentsId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("StarterApi.Domain.Entities.Owner", null)
-                        .WithMany()
-                        .HasForeignKey("OwnerId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
                 });
 
             modelBuilder.Entity("DocumentOwnershipHistory", b =>
@@ -2404,21 +2367,12 @@ namespace StarterApi.Infrastructure.Persistence.Migrations.TenantDb
 
             modelBuilder.Entity("StarterApi.Domain.Entities.Visitor", b =>
                 {
-                    b.HasOne("StarterApi.Domain.Entities.Resident", "RegisteredBy")
+                    b.HasOne("StarterApi.Domain.Entities.Individual", "Resident")
                         .WithMany()
-                        .HasForeignKey("RegisteredById")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .HasForeignKey("ResidentId")
+                        .OnDelete(DeleteBehavior.Restrict);
 
-                    b.HasOne("StarterApi.Domain.Entities.Unit", "VisitedUnit")
-                        .WithMany()
-                        .HasForeignKey("VisitedUnitId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("RegisteredBy");
-
-                    b.Navigation("VisitedUnit");
+                    b.Navigation("Resident");
                 });
 
             modelBuilder.Entity("TenantRolePermission", b =>
