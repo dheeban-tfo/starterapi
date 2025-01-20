@@ -19,7 +19,5 @@ namespace StarterApi.Domain.Entities
         public IReadOnlyCollection<Unit> Units => _units.AsReadOnly();
         private readonly List<OwnershipHistory> _ownershipHistory = new();
         public IReadOnlyCollection<OwnershipHistory> OwnershipHistory => _ownershipHistory.AsReadOnly();
-        private readonly List<Document> _documents = new();
-        public IReadOnlyCollection<Document> Documents => _documents.AsReadOnly();
     }
 } 

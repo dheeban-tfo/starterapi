@@ -51,7 +51,6 @@ namespace StarterApi.Infrastructure.Persistence.Contexts
         public DbSet<DocumentVersion> DocumentVersions { get; set; }
         public DbSet<DocumentCategory> DocumentCategories { get; set; }
         public DbSet<DocumentAccess> DocumentAccesses { get; set; }
-        public DbSet<OwnerDocument> OwnerDocuments { get; set; }
         
         // Auditing
         public DbSet<AuditHistory> AuditHistory { get; set; }
@@ -181,20 +180,6 @@ namespace StarterApi.Infrastructure.Persistence.Contexts
                 entity.Property(e => e.SecurityDeposit)
                     .HasPrecision(18, 2);
             });
-
-            // Configure Owner-Document many-to-many relationship
-            modelBuilder.Entity<OwnerDocument>()
-                .HasKey(od => new { od.OwnerId, od.DocumentId });
-
-            modelBuilder.Entity<OwnerDocument>()
-                .HasOne(od => od.Owner)
-                .WithMany()
-                .HasForeignKey(od => od.OwnerId);
-
-            modelBuilder.Entity<OwnerDocument>()
-                .HasOne(od => od.Document)
-                .WithMany()
-                .HasForeignKey(od => od.DocumentId);
         }
     }
 }

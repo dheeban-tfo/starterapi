@@ -26,9 +26,8 @@ namespace StarterApi.Application.Modules.Owners.Mappings
                 .ForMember(dest => dest.Units,
                     opt => opt.MapFrom(src => src.Units))
                 .ForMember(dest => dest.OwnershipHistory,
-                    opt => opt.MapFrom(src => src.OwnershipHistory))
-                .ForMember(dest => dest.Documents,
-                    opt => opt.MapFrom(src => src.Documents));
+                    opt => opt.MapFrom(src => src.OwnershipHistory));
+                
 
             // OwnershipHistory mappings
             CreateMap<OwnershipHistory, OwnershipHistoryListDto>()

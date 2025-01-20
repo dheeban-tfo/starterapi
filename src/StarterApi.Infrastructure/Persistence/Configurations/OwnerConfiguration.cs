@@ -39,9 +39,7 @@ namespace StarterApi.Infrastructure.Persistence.Configurations
                 .HasForeignKey(u => u.CurrentOwnerId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            builder.HasMany(e => e.Documents)
-                .WithMany()
-                .UsingEntity(j => j.ToTable("OwnerDocuments"));
+           
         }
     }
 } 

@@ -128,56 +128,9 @@ namespace StarterApi.Api.Controllers
             }
         }
 
-        [HttpGet("{id}/documents")]
-        [RequirePermission(Permissions.Owners.View)]
-        public async Task<ActionResult<List<DocumentDto>>> GetOwnerDocuments(Guid id)
-        {
-            try
-            {
-                var result = await _ownerService.GetOwnerDocumentsAsync(id);
-                return Ok(result);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error retrieving documents for owner with ID: {Id}", id);
-                return StatusCode(500, "An error occurred while retrieving owner documents");
-            }
-        }
 
-        [HttpPost("{id}/documents")]
-        [RequirePermission(Permissions.Owners.ManageDocuments)]
-        public async Task<ActionResult<DocumentDto>> AddOwnerDocument(Guid id, [FromBody] Guid documentId)
-        {
-            try
-            {
-                var result = await _ownerService.AddOwnerDocumentAsync(id, documentId);
-                return Ok(result);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error adding document to owner with ID: {Id}", id);
-                return StatusCode(500, "An error occurred while adding the document");
-            }
-        }
 
-        [HttpDelete("{id}/documents/{documentId}")]
-        [RequirePermission(Permissions.Owners.ManageDocuments)]
-        public async Task<ActionResult> RemoveOwnerDocument(Guid id, Guid documentId)
-        {
-            try
-            {
-                var result = await _ownerService.RemoveOwnerDocumentAsync(id, documentId);
-                if (!result)
-                    return NotFound();
-
-                return NoContent();
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error removing document from owner with ID: {Id}", id);
-                return StatusCode(500, "An error occurred while removing the document");
-            }
-        }
+       
 
         [HttpGet("units/{unitId}/ownership-history")]
         [RequirePermission(Permissions.Owners.ViewHistory)]

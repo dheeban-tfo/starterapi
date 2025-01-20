@@ -47,7 +47,6 @@ namespace StarterApi.Application.Common.Interfaces
         DbSet<DocumentVersion> DocumentVersions { get; set; }
         DbSet<DocumentCategory> DocumentCategories { get; set; }
         DbSet<DocumentAccess> DocumentAccesses { get; set; }
-        DbSet<OwnerDocument> OwnerDocuments { get; set; }
         
         // Auditing
         DbSet<AuditHistory> AuditHistory { get; set; }

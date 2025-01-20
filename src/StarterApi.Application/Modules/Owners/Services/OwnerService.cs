@@ -6,7 +6,6 @@ using Microsoft.Extensions.Logging;
 using StarterApi.Application.Common.Exceptions;
 using StarterApi.Application.Common.Interfaces;
 using StarterApi.Application.Common.Models;
-using StarterApi.Application.Modules.Documents.DTOs;
 using StarterApi.Application.Modules.Owners.DTOs;
 using StarterApi.Application.Modules.Owners.Interfaces;
 using StarterApi.Domain.Entities;
@@ -16,18 +15,15 @@ namespace StarterApi.Application.Modules.Owners.Services
     public class OwnerService : IOwnerService
     {
         private readonly IOwnerRepository _ownerRepository;
-        private readonly IDocumentRepository _documentRepository;
         private readonly IMapper _mapper;
         private readonly ILogger<OwnerService> _logger;
 
         public OwnerService(
             IOwnerRepository ownerRepository,
-            IDocumentRepository documentRepository,
             IMapper mapper,
             ILogger<OwnerService> logger)
         {
             _ownerRepository = ownerRepository;
-            _documentRepository = documentRepository;
             _mapper = mapper;
             _logger = logger;
         }
@@ -148,31 +144,6 @@ namespace StarterApi.Application.Modules.Owners.Services
                 HasNextPage = parameters.PageNumber < (int)Math.Ceiling(allHistory.Count / (double)parameters.PageSize),
                 HasPreviousPage = parameters.PageNumber > 1
             };
-        }
-
-        public async Task<List<DocumentDto>> GetOwnerDocumentsAsync(Guid ownerId)
-        {
-            var documents = await _ownerRepository.GetOwnerDocumentsAsync(ownerId);
-            return _mapper.Map<List<DocumentDto>>(documents);
-        }
-
-        public async Task<DocumentDto> AddOwnerDocumentAsync(Guid ownerId, Guid documentId)
-        {
-            await _ownerRepository.AddOwnerDocumentAsync(ownerId, documentId);
-            await _ownerRepository.SaveChangesAsync();
-
-            var document = await _documentRepository.GetByIdAsync(documentId);
-            if (document == null)
-                throw new NotFoundException($"Document with ID {documentId} not found");
-
-            return _mapper.Map<DocumentDto>(document);
-        }
-
-        public async Task<bool> RemoveOwnerDocumentAsync(Guid ownerId, Guid documentId)
-        {
-            await _ownerRepository.RemoveOwnerDocumentAsync(ownerId, documentId);
-            await _ownerRepository.SaveChangesAsync();
-            return true;
         }
     }
 } 

@@ -18,10 +18,5 @@ namespace StarterApi.Application.Modules.Owners.Interfaces
         // History related methods
         Task<PagedResult<OwnershipHistoryListDto>> GetOwnerHistoryAsync(Guid ownerId, QueryParameters parameters);
         Task<PagedResult<OwnershipHistoryListDto>> GetUnitOwnershipHistoryAsync(Guid unitId, QueryParameters parameters);
-        
-        // Document related methods
-        Task<List<DocumentDto>> GetOwnerDocumentsAsync(Guid ownerId);
-        Task<DocumentDto> AddOwnerDocumentAsync(Guid ownerId, Guid documentId);
-        Task<bool> RemoveOwnerDocumentAsync(Guid ownerId, Guid documentId);
     }
 } 

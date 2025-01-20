@@ -13,8 +13,5 @@ namespace StarterApi.Application.Modules.Owners.Interfaces
         Task<Owner> GetByIdWithDetailsAsync(Guid id);
         Task<List<Owner>> GetByUnitIdAsync(Guid unitId);
         Task<bool> HasActiveOwnershipAsync(Guid unitId, Guid? excludeOwnerId = null);
-        Task<List<Document>> GetOwnerDocumentsAsync(Guid ownerId);
-        Task AddOwnerDocumentAsync(Guid ownerId, Guid documentId);
-        Task RemoveOwnerDocumentAsync(Guid ownerId, Guid documentId);
     }
 } 

@@ -41,7 +41,6 @@ namespace StarterApi.Infrastructure.Persistence.Repositories
             return await _context.Owners
                 .Include(o => o.Individual)
                 .Include(o => o.Units)
-                .Include(o => o.Documents)
                 .Include(o => o.OwnershipHistory)
                 .FirstOrDefaultAsync(o => o.Id == id && o.IsActive);
         }
@@ -67,45 +66,6 @@ namespace StarterApi.Infrastructure.Persistence.Repositories
             }
 
             return await query.AnyAsync();
-        }
-
-        public async Task<List<Document>> GetOwnerDocumentsAsync(Guid ownerId)
-        {
-            var documents = await _context.Documents
-                .Where(d => d.IsActive && _context.OwnerDocuments.Any(od => od.OwnerId == ownerId && od.DocumentId == d.Id))
-                .ToListAsync();
-
-            return documents;
-        }
-
-        public async Task AddOwnerDocumentAsync(Guid ownerId, Guid documentId)
-        {
-            var owner = await _context.Owners.FindAsync(ownerId);
-            if (owner == null)
-                throw new InvalidOperationException($"Owner with ID {ownerId} not found");
-
-            var document = await _context.Documents.FindAsync(documentId);
-            if (document == null)
-                throw new InvalidOperationException($"Document with ID {documentId} not found");
-
-            var ownerDocument = new OwnerDocument
-            {
-                OwnerId = ownerId,
-                DocumentId = documentId
-            };
-
-            await _context.OwnerDocuments.AddAsync(ownerDocument);
-        }
-
-        public async Task RemoveOwnerDocumentAsync(Guid ownerId, Guid documentId)
-        {
-            var ownerDocument = await _context.OwnerDocuments
-                .FirstOrDefaultAsync(od => od.OwnerId == ownerId && od.DocumentId == documentId);
-
-            if (ownerDocument == null)
-                throw new InvalidOperationException($"Document with ID {documentId} not found for owner {ownerId}");
-
-            _context.OwnerDocuments.Remove(ownerDocument);
         }
 
         public async Task<PagedResult<Owner>> GetPagedAsync(QueryParameters parameters)
