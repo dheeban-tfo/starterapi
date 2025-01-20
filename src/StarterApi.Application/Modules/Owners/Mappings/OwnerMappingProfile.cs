@@ -27,7 +27,12 @@ namespace StarterApi.Application.Modules.Owners.Mappings
                     opt => opt.MapFrom(src => src.Units))
                 .ForMember(dest => dest.OwnershipHistory,
                     opt => opt.MapFrom(src => src.OwnershipHistory));
-                
+
+            CreateMap<CreateOwnerDto, Owner>()
+                .ForMember(dest => dest.Individual, opt => opt.MapFrom(src => src.Individual))
+                .ForMember(dest => dest.Status, opt => opt.MapFrom(src => "Active"))
+                .ForMember(dest => dest.Units, opt => opt.Ignore())
+                .ForMember(dest => dest.OwnershipHistory, opt => opt.Ignore());
 
             // OwnershipHistory mappings
             CreateMap<OwnershipHistory, OwnershipHistoryListDto>()

@@ -9,21 +9,26 @@ using StarterApi.Application.Common.Models;
 using StarterApi.Application.Modules.Owners.DTOs;
 using StarterApi.Application.Modules.Owners.Interfaces;
 using StarterApi.Domain.Entities;
+using Microsoft.EntityFrameworkCore;
+using System.Linq;
 
 namespace StarterApi.Application.Modules.Owners.Services
 {
     public class OwnerService : IOwnerService
     {
         private readonly IOwnerRepository _ownerRepository;
+        private readonly ITenantDbContext _context;
         private readonly IMapper _mapper;
         private readonly ILogger<OwnerService> _logger;
 
         public OwnerService(
             IOwnerRepository ownerRepository,
+            ITenantDbContext context,
             IMapper mapper,
             ILogger<OwnerService> logger)
         {
             _ownerRepository = ownerRepository;
+            _context = context;
             _mapper = mapper;
             _logger = logger;
         }
@@ -56,11 +61,46 @@ namespace StarterApi.Application.Modules.Owners.Services
 
         public async Task<OwnerDto> CreateAsync(CreateOwnerDto dto)
         {
-            var owner = _mapper.Map<Owner>(dto);
+            // First create the individual
+            var individual = _mapper.Map<Individual>(dto.Individual);
+            individual.FullName = $"{individual.FirstName} {individual.LastName}";
+            
+            await _context.Individuals.AddAsync(individual);
+            await _context.SaveChangesAsync();
+
+            // Then create the owner
+            var owner = new Owner
+            {
+                IndividualId = individual.Id,
+                Individual = individual,
+                OwnershipType = dto.OwnershipType,
+                OwnershipPercentage = dto.OwnershipPercentage,
+                OwnershipStartDate = dto.OwnershipStartDate,
+                OwnershipDocumentNumber = dto.OwnershipDocumentNumber,
+                Status = "Active"
+            };
+
             await _ownerRepository.AddAsync(owner);
             await _ownerRepository.SaveChangesAsync();
 
-            return _mapper.Map<OwnerDto>(owner);
+            // Assign units if any
+            if (dto.UnitIds?.Any() == true)
+            {
+                var units = await _context.Units
+                    .Where(u => dto.UnitIds.Contains(u.Id))
+                    .ToListAsync();
+
+                foreach (var unit in units)
+                {
+                    unit.CurrentOwnerId = owner.Id;
+                }
+
+                await _context.SaveChangesAsync();
+            }
+
+            // Fetch the complete owner with details for the response
+            var createdOwner = await _ownerRepository.GetByIdWithDetailsAsync(owner.Id);
+            return _mapper.Map<OwnerDto>(createdOwner);
         }
 
         public async Task<OwnerDto> UpdateAsync(Guid id, UpdateOwnerDto dto)

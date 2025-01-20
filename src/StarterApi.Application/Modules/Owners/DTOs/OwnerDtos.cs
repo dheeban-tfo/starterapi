@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using StarterApi.Application.Common.Models;
 using StarterApi.Application.Modules.Documents.DTOs;
+using StarterApi.Application.Modules.Individuals.DTOs;
 
 namespace StarterApi.Application.Modules.Owners.DTOs
 {
@@ -39,13 +41,25 @@ namespace StarterApi.Application.Modules.Owners.DTOs
     // Create DTO
     public class CreateOwnerDto
     {
-        public Guid IndividualId { get; set; }
+        [Required]
+        public CreateIndividualDto Individual { get; set; }
+
+        [Required]
+        [StringLength(20)]
         public string OwnershipType { get; set; }
+
+        [Required]
+        [Range(0, 100)]
         public decimal OwnershipPercentage { get; set; }
-        public DateTime OwnershipStartDate { get; set; }
+
+        [Required]
+        public DateTime OwnershipStartDate { get; set; } = DateTime.UtcNow;
+
+        [StringLength(50)]
         public string OwnershipDocumentNumber { get; set; }
-        public List<Guid> UnitIds { get; set; }
-        public List<Guid> DocumentIds { get; set; }
+
+        public List<Guid> UnitIds { get; set; } = new List<Guid>();
+       
     }
 
     // Update DTO
