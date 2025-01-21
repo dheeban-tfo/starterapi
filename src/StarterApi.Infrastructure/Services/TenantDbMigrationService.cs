@@ -155,41 +155,41 @@ public class TenantDbMigrationService : ITenantDbMigrationService
         }
     }
 
-    private IEnumerable<TenantPermission> GetDefaultAdminPermissions(Guid roleId)
-    {
-        return new[]
-        {
-            CreatePermission("Users.View", "View Users", "Users", roleId),
-            CreatePermission("Users.Create", "Create Users", "Users", roleId),
-            CreatePermission("Users.Edit", "Edit Users", "Users", roleId),
-            CreatePermission("Users.Delete", "Delete Users", "Users", roleId),
-            CreatePermission("Roles.View", "View Roles", "Roles", roleId),
-            CreatePermission("Roles.Manage", "Manage Roles", "Roles", roleId)
-        };
-    }
+    // private IEnumerable<TenantPermission> GetDefaultAdminPermissions(Guid roleId)
+    // {
+    //     return new[]
+    //     {
+    //         CreatePermission("Users.View", "View Users", "Users", roleId),
+    //         CreatePermission("Users.Create", "Create Users", "Users", roleId),
+    //         CreatePermission("Users.Edit", "Edit Users", "Users", roleId),
+    //         CreatePermission("Users.Delete", "Delete Users", "Users", roleId),
+    //         CreatePermission("Roles.View", "View Roles", "Roles", roleId),
+    //         CreatePermission("Roles.Manage", "Manage Roles", "Roles", roleId)
+    //     };
+    // }
 
-    private IEnumerable<TenantPermission> GetDefaultUserPermissions(Guid roleId)
-    {
-        return new[]
-        {
-            CreatePermission("Users.View", "View Users", "Users", roleId),
-            CreatePermission("Roles.View", "View Roles", "Roles", roleId)
-        };
-    }
+    // private IEnumerable<TenantPermission> GetDefaultUserPermissions(Guid roleId)
+    // {
+    //     return new[]
+    //     {
+    //         CreatePermission("Users.View", "View Users", "Users", roleId),
+    //         CreatePermission("Roles.View", "View Roles", "Roles", roleId)
+    //     };
+    // }
 
-    private TenantPermission CreatePermission(string systemName, string name, string group, Guid roleId)
-    {
-        return new TenantPermission
-        {
-            SystemName = systemName,
-            Name = name,
-            Group = group,
-            IsEnabled = true,
-            IsSystem = true,
+    // private TenantPermission CreatePermission(string systemName, string name, string group, Guid roleId)
+    // {
+    //     return new TenantPermission
+    //     {
+    //         SystemName = systemName,
+    //         Name = name,
+    //         Group = group,
+    //         IsEnabled = true,
+    //         IsSystem = true,
           
-            CreatedAt = DateTime.UtcNow
-        };
-    }
+    //         CreatedAt = DateTime.UtcNow
+    //     };
+    // }
 
     public async Task UpdateAllTenantDatabasesAsync(IEnumerable<Tenant> tenants)
     {

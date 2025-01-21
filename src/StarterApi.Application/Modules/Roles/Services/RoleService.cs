@@ -263,7 +263,7 @@ namespace StarterApi.Application.Modules.Roles.Services
             await _context.SaveChangesAsync();
         }
 
-        public async Task<List<PermissionDto>> GetUserPermissionsAsync(Guid userId)
+        public async Task<List<PermissionDto>> GetUserPermissionsAsync(Guid userId, Guid? tenantId = null)
         {
             _logger.LogInformation("Getting permissions for user: {UserId}", userId);
 
@@ -275,52 +275,43 @@ namespace StarterApi.Application.Modules.Roles.Services
             if (rootUser != null)
             {
                 _logger.LogInformation("User {UserId} is root admin, returning all permissions", userId);
-                // Get all permissions from root database
-                var allPermissions = await _rootDbContext.Permissions
-                    .AsNoTracking()
-                    .Select(p => new PermissionDto
-                    {
-                        Name = p.SystemName,
-                        SystemName = p.SystemName,
-                        Description = p.Description,
-                        Group = p.Group,
-                        IsEnabled = true,
-                        IsSystem = true
-                    })
-                    .ToListAsync();
-
-                return allPermissions;
+                return await GetRootPermissions();
             }
 
-            // Regular tenant user flow
-            return await GetTenantUserPermissions(userId);
+            // For tenant users, tenantId is required
+            if (!tenantId.HasValue)
+            {
+                _logger.LogWarning("TenantId is required for non-root users");
+                return new List<PermissionDto>();
+            }
+
+            // Use the userTenantRepository for consistent tenant permission retrieval
+            var permissions = await _userTenantRepository.GetUserPermissionsAsync(userId, tenantId.Value);
+            return permissions.Select(p => new PermissionDto 
+            {
+                SystemName = p,
+                Name = p,
+                Description = $"Permission to {p.ToLower()}",
+                Group = "Default",
+                IsEnabled = true,
+                IsSystem = false
+            }).ToList();
         }
 
-        private async Task<List<PermissionDto>> GetTenantUserPermissions(Guid userId)
+        private async Task<List<PermissionDto>> GetRootPermissions()
         {
-            var user = await _context.Users
+            return await _rootDbContext.Permissions
                 .AsNoTracking()
-                .Include(u => u.Role)
-                    .ThenInclude(r => r.RolePermissions)
-                        .ThenInclude(rp => rp.Permission)
-                .FirstOrDefaultAsync(u => u.Id == userId);
-
-            if (user == null)
-            {
-                _logger.LogWarning("User {UserId} not found in tenant database", userId);
-                return new List<PermissionDto>();
-            }
-
-            if (user.Role == null)
-            {
-                _logger.LogWarning("User {UserId} has no assigned role", userId);
-                return new List<PermissionDto>();
-            }
-
-            var permissions = user.Role.RolePermissions?.Select(rp => rp.Permission) ?? new List<TenantPermission>();
-            return _mapper.Map<List<PermissionDto>>(permissions);
+                .Select(p => new PermissionDto
+                {
+                    Name = p.SystemName,
+                    SystemName = p.SystemName,
+                    Description = p.Description,
+                    Group = p.Group,
+                    IsEnabled = true,
+                    IsSystem = true
+                })
+                .ToListAsync();
         }
-
-       
     }
 }

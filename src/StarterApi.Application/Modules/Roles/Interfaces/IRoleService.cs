@@ -11,6 +11,6 @@ namespace StarterApi.Application.Modules.Roles.Interfaces
         Task<List<PermissionDto>> GetAllPermissionsAsync();
         Task<List<PermissionDto>> GetRolePermissionsAsync(Guid roleId);
         Task UpdateRolePermissionsAsync(Guid roleId, RolePermissionUpdateDto dto);
-        Task<List<PermissionDto>> GetUserPermissionsAsync(Guid userId);
+        Task<List<PermissionDto>> GetUserPermissionsAsync(Guid userId,Guid? tenantId = null);
     }
 } 

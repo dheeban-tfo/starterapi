@@ -102,23 +102,9 @@ namespace StarterApi.Api.Controllers
                 return Unauthorized();
             }
 
-            // First check if user is root admin
-            var rootPermissions = await _roleService.GetUserPermissionsAsync(userId.Value);
-            if (rootPermissions.Any())
-            {
-                _logger.LogInformation("Returning root admin permissions for user: {UserId}", userId);
-                return Ok(rootPermissions.Select(p => p.SystemName).OrderBy(p => p));
-            }
-
-            // If not root admin, get tenant permissions
             var tenantId = _tenantProvider.GetCurrentTenantId();
-            if (!tenantId.HasValue)
-            {
-                return BadRequest("Tenant not specified");
-            }
-
-            var permissions = await _userTenantRepository.GetUserPermissionsAsync(userId.Value, tenantId.Value);
-            return Ok(permissions.OrderBy(p => p));
+            var permissions = await _roleService.GetUserPermissionsAsync(userId.Value, tenantId);
+            return Ok(permissions.Select(p => p.SystemName).OrderBy(p => p));
         }
     }
 }
